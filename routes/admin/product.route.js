@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const multer  = require('multer')
+const multer = require('multer')
 // const storageMulter = require('../../helpers/storageMulter')
 
 const upload = multer()
@@ -20,16 +20,11 @@ router.delete("/delete/:id", controller.deleteItem)
 
 router.get('/create', controller.create)
 
-router.post(
-    '/create', 
-    upload.single('thumbnail'), 
-    uploadCloud.upload,
-    validate.createPost, 
-    controller.createPost)
+router.post('/create', upload.single('thumbnail'), uploadCloud.upload, validate.createPost, controller.createPost)
 
 router.get('/edit/:id', controller.edit)
 
-router.patch('/edit/:id', upload.single('thumbnail'), validate.createPost, controller.editPATCH)
+router.patch('/edit/:id', upload.single('thumbnail'), uploadCloud.upload, validate.createPost, controller.editPATCH)
 
 router.get('/detail/:id', controller.detail)
 
