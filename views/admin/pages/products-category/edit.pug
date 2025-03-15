@@ -23,6 +23,17 @@ block main
                 required
                 value=product.title
             )
+
+        div(class="form-gorup")
+            label(for="parent-id")  Danh mục cha 
+            input(
+                type="text"
+                class="form-control"
+                id="parent-id"
+                name="parent-id"
+                required
+                value=product.parent_id
+            )
         div(class="form-gorup")
             label(for="title") Mô tả
             textarea(
