@@ -4,9 +4,10 @@ const router = express.Router()
 const multer = require('multer')
 const upload = multer()
 
-const controller = require('../../controllers/admin/product.controller')
-const validate = require('../../validates/admin/product.validate')
+const validate = require('../../validates/admin/product-category.validate')
 const uploadCloud = require('../../middlewares/admin/uploadCloud.middleware')
+const controller = require('../../controllers/admin/product-category.controller')
+
 
 router.get('/', controller.index)
 
