@@ -3,6 +3,9 @@ extends ../../layouts/default.pug
 block main 
     if(product.title) 
         h1(class="mb-4") #{product.title}
+    
+    if(product.parent_id) 
+        div(class="mb-4") #{product.parent_id}
 
     if(product.thumbnail)
         div(class="mb-4")

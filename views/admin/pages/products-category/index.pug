@@ -1,10 +1,12 @@
 extends ../../layouts/default.pug
+
 include ../../mixins/filer-status.pug
 include ../../mixins/search.pug
 include ../../mixins/pagination.pug
 include ../../mixins/form-change-multi.pug
 include ../../mixins/alert.pug
 include ../../mixins/sort-category.pug
+include ../../mixins/table-tree.pug
 
 block main
     +alert-success("5000")
@@ -54,60 +56,9 @@ block main
                         th Trạng thái
                         th Hành động
                 tbody
-                    each item, index in records
-                        tr 
-                            td 
-                                input( 
-                                    type="checkbox" 
-                                    name="id"
-                                    value=item.id
-                                )
-                            td #{index + 1}
-                            td 
-                                img(src= item.thumbnail, alt= item.title, width = "100px",height = auto)
-                            td #{item.title}
-                            
-                            td 
-                                input(
-                                    type="number"
-                                    value=item.position
-                                    style="width: 60px"
-                                    min="1"
-                                    name="position" 
-                                )
-                            td 
-                                if(item.status === 'active')
-                                    a(
-                                        href='javascript:;'
-                                        data-status=item.status
-                                        data-id=item.id
-                                        button-change-status
-                                        class='badge badge-success'
-                                    ) Còn hàng
-                                else 
-                                    a(
-                                        href='javascript:;'
-                                        data-status=item.status
-                                        data-id=item.id
-                                        button-change-status
-                                        class='badge badge-danger'
-                                    ) Hết hàng
-                            td 
-                                a(
-                                    href=`${prefixAdmin}/products-category/detail/${item.id}`
-                                    class='btn btn-secondary btn-sm'
-                                ) Chi tiết
-                                a(
-                                    href=`${prefixAdmin}/products-category/edit/${item.id}`
-                                    class='btn btn-warning btn-sm ml-1'
-                                ) Sửa
-                                button(
-                                    class='btn btn-danger btn-sm ml-1'
-                                    button-delete 
-                                    data-id=item.id
-                                ) Xóa   
-    nav 
-        +pagination(pagination)
+                    +table-tree(records)   
+    //- nav 
+    //-     +pagination(pagination)
 
     form(
         action=""

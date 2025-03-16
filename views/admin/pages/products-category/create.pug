@@ -1,5 +1,6 @@
 extends ../../layouts/default.pug
 include ../../mixins/alert.pug
+include ../../mixins/select-tree.pug
 
 block main 
     +alert-error("3000")
@@ -22,13 +23,17 @@ block main
             )
         div(class="form-gorup")
             label(for="parent-id")  Danh mục cha 
-            input(
-                type="text"
+           
+            select(
+                name="parent_id"
+                id="parent_id"
                 class="form-control"
-                id="parent-id"
-                name="parent-id"
-                required
             )
+                option(value="") -- Chọn danh mục cha --
+                if(records)
+                    +select-tree(records)
+            
+
         div(class="form-gorup")
             label(for="title") Mô tả
             textarea(
