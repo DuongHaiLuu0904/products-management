@@ -184,13 +184,17 @@ module.exports.edit = async (req, res) => {
             _id: req.params.id
         }
         const product = await ProductCategory.findOne(find)
+        
+        const records = await ProductCategory.find({ deleted : false })
+        const newRecords = createTreeHelper.createTree(records)
 
         res.render('admin/pages/products-category/edit', {
             title: 'Trang sửa sản phẩm',
-            product: product
+            product: product,
+            records: newRecords
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/products`);
+        res.redirect(`${systemConfix.prefixAdmin}/products-category`);
     }
 }
 
@@ -198,9 +202,6 @@ module.exports.edit = async (req, res) => {
 module.exports.editPATCH = async (req, res) => {
     const id = req.params.id
 
-    req.body.price = parseFloat(req.body.price)
-    req.body.discountPercentage = parseFloat(req.body.discountPercentage)
-    req.body.stock = parseInt(req.body.stock)
     req.body.position = parseInt(req.body.position)
 
     if (req.file) {
