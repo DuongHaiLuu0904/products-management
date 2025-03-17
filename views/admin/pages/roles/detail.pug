@@ -1,0 +1,14 @@
+extends ../../layouts/default.pug
+
+block main 
+    if(record.title) 
+        h1(class="mb-4") #{record.title}
+    
+    if(record.description) 
+        div(class="mb-4") #{record.description}
+    
+
+    a(
+        href=`${prefixAdmin}/roles/edit/${record.id}`
+        class='btn btn-warning btn-sm'
+    ) Sửa
