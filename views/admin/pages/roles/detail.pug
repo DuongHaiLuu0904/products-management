@@ -7,6 +7,8 @@ block main
     if(record.description) 
         div(class="mb-4") #{record.description}
     
+    if(record.permissions) 
+        div(class="mb-4") #{record.permissions}
 
     a(
         href=`${prefixAdmin}/roles/edit/${record.id}`

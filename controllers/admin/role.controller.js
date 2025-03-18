@@ -24,12 +24,17 @@ module.exports.create = async (req, res) => {
 
 // [POST] /admin/roles/create
 module.exports.createPost = async (req, res) => {
-    console.log(req.body)
+    try {
+        const record = new Role(req.body)
+        record.save()
 
-    const record = new Role(req.body)
-    record.save()
-
-    res.redirect(`${systemConfix.prefixAdmin}/roles`);
+        req.flash('success', 'Thêm mới thành công!');
+        res.redirect(`${systemConfix.prefixAdmin}/roles`);
+    } catch (error) {
+        req.flash('error', 'Thêm mới thất bại!');
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
+    }
 }
 
 // [GET] /admin/roles/edit
@@ -39,7 +44,7 @@ module.exports.edit = async (req, res) => {
             _id: req.params.id,
             deleted: false
         }
-    
+
         const record = await Role.findOne(find)
 
         res.render('admin/pages/roles/edit', {
@@ -54,7 +59,7 @@ module.exports.edit = async (req, res) => {
 // [PATCH] /admin/roles/edit
 module.exports.editPatch = async (req, res) => {
     const id = req.params.id
-    
+
     try {
         await Role.updateOne({ _id: id }, req.body)
         req.flash('success', 'Cập nhật thành công!');
@@ -100,4 +105,35 @@ module.exports.deleteItem = async (req, res) => {
     // res.location("back")
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);
+}
+
+// [GET] /admin/roles/permissions
+module.exports.permissions = async (req, res) => {
+    let find = {
+        deleted: false
+    }
+
+    const records = await Role.find(find)
+
+    res.render('admin/pages/roles/permissions', {
+        title: 'Phân quyền',
+        records: records
+    });
+}
+
+// [PATCH] /admin/roles/permissions
+module.exports.permissionsPatch = async (req, res) => {
+    try {
+        const permissions = JSON.parse(req.body.permission)
+
+        for (const item of permissions) {
+            await Role.updateOne({ _id: item.id }, { permissions: item.permissions })
+        }
+        req.flash('success', 'Cập nhật trạng thái thành công!');
+
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
+    } catch (error) {
+        req.flash('error', 'Cập nhật thất bại!');
+    }
 }

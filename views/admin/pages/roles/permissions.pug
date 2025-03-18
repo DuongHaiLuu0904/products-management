@@ -1,0 +1,78 @@
+extends ../../layouts/default.pug
+include ../../mixins/alert.pug
+
+block main
+    +alert-error("3000")
+    +alert-success("3000")
+
+    h1 Phân quyền 
+
+    if(records)
+        div(data-records=records)
+    
+    div(class="text-right")
+        button(
+            type="submit"
+            class="btn btn-outline-primary mb-3"
+            button-submit
+        ) Cập nhật
+    
+    table(
+        class="table table-hover table-sm"
+        table-permission
+    )
+        thead 
+            tr 
+                th Tính năng
+                each item in records
+                    th(class="text-center") #{item.title}
+                
+                
+        tbody
+            tr(data-name="id" class="d-none")
+                td ID
+                each item in records
+                    td(class="text-center")
+                        input(type="text" value=item.id)
+            tr 
+                td(colspan="4") 
+                    b Danh mục sản phẩm
+            tr(data-name="products-category_view")
+                td Xem 
+                each item in records
+                    td(class="text-center")
+                        input(type="checkbox")
+            
+            tr(data-name="products-category_create")
+                td Tạo mới 
+                each item in records
+                    td(class="text-center")
+                        input(type="checkbox")
+
+            tr(data-name="products-category_edit")
+                td Sửa 
+                each item in records
+                    td(class="text-center")
+                        input(type="checkbox")
+            
+            tr(data-name="products-category_delete")
+                td Xóa 
+                each item in records
+                    td(class="text-center")
+                        input(type="checkbox")
+
+
+    form(
+        id="form-change-permission"
+        method="POST"
+        action=`${prefixAdmin}/roles/permissions?_method=PATCH`
+        class="d-none"
+    )
+        div(class="form-group")
+            input(
+                type="text"
+                class="form-control"
+                name="permission"
+            )
+    
+    script(src="/admin/js/role.js")
