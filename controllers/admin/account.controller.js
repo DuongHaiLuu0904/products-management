@@ -19,7 +19,6 @@ module.exports.index = async (req, res) => {
         record.role = role
     }
     
-    console.log(records) 
     res.render('admin/pages/account/index', {
         title: 'Tài khoản',
         records: records
@@ -59,6 +58,61 @@ module.exports.createPost = async (req, res) => {
         record.save()
 
         req.flash('success', 'Thêm mới thành công!');
+        res.redirect(`${systemConfix.prefixAdmin}/accounts`);
+    }
+}
+
+// [GET] /admin/accounts/edit/:id
+module.exports.edit = async (req, res) => {
+    try {
+        const find = {
+            deleted: false,
+            _id: req.params.id
+        }
+        const data = await Account.findOne(find)
+
+        const roles = await Role.find({ deleted: false })
+    
+        res.render('admin/pages/account/edit', {
+            title: 'Chỉnh sửa tài khoản',
+            data: data,
+            roles: roles
+        });
+    } catch (error) {
+        res.redirect(`${systemConfix.prefixAdmin}/products`);
+    }
+}
+
+// [PATCH] /admin/accounts/edit
+module.exports.editPatch = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        const emailExist = await Account.findOne({
+            _id: { $ne: id },
+            email: req.body.email,
+            deleted: false 
+        })
+    
+        if (emailExist) {
+            req.flash('error', 'Email đã tồn tại!');
+    
+            const backURL = req.get("Referrer") || "/";
+            return res.redirect(backURL)
+        } else {
+            if(req.body.password) {
+                req.body.password = md5(req.body.password)
+            } else {
+                delete req.body.password
+            }
+
+            await Account.updateOne({ _id: id }, req.body)
+            req.flash('success', 'Cập nhật thành công!');
+            res.redirect(`${systemConfix.prefixAdmin}/accounts`);
+        }
+    } catch (error) {
+        console.log(error)
+        req.flash('error', 'Cập nhật thất bại!');
         res.redirect(`${systemConfix.prefixAdmin}/accounts`);
     }
 }

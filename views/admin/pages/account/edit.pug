@@ -1,0 +1,114 @@
+extends ../../layouts/default.pug
+include ../../mixins/alert.pug
+
+block main 
+    +alert-error("3000")
+    +alert-success("3000")  
+
+    h1(class="mb-4") Chỉnh sửa nhóm quyền 
+
+    form(
+        action=`${prefixAdmin}/accounts/edit/${data.id}?_method=PATCH`
+        method="POST"
+        enctype="multipart/form-data"
+    )
+        div(class="form-group")
+            label(for="fullName") Họ tên *
+            input(
+                type="text"
+                class="form-control"
+                id="fullName"
+                name="fullName"
+                value=data.fullName
+            )
+        
+        div(class="form-group")
+            label(for="email") Email *
+            input(
+                type="text"
+                class="form-control"
+                id="email"
+                name="email"
+                value=data.email
+            )
+        
+        div(class="form-group")
+            label(for="password") Mật khẩu *
+            input(
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+            )
+        
+        div(class="form-group")
+            label(for="phone") Số điện thoại 
+            input(
+                type="text"
+                class="form-control"
+                id="phone"
+                name="phone"
+                value=data.phone
+            )
+
+        div(
+            class="form-group"
+            upload-image
+        )
+            label(for="avatar") Avatar
+            input(
+                type="file"
+                class="form-control"
+                id="avatar"
+                name="avatar"
+                accept="image/*"
+                upload-image-input
+            )
+            span(
+                close-image 
+                class="badge bg-danger text-white p-2 ms-2"
+                role="button"
+            ) Xóa ảnh
+            img(
+                src=data.avatar ? data.avatar : ""
+                upload-image-preview
+                class="image-preview"
+            )
+
+        div(class="form-group")
+            label(for="role_id") Phân quyền 
+            select(name="role_id", id="role_id", class="form-control")
+                option(value="") Chọn nhóm quyền
+                each role in roles
+                    option(
+                        value=role.id
+                        selected=(role.id == data.role_id ? true : false)
+                    ) #{role.title}
+
+        div(class="form-group form-check form-check-inline")
+            input(
+                type="radio"
+                class="form-check-input"
+                id="statusActive"
+                name="status"
+                value="active"
+                checked=(data.status === "active")
+            )
+            label(for="statusActive" class="form-check-label") Hoạt động
+        
+        div(class="form-group form-check form-check-inline")
+            input(
+                type="radio"
+                class="form-check-input"
+                id="statusInactive"
+                name="status"
+                value="inactive"
+                checked=(data.status === "inactive")
+            )
+            label(for="statusInactive" class="form-check-label") Dừng hoạt động
+        
+        div(class="form-group")
+            button(
+                type="submit"
+                class="btn btn-primary"
+            ) Cập nhật

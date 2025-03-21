@@ -8,7 +8,8 @@ block main
         div(class="mb-4") #{record.description}
     
     if(record.permissions) 
-        div(class="mb-4") #{record.permissions}
+        each item in record.permissions
+            div(class="mb-4") #{item}
 
     a(
         href=`${prefixAdmin}/roles/edit/${record.id}`
