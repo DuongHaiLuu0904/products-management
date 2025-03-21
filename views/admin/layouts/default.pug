@@ -8,19 +8,22 @@ html(lang="en")
         title #{title}
 
     body 
-        include ../partials/header.pug
+        if(role.permissions.length > 0)
+            include ../partials/header.pug
 
-        .body
-            include ../partials/sider.pug
+            .body
+                include ../partials/sider.pug
 
-            .main
-                block main 
+                .main
+                    block main 
 
 
-        script(src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js") 
-        script(src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js")
+            script(src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js") 
+            script(src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js")
 
-        script(src="/tinymce/tinymce.min.js")
-        script(src="/admin/js/tinymce-config.js")
+            script(src="/tinymce/tinymce.min.js")
+            script(src="/admin/js/tinymce-config.js")
 
-        script(src="/admin/js/script.js") 
+            script(src="/admin/js/script.js") 
+        else    
+            h1 Bạn không có quyền truy cập vào trang này

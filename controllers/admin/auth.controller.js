@@ -5,9 +5,14 @@ const systemconfig = require('../../config/system')
 
 // [GET] /auth/login
 module.exports.login = async (req, res) => {
-    res.render('admin/pages/auth/login', {
-        title: 'Login'
-    })
+    if(req.cookies.token) {
+        res.redirect(systemconfig.prefixAdmin + '/dashboard')
+    } else {
+        res.render('admin/pages/auth/login', {
+            title: 'Login'
+        })
+    }
+    
 }
 
 // [POST] /auth/login
