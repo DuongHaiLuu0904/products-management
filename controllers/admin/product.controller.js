@@ -1,5 +1,6 @@
 const Product = require('../../models/product.model');
 const ProductCategory = require('../../models/product-category.model');
+const Account = require('../../models/account.model')
 
 const systemConfix = require("../../config/system")
 
@@ -55,6 +56,13 @@ module.exports.index = async (req, res) => {
 
     const products = await Product.find(find).limit(objectPangination.limitItems).skip(objectPangination.skip).sort(sort)
 
+    for(const product of products) {
+        const user = await Account.findOne({ _id: product.createBy.account_id })
+        if(user) {
+            product.accountFullName = user.fullName
+        }
+    }
+
     res.render('admin/pages/product/index', {
         title: 'Trang sản phẩm',
         products: products,
@@ -96,10 +104,16 @@ module.exports.changeMulti = async (req, res) => {
             break
 
         case "delete-all":
-            await Product.updateMany({ _id: { $in: ids } }, {
-                deleted: true,
-                deleteAt: new Date()
-            })
+            await Product.updateMany(
+                { _id: { $in: ids } }, 
+                {
+                    deleted: true,
+                    deletedBy: {
+                        account_id: res.locals.user.id,
+                        deleteAt: new Date()
+                    }
+                }
+            )
             req.flash('success', `Đã xóa thành công ${ids.length} sản phẩm thành công!`);
             break
 
@@ -129,20 +143,26 @@ module.exports.deleteItem = async (req, res) => {
     const id = req.params.id
 
     // await Product.deleteOne({_id: id})
-    await Product.updateOne({ _id: id }, {
-        deleted: true,
-        deleteAt: new Date()
-    })
+    await Product.updateOne(
+        { _id: id }, 
+        {
+            deleted: true,
+            deletedBy: {
+                account_id: res.locals.user.id,
+                deleteAt: new Date()
+            }
+        }
+    )
 
     req.flash('success', 'Cập nhật trạng thái thành công!');
 
-    // res.location("back")
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);
 }
 
 // [GET] /admin/products/create
 module.exports.create = async (req, res) => {
+
     let find = {
         deleted: false
     }
@@ -158,7 +178,6 @@ module.exports.create = async (req, res) => {
 
 // [POST] /admin/products/create
 module.exports.createPost = async (req, res) => {
-    
     req.body.price = parseFloat(req.body.price)
     req.body.discountPercentage = parseFloat(req.body.discountPercentage)
     req.body.stock = parseInt(req.body.stock)
@@ -170,7 +189,9 @@ module.exports.createPost = async (req, res) => {
         req.body.position = parseInt(req.body.position)
     }
 
-    
+    req.body.createBy = {
+        account_id: res.locals.user.id
+    }
 
     const product = new Product(req.body)
     await product.save()

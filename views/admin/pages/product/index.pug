@@ -57,6 +57,7 @@ block main
                             th Giá
                             th Vị trí
                             th Trạng thái
+                            th Người tạo 
                             th Hành động
                     tbody
                         each item, index in products
@@ -103,6 +104,9 @@ block main
                                             span(class='badge badge-success') Hoạt động
                                         else 
                                             span(class='badge badge-danger') Ngừng hoạt động
+                                td 
+                                    p #{item.accountFullName}
+                                    p #{moment(item.createBy.createAt).format('MMMM Do YYYY, HH:mm:ss')}
                                 td 
                                     a(
                                         href=`${prefixAdmin}/products/detail/${item.id}`
