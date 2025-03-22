@@ -48,20 +48,33 @@ module.exports.index = async (req, res) => {
     let sort = {}
 
     if (req.query.sortKey && req.query.sortValue) {
-        sort[req.query.sortKey] = req.query.sortValue   
+        sort[req.query.sortKey] = req.query.sortValue
     } else {
         sort["position"] = "desc"
     }
     //
-
+    
     const products = await Product.find(find).limit(objectPangination.limitItems).skip(objectPangination.skip).sort(sort)
 
-    for(const product of products) {
+    // Lấy danh sách tài khoản tạo sản phẩm
+    for (const product of products) {
         const user = await Account.findOne({ _id: product.createBy.account_id })
-        if(user) {
+        if (user) {
             product.accountFullName = user.fullName
         }
+
+        // Lấy danh sách tài khoản cập nhật sản phẩm
+        const updatedBy = product.updatedBy[product.updatedBy.length - 1]
+        if(updatedBy) {
+            const userUpdated = await Account.findOne({ 
+                _id: updatedBy.account_id 
+            })
+            updatedBy.updatedFullName = userUpdated.fullName
+        }
+        
     }
+
+    
 
     res.render('admin/pages/product/index', {
         title: 'Trang sản phẩm',
@@ -74,11 +87,15 @@ module.exports.index = async (req, res) => {
 
 // [PATCH] /admin/products/change-status/:status/:id
 module.exports.changeStatus = async (req, res) => {
-    
+    const update = {
+        account_id: res.locals.user.id,
+        updateAt: new Date()
+    }
+
     const status = req.params.status
     const id = req.params.id
 
-    await Product.updateOne({ _id: id }, { status: status })
+    await Product.updateOne({ _id: id }, { status: status, $push: { updatedBy: update } })
 
     req.flash('success', 'Cập nhật trạng thái thành công!');
 
@@ -92,20 +109,31 @@ module.exports.changeMulti = async (req, res) => {
     const type = req.body.type
     const ids = req.body.ids.split(", ")
 
+    const update = {
+        account_id: res.locals.user.id,
+        updateAt: new Date()
+    }
+
     switch (type) {
         case "active":
-            await Product.updateMany({ _id: { $in: ids } }, { status: "active" })
+            await Product.updateMany({ _id: { $in: ids } }, {
+                status: "active",
+                $push: { updatedBy: update }
+            })
             req.flash('success', `Cập nhật trạng thái của ${ids.length} sản phẩm thành công!`);
             break
 
         case "inactive":
-            await Product.updateMany({ _id: { $in: ids } }, { status: "inactive" })
+            await Product.updateMany({ _id: { $in: ids } }, {
+                status: "inactive",
+                $push: { updatedBy: update }
+            })
             req.flash('success', `Cập nhật trạng thái của ${ids.length} sản phẩm thành công!`);
             break
 
         case "delete-all":
             await Product.updateMany(
-                { _id: { $in: ids } }, 
+                { _id: { $in: ids } },
                 {
                     deleted: true,
                     deletedBy: {
@@ -123,12 +151,13 @@ module.exports.changeMulti = async (req, res) => {
                 position = parseInt(position)
 
                 await Product.updateOne({ _id: id }, {
-                    position: position
+                    position: position,
+                    $push: { updatedBy: update }
                 })
             }
             req.flash('success', `Cập nhật trạng thái của ${ids.length} sản phẩm thành công!`);
             break
-            
+
         default:
             break
     }
@@ -144,7 +173,7 @@ module.exports.deleteItem = async (req, res) => {
 
     // await Product.deleteOne({_id: id})
     await Product.updateOne(
-        { _id: id }, 
+        { _id: id },
         {
             deleted: true,
             deletedBy: {
@@ -182,7 +211,7 @@ module.exports.createPost = async (req, res) => {
     req.body.discountPercentage = parseFloat(req.body.discountPercentage)
     req.body.stock = parseInt(req.body.stock)
 
-    if(req.body.position == "") {
+    if (req.body.position == "") {
         const countProducts = await Product.countDocuments()
         req.body.position = countProducts + 1
     } else {
@@ -214,7 +243,7 @@ module.exports.edit = async (req, res) => {
         }
         const category = await ProductCategory.find(findCategory)
         const newCategory = createTreeHelper.createTree(category)
-    
+
         res.render('admin/pages/product/edit', {
             title: 'Trang sửa sản phẩm',
             product: product,
@@ -228,18 +257,31 @@ module.exports.edit = async (req, res) => {
 // [PATCH] /admin/products/edit/:id
 module.exports.editPATCH = async (req, res) => {
     const id = req.params.id
-    
+
     req.body.price = parseFloat(req.body.price)
     req.body.discountPercentage = parseFloat(req.body.discountPercentage)
     req.body.stock = parseInt(req.body.stock)
     req.body.position = parseInt(req.body.position)
 
-    if(req.file) {
+    if (req.file) {
         req.body.thumbnail = `/uploads/${req.file.filename}`
     }
 
     try {
-        await Product.updateOne({ _id: id }, req.body)
+        const update = {
+            account_id: res.locals.user.id,
+            updateAt: new Date()
+        }
+
+        await Product.updateOne(
+            { _id: id },
+            {
+                ...req.body,
+                $push: {
+                    updatedBy: update
+                }
+            }
+        )
         req.flash('success', 'Cập nhật thành công!');
     } catch (error) {
         console.log(error)

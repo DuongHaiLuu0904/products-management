@@ -58,6 +58,7 @@ block main
                             th Vị trí
                             th Trạng thái
                             th Người tạo 
+                            th Người cập nhật
                             th Hành động
                     tbody
                         each item, index in products
@@ -106,7 +107,17 @@ block main
                                             span(class='badge badge-danger') Ngừng hoạt động
                                 td 
                                     p #{item.accountFullName}
-                                    p #{moment(item.createBy.createAt).format('MMMM Do YYYY, HH:mm:ss')}
+                                    p #{moment(item.createBy.createAt).format('DD/MM/YYYY, HH:mm:ss')}
+
+                                td 
+                                    - const updatedBy = item.updatedBy[item.updatedBy.length - 1]
+                                    if(updatedBy)
+                                      
+                                        p #{updatedBy.updatedFullName}
+                                        p #{moment(updatedBy.updateAt).format('DD/MM/YYYY, HH:mm:ss')}
+                                    else 
+                                        span Chưa cập nhật
+
                                 td 
                                     a(
                                         href=`${prefixAdmin}/products/detail/${item.id}`
