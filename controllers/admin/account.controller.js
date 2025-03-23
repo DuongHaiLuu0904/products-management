@@ -83,7 +83,7 @@ module.exports.edit = async (req, res) => {
     }
 }
 
-// [PATCH] /admin/accounts/edit
+// [PATCH] /admin/accounts/edit/:id
 module.exports.editPatch = async (req, res) => {
     try {
         const id = req.params.id
@@ -113,6 +113,60 @@ module.exports.editPatch = async (req, res) => {
     } catch (error) {
         console.log(error)
         req.flash('error', 'Cập nhật thất bại!');
+        res.redirect(`${systemConfix.prefixAdmin}/accounts`);
+    }
+}
+
+// [DELETE] /admin/accounts/delete/:id
+module.exports.deleteItem = async (req, res) => {
+    const id = req.params.id
+    
+    await Account.updateOne({ _id: id }, {
+        deleted: true,
+        deleteAt: new Date()
+    })
+
+    req.flash('success', 'Cập nhật trạng thái thành công!');
+
+    const backURL = req.get("Referrer") || "/";
+    res.redirect(backURL);
+}
+
+// [PATCH] /admin/accounts/change-status/:status/:id
+module.exports.changeStatus = async (req, res) => {
+
+    const status = req.params.status
+    const id = req.params.id
+
+    await Account.updateOne({ _id: id }, { status: status })
+
+    req.flash('success', 'Cập nhật trạng thái thành công!');
+
+    // res.location("back")
+    const backURL = req.get("Referrer") || "/";
+    res.redirect(backURL);
+}
+
+// [GET] /admin/accounts/detial/:id
+module.exports.detail = async (req, res) => {
+    try {
+        const find = {
+            deleted: false,
+            _id: req.params.id
+        }
+        const record = await Account.findOne(find).select('-password -token')
+
+        const role = await Role.findOne({
+            _id: record.role_id,
+            deleted: false
+        })
+        record.role = role
+
+        res.render('admin/pages/account/detail', {
+            title: 'Chi tiết tài khoản',
+            record: record
+        });
+    } catch (error) {
         res.redirect(`${systemConfix.prefixAdmin}/accounts`);
     }
 }

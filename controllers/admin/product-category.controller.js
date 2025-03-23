@@ -159,7 +159,7 @@ module.exports.changeMulti = async (req, res) => {
 
 }
 
-// [DELETE] /admin/products-category/change-status/:status/:id
+// [DELETE] /admin/products-category/dele/:id
 module.exports.deleteItem = async (req, res) => {
     const id = req.params.id
 

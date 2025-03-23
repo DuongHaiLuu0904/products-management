@@ -1,0 +1,37 @@
+extends ../../layouts/default.pug
+
+block main 
+    h1(class="mb-4") Tài khoản của tôi
+
+    if(user.avatar)
+        div(class="mb-4")
+            img(src= user.avatar, alt= user.title, width = "100px",height = auto)
+
+    if(user.fullName) 
+        p(class="mb-4") Họ tên: <b>#{user.fullName}</b>
+
+    if(user.email) 
+        p(class="mb-4") Email: <b>#{user.email}</b>
+
+    if(user.phone)
+        p(class="mb-4") Số điện thoại: <b>#{user.phone}</b>
+
+    
+    
+    if(user.status)
+        div(class="mb-4")
+            span Trạng thái: 
+            if(user.status == "active")
+                span(class="badge badge-success") Hoạt động 
+            else 
+                span(class="badge badge-danger") Dừng hoạt động
+
+    if(role.title)
+        div(class="mb-4") Phân quyền:  <b>#{role.title}</b>
+
+    a(
+        href=`${prefixAdmin}/my-account/edit`
+        class='btn btn-warning btn-sm'
+    ) Cập nhật thông tin
+
+    script(src="/admin/js/product.js") 
