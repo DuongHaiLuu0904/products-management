@@ -51,10 +51,7 @@ module.exports.index = async (req, res) => {
     }
     //
 
-    const records = await ProductCategory.find(find)
-        // .limit(objectPangination.limitItems)
-        // .skip(objectPangination.skip)
-        .sort(sort)
+    const records = await ProductCategory.find(find).sort(sort)
 
     const newRecords = createTreeHelper.createTree(records)
 
@@ -85,6 +82,11 @@ module.exports.create = async (req, res) => {
 
 // [POST] /admin/products-category/create
 module.exports.createPost = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("products-category-create")) {
+        req.flash('error', 'Bạn không có quyền tạo danh mục sản phẩm!');
+        return
+    }
 
     if (req.body.position == "") {
         const count = await ProductCategory.countDocuments()
@@ -101,6 +103,11 @@ module.exports.createPost = async (req, res) => {
 
 // [PATCH] /admin/products-category/change-status/:status/:id
 module.exports.changeStatus = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("products-category_edit")) {
+        req.flash('error', 'Bạn không có quyền cập nhật danh mục sản phẩm!');
+        return
+    }
 
     const status = req.params.status
     const id = req.params.id
@@ -121,16 +128,34 @@ module.exports.changeMulti = async (req, res) => {
 
     switch (type) {
         case "active":
+            const permission = res.locals.role.permissions
+            if (!permission.includes("products-category_edit")) {
+                req.flash('error', 'Bạn không có quyền cập nhật danh mục sản phẩm!');
+                return
+            }
+
             await ProductCategory.updateMany({ _id: { $in: ids } }, { status: "active" })
             req.flash('success', `Cập nhật trạng thái của ${ids.length} sản phẩm thành công!`);
             break
 
         case "inactive":
+            const permissionInactive = res.locals.role.permissions
+            if (!permissionInactive.includes("products-category_edit")) {
+                req.flash('error', 'Bạn không có quyền cập nhật danh mục sản phẩm!');
+                return
+            }
+
             await ProductCategory.updateMany({ _id: { $in: ids } }, { status: "inactive" })
             req.flash('success', `Cập nhật trạng thái của ${ids.length} sản phẩm thành công!`);
             break
 
         case "delete-all":
+            const permissionDelete = res.locals.role.permissions
+            if (!permissionDelete.includes("products-category_delete")) {
+                req.flash('error', 'Bạn không có quyền xóa danh mục sản phẩm!');
+                return
+            }
+
             await ProductCategory.updateMany({ _id: { $in: ids } }, {
                 deleted: true,
                 deleteAt: new Date()
@@ -139,6 +164,12 @@ module.exports.changeMulti = async (req, res) => {
             break
 
         case "change-position":
+            const permissionPosition = res.locals.role.permissions
+            if (!permissionPosition.includes("products-category_edit")) {
+                req.flash('error', 'Bạn không có quyền cập nhật danh mục sản phẩm!');
+                return
+            }
+
             for (const item of ids) {
                 let [id, position] = item.split("-")
                 position = parseInt(position)
@@ -161,6 +192,12 @@ module.exports.changeMulti = async (req, res) => {
 
 // [DELETE] /admin/products-category/dele/:id
 module.exports.deleteItem = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("products-category_delete")) {
+        req.flash('error', 'Bạn không có quyền xóa danh mục sản phẩm!');
+        return
+    }
+
     const id = req.params.id
 
     // await Product.deleteOne({_id: id})
@@ -200,6 +237,11 @@ module.exports.edit = async (req, res) => {
 
 // [PATCH] /admin/products-category/edit/:id
 module.exports.editPATCH = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("products-category_edit")) {
+        req.flash('error', 'Bạn không có quyền cập nhật danh mục sản phẩm!');
+        return
+    }
     const id = req.params.id
 
     req.body.position = parseInt(req.body.position)

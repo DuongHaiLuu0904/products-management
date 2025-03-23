@@ -24,6 +24,12 @@ module.exports.create = async (req, res) => {
 
 // [POST] /admin/roles/create
 module.exports.createPost = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("roles_create")) {
+        req.flash('error', 'Bạn không có quyền tạo nhóm quyền!');
+        return
+    }
+
     try {
         const record = new Role(req.body)
         record.save()
@@ -58,6 +64,12 @@ module.exports.edit = async (req, res) => {
 
 // [PATCH] /admin/roles/edit
 module.exports.editPatch = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("roles_edit")) {
+        req.flash('error', 'Bạn không có quyền cập nhật nhóm quyền!');
+        return
+    }
+
     const id = req.params.id
 
     try {
@@ -92,6 +104,12 @@ module.exports.detail = async (req, res) => {
 
 // [DELETE] /admin/products/change-status/:status/:id
 module.exports.deleteItem = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("roles_delete")) {
+        req.flash('error', 'Bạn không có quyền xóa nhóm quyền!');
+        return
+    }
+
     const id = req.params.id
 
     // await Product.deleteOne({_id: id})
@@ -123,6 +141,11 @@ module.exports.permissions = async (req, res) => {
 
 // [PATCH] /admin/roles/permissions
 module.exports.permissionsPatch = async (req, res) => {
+    const permission = res.locals.role.permissions
+    if (!permission.includes("roles_permissions")) {
+        req.flash('error', 'Bạn không có quyền cập nhật phân quyền!');
+        return
+    }
     try {
         const permissions = JSON.parse(req.body.permission)
 

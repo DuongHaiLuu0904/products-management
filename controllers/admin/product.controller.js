@@ -87,6 +87,12 @@ module.exports.index = async (req, res) => {
 
 // [PATCH] /admin/products/change-status/:status/:id
 module.exports.changeStatus = async (req, res) => {
+    const permissions = req.locals.role.permissions
+    if(!permissions.includes("products_edit")) {
+        req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+        return res.redirect(`${systemConfix.prefixAdmin}/products`);
+    }
+
     const update = {
         account_id: res.locals.user.id,
         updateAt: new Date()
@@ -116,6 +122,12 @@ module.exports.changeMulti = async (req, res) => {
 
     switch (type) {
         case "active":
+            const permissions = res.locals.role.permissions
+            if (!permissions.includes("products_edit")) {
+                req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+            }
+
             await Product.updateMany({ _id: { $in: ids } }, {
                 status: "active",
                 $push: { updatedBy: update }
@@ -124,6 +136,12 @@ module.exports.changeMulti = async (req, res) => {
             break
 
         case "inactive":
+            const permissionsInactive = res.locals.role.permissions
+            if (!permissionsInactive.includes("products_edit")) {
+                req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+            }
+
             await Product.updateMany({ _id: { $in: ids } }, {
                 status: "inactive",
                 $push: { updatedBy: update }
@@ -132,6 +150,12 @@ module.exports.changeMulti = async (req, res) => {
             break
 
         case "delete-all":
+            const permissionsDelete = res.locals.role.permissions
+            if (!permissionsDelete.includes("products_delete")) {
+                req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+            }
+
             await Product.updateMany(
                 { _id: { $in: ids } },
                 {
@@ -146,6 +170,12 @@ module.exports.changeMulti = async (req, res) => {
             break
 
         case "change-position":
+            const permissionsPosition = res.locals.role.permissions
+            if (!permissionsPosition.includes("products_edit")) {
+                req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+            }
+
             for (const item of ids) {
                 let [id, position] = item.split("-")
                 position = parseInt(position)
@@ -169,6 +199,12 @@ module.exports.changeMulti = async (req, res) => {
 
 // [DELETE] /admin/products/change-status/:status/:id
 module.exports.deleteItem = async (req, res) => {
+    const permissions = res.locals.role.permissions
+    if (!permissions.includes("products_delete")) {
+        req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+        return
+    }
+
     const id = req.params.id
 
     // await Product.deleteOne({_id: id})
@@ -207,6 +243,12 @@ module.exports.create = async (req, res) => {
 
 // [POST] /admin/products/create
 module.exports.createPost = async (req, res) => {
+    const permissions = res.locals.role.permissions
+    if (!permissions.includes("products_create")) {
+        req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+        return
+    }
+
     req.body.price = parseFloat(req.body.price)
     req.body.discountPercentage = parseFloat(req.body.discountPercentage)
     req.body.stock = parseInt(req.body.stock)
@@ -256,6 +298,12 @@ module.exports.edit = async (req, res) => {
 
 // [PATCH] /admin/products/edit/:id
 module.exports.editPATCH = async (req, res) => {
+    const permissions = res.locals.role.permissions
+    if (!permissions.includes("products_edit")) {
+        req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
+        return
+    }
+    
     const id = req.params.id
 
     req.body.price = parseFloat(req.body.price)

@@ -20,7 +20,7 @@ const router = require('./routes/clients/index.route')
 const routerAdmin = require('./routes/admin/index.route')
 
 const app = express()
-const port = process.env.PORT // 3000
+const port = process.env.PORT 
 
 // parse application
 app.use(bodyParser.urlencoded({ extended: false }))

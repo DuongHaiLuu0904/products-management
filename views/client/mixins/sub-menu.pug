@@ -1,0 +1,7 @@
+mixin sub_item(items, path) 
+    ul 
+        each item in items
+            li 
+                a(href=`${path}/${item.slug}`) #{item.title}
+                if item.children && item.children.length > 0 
+                    +sub_item(item.children, path)
