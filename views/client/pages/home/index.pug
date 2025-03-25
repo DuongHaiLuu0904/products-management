@@ -1,5 +1,16 @@
 extends  ../../layouts/default.pug
+include ../../mixins/box-head.pug
+include ../../mixins/product-layout.pug
 
 block main 
     h1 Trang chủ
     p Chào mừng bạn đến với trang chủ của chúng tôi
+
+
+    .container.my-3 
+        .row 
+            .col-12 
+                +box-head('sản phẩm nổi bật')
+        
+        .row 
+            +product-grid(productFeature)

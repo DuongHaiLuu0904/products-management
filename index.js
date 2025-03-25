@@ -32,7 +32,12 @@ app.set('view engine', 'pug')
 
 // Flash
 app.use(cookieParser('IamHaiLuu')); // key ramdom
-app.use(session({ cookie: { maxAge: 60000 }}));
+app.use(session({
+    secret: 'IamHaiLuu',       // Chuỗi bí mật để mã hóa session (nên đặt trong biến môi trường)
+    resave: false,             // Không lưu session nếu không có thay đổi
+    saveUninitialized: false,  // Không lưu session mới nếu chưa có dữ liệu
+    cookie: { maxAge: 60000 }  // Thời gian sống của session (60 giây)
+}))
 app.use(flash());
 // End Flash
 

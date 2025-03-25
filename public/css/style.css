@@ -62,12 +62,25 @@
     width: 100%;
     aspect-ratio: 4/3;
     border-bottom: 1px solid #ddd;
+    position: relative;
 }
 
 .product-item .inner-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.product-item .inner-featured {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: green;
+    color: white;
+    padding: 3px 6px;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 8px;
 }
 
 .product-item .inner-content {
