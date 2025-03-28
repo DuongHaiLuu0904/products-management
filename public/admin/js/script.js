@@ -210,3 +210,29 @@ if(sort) {
     }
 }
 // End sort
+
+// Sidebar Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const sider = document.querySelector('.sider');
+    const main = document.querySelector('.main');
+    
+    // Check if there's a saved state in localStorage
+    const sidebarState = localStorage.getItem('sidebarCollapsed');
+    
+    // Apply the saved state on page load
+    if (sidebarState === 'true') {
+        sider.classList.add('collapsed');
+        main.classList.add('expanded');
+    }
+    
+    // Toggle sidebar on button click
+    toggleBtn.addEventListener('click', function() {
+        sider.classList.toggle('collapsed');
+        main.classList.toggle('expanded');
+        
+        // Save state to localStorage
+        localStorage.setItem('sidebarCollapsed', sider.classList.contains('collapsed'));
+    });
+});
+// End Sidebar Toggle

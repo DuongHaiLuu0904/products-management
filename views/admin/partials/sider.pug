@@ -1,25 +1,40 @@
 .sider 
+    .sidebar-toggle
+        button#toggleSidebar
+            i.fas.fa-bars
     .inner-menu 
         ul 
             li 
-                a(href=`${prefixAdmin}/dashboard`) Tổng quan 
+                a(href=`${prefixAdmin}/dashboard`)
+                    i.fas.fa-tachometer-alt
+                    span Tổng quan 
 
             if(role.permissions.includes('products-category_view'))
                 li 
-                    a(href=`${prefixAdmin}/products-category`) Danh mục sản phẩm
+                    a(href=`${prefixAdmin}/products-category`)
+                        i.fas.fa-list
+                        span Danh mục sản phẩm
 
             if(role.permissions.includes('products_view'))
                 li 
-                    a(href=`${prefixAdmin}/products`) Danh sách sản phẩm 
+                    a(href=`${prefixAdmin}/products`)
+                        i.fas.fa-box
+                        span Danh sách sản phẩm 
 
             if(role.permissions.includes('roles_view'))        
                 li 
-                    a(href=`${prefixAdmin}/roles`) Nhóm quyền
+                    a(href=`${prefixAdmin}/roles`)
+                        i.fas.fa-user-tag
+                        span Nhóm quyền
 
             if(role.permissions.includes('roles_permissions'))
                 li 
-                    a(href=`${prefixAdmin}/roles/permissions`) Phân quyền
+                    a(href=`${prefixAdmin}/roles/permissions`)
+                        i.fas.fa-key
+                        span Phân quyền
 
             if(role.permissions.includes('accounts_view'))
                 li 
-                    a(href=`${prefixAdmin}/accounts`) Danh sách tài khoản
+                    a(href=`${prefixAdmin}/accounts`)
+                        i.fas.fa-users
+                        span Danh sách tài khoản
