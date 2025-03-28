@@ -12,7 +12,6 @@ module.exports.index = async (req, res) => {
 
     const newProducts = productHelper.priceNew(products)
 
-    // console.log(newProducts)
     res.render('client/pages/products/index', {
         title: 'Trang sản phẩm',
         products: newProducts
@@ -24,12 +23,21 @@ module.exports.detail = async (req, res) => {
     try {
         const find = {
             deleted: false,
-            slug: req.params.slug,
+            slug: req.params.slugProduct,
             status: 'active'
         }
         const product = await Product.findOne(find)
 
-        console.log(product)
+        if (product.product_category_id) {
+            const category = await ProductCategory.findOne({
+                deleted: false,
+                _id: product.product_category_id,
+                status: 'active'
+            })
+            product.category = category
+        }
+
+        product.priceNew = productHelper.priceNewProduct(product)
 
         res.render('client/pages/products/detail', {
             title: 'Chi tiết sản phẩm',
@@ -56,7 +64,7 @@ module.exports.category = async (req, res) => {
         deleted: false,
         status: 'active',
         product_category_id: { $in: [category.id, ...listCategorieId] }
-    }).sort({ position : "desc"})
+    }).sort({ position: "desc" })
 
     const newProducts = productHelper.priceNew(products)
     res.render('client/pages/products/index', {

@@ -3,15 +3,19 @@ header.header
         .row.align-items-center
             .col-3
                 .inner-logo
-                    a(href="/admin/dashboard") ADMIN
+                    a(href="/admin/dashboard" class="logo-animation") ADMIN
             
             .col-9
-                div(class="text-right")
+                div(class="text-right user-controls")
                     a(
                         href=`${prefixAdmin}/my-account`
-                        class="btn btn-primary btn-sm mr-2"
-                    ) #{user.fullName}
+                        class="btn btn-primary btn-sm mr-2 user-button"
+                    ) 
+                        i.fas.fa-user.mr-1
+                        span #{user.fullName}
                     a(
                         href=`${prefixAdmin}/auth/logout`
-                        class="btn btn-danger btn-sm"
-                    ) Đăng xuất 
+                        class="btn btn-danger btn-sm logout-button"
+                    ) 
+                        i.fas.fa-sign-out-alt.mr-1
+                        span Đăng xuất

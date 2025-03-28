@@ -311,10 +311,6 @@ module.exports.editPATCH = async (req, res) => {
     req.body.stock = parseInt(req.body.stock)
     req.body.position = parseInt(req.body.position)
 
-    if (req.file) {
-        req.body.thumbnail = `/uploads/${req.file.filename}`
-    }
-
     try {
         const update = {
             account_id: res.locals.user.id,
@@ -336,8 +332,7 @@ module.exports.editPATCH = async (req, res) => {
         req.flash('error', 'Cập nhật thất bại!');
     }
 
-    const backURL = req.get("Referrer") || "/";
-    res.redirect(backURL);
+    res.redirect(`${systemConfix.prefixAdmin}/products`)
 }
 
 module.exports.detail = async (req, res) => {

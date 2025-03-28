@@ -4,7 +4,7 @@ const controller = require('../../controllers/clients/product.controller')
 
 router.get('/', controller.index)
 
-// router.get('/:slug', controller.detail)
+router.get('/detail/:slugProduct', controller.detail)
 
 router.get('/:slugCategory', controller.category)
 
