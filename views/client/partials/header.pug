@@ -33,3 +33,5 @@ header.header
                             -const pathProduct = "/products"
                             a(href="/products") Trang sản phẩm
                                 +sub_item(layoutProductCategory, pathProduct)
+                        li 
+                            a(href="/cart") Giỏ hàng (#{cart ? cart.totalQuantity : 0})

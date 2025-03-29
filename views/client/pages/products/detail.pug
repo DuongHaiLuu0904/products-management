@@ -1,7 +1,10 @@
 extend ../../layouts/default.pug
 include ../../mixins/box-head
+include ../../mixins/alert.pug
 
 block main 
+    +alert-success(3000)
+    +alert-error(3000)
     .product-detail
         .container.my-5
             .row 

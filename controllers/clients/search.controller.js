@@ -15,7 +15,6 @@ module.exports.index = async (req, res) => {
             status: 'active',
             title: keywordRegex
         })
-        console.log(products)
 
         newProducts = productHelper.priceNew(products)
     }
