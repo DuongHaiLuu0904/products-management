@@ -6,7 +6,8 @@ block main
     .container.my-3 
         .row 
             .col-12 
-                +box-head('sản phẩm nổi bật')
+                +box-head(title)
         
-        .row 
-            +product-grid(productFeature)
+        
+            .row 
+                +product-grid(products)

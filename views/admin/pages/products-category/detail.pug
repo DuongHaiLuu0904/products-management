@@ -1,33 +1,44 @@
 extends ../../layouts/default.pug
 
 block main 
-    if(product.title) 
-        h1(class="mb-4") #{product.title}
-    
-    if(product.parent_id) 
-        div(class="mb-4") #{product.parent_id}
+    .product-category-detail
+        if(product.title) 
+            h1 #{product.title}
+        
+        .product-info-container
+            if(product.parent_id) 
+                .info-section
+                    .info-label Danh mục cha
+                    .info-value #{product.parent}
 
-    if(product.thumbnail)
-        div(class="mb-4")
-            img(src= product.thumbnail, alt= product.title, width = "100px",height = auto)
-    
-    if(product.status)
-        div(class="mb-4")
-            span Trạng thái: 
-            if(product.status == "active")
-                span(class="badge badge-success") Hoạt động 
-            else 
-                span(class="badge badge-danger") Dừng hoạt động
+            if(product.thumbnail)
+                .thumbnail-section
+                    img(src= product.thumbnail, alt= product.title)
+            
+            if(product.status)
+                .status-section
+                    .info-label Trạng thái
+                    .info-value
+                        if(product.status == "active")
+                            span(class="badge badge-success") Hoạt động 
+                        else 
+                            span(class="badge badge-danger") Dừng hoạt động
 
-    if(product.position)
-        div(class="mb-4") Vị trí: <b>#{product.position}</b>
+            if(product.position)
+                .position-section
+                    .info-label Vị trí
+                    .info-value 
+                        b #{product.position}
 
-    if(product.description)
-        div(class="mb-4") !{product.description}
+        if(product.description)
+            .description-section
+                .info-label Mô tả chi tiết
+                .description-content !{product.description}
 
-    a(
-        href=`${prefixAdmin}/products/edit/${product.id}`
-        class='btn btn-warning btn-sm'
-    ) Sửa
+        .actions-section
+            a(
+                href=`${prefixAdmin}/products/edit/${product.id}`
+                class='btn btn-warning btn-sm'
+            ) Chỉnh sửa
 
-    script(src="/admin/js/product.js") 
+    script(src="/admin/js/product.js")

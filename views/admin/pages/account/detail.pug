@@ -1,41 +1,42 @@
 extends ../../layouts/default.pug
 
 block main 
-    if(record.fullName) 
-        h1(class="mb-4") #{record.fullName}
+    div(class="account-detail-container")
+        if(record.fullName) 
+            h1(class="mb-4") #{record.fullName}
 
-    if(record.email) 
-        p(class="mb-4") Email: #{record.email}
+        if(record.email) 
+            p(class="mb-4") Email: <b>#{record.email}</b>
 
-    if(record.phone)
-        p(class="mb-4") Số điện thoại: <b>#{record.phone}</b>
+        if(record.phone)
+            p(class="mb-4") Số điện thoại: <b>#{record.phone}</b>
 
-    if(record.avatar)
-        div(class="mb-4")
-            img(src= record.avatar, alt= record.title, width = "100px",height = auto)
-    
-    if(record.status)
-        div(class="mb-4")
-            span Trạng thái: 
-            if(record.status == "active")
-                span(class="badge badge-success") Hoạt động 
-            else 
-                span(class="badge badge-danger") Dừng hoạt động
+        if(record.avatar)
+            div(class="avatar-section")
+                img(src= record.avatar, alt= record.fullName)
+        
+        if(record.status)
+            div(class="status-section")
+                span(class="status-label") Trạng thái: 
+                if(record.status == "active")
+                    span(class="badge badge-success") Hoạt động 
+                else 
+                    span(class="badge badge-danger") Dừng hoạt động
 
-    if(record.role)
-        div(class="mb-4") Phân quyền:  <b>#{record.role.title}</b>
-        ul(class="list-group mb-4")
-            each role in record.role.permissions
-                li(class="list-group-item mb-4") #{role}
+        if(record.role)
+            div(class="role-section")
+                p.role-title Phân quyền: 
+                    b #{record.role.title}
+                if(record.role.permissions && record.role.permissions.length > 0)
+                    ul.permissions-list
+                        each permission in record.role.permissions
+                            li.permission-item #{permission}
 
-    br
+        if(record.description)
+            div.description-section
+                div.description-content !{record.description}
 
-    if(record.description)
-        div(class="mb-4") !{record.description}
-
-    a(
-        href=`${prefixAdmin}/accounts/edit/${record.id}`
-        class='btn btn-warning btn-sm'
-    ) Sửa
-
-    script(src="/admin/js/product.js") 
+        div.action-buttons
+            a(href=`${prefixAdmin}/accounts/edit/${record.id}` class="btn btn-warning") 
+                i.fa.fa-edit.mr-2
+                | Chỉnh sửa

@@ -166,11 +166,19 @@ if(uploadImage) {
         }
     })
 
-    const uploadImageRemove = document.querySelector("[close-image]")
-    uploadImageRemove.addEventListener("click", () => {
-        uploadImagePreview.src = ""
-        uploadImageInput.value = ""
-    })
+    // Sửa lại phần này để đảm bảo nút xóa ảnh hoạt động đúng
+    const closeImage = document.querySelector("[close-image]")
+    if(closeImage) {
+        closeImage.addEventListener("click", () => {
+            if(uploadImagePreview) {
+                uploadImagePreview.src = ""
+                if(uploadImageInput) {
+                    uploadImageInput.value = ""
+                }
+                console.log("Đã xóa ảnh")
+            }
+        })
+    }
 }
 // End Upload Image
 

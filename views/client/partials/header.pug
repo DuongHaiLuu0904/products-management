@@ -6,7 +6,25 @@ header.header
             .col-3 
                 .inner-logo 
                     img(src="/images/npm.png", alt="Logo")
-            .col-9
+            .col-5
+                form(
+                    action="/search"
+                    method="GET"  
+                )
+                    div(class="form-group d-flex mb-0")
+                        input(
+                            type="text"
+                            class="form-control"
+                            name="keyword"
+                            placeholder="Tìm kiếm sản phẩm"
+                            value = keyword
+                        )
+                        button(
+                            type="submit"
+                            class="btn btn-primary"
+                        ) Tìm
+                        
+            .col-4
                 .inner-menu 
                     ul 
                         li 

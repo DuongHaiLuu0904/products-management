@@ -1,17 +1,26 @@
 extends ../../layouts/default.pug
 
 block main 
-    if(record.title) 
-        h1(class="mb-4") #{record.title}
-    
-    if(record.description) 
-        div(class="mb-4") #{record.description}
-    
-    if(record.permissions) 
-        each item in record.permissions
-            div(class="mb-4") #{item}
+    .role-detail-container
+        if record.title 
+            h1.role-title #{record.title}
+        
+        if record.description
+            .role-description #{record.description}
+        
+        if record.permissions && record.permissions.length > 0
+            .permissions-container
+                h3.permission-title Quyền hạn:
+                each item in record.permissions
+                    .permission-item #{item}
+        else
+            .alert.alert-info Không có quyền hạn nào được thiết lập
 
-    a(
-        href=`${prefixAdmin}/roles/edit/${record.id}`
-        class='btn btn-warning btn-sm'
-    ) Sửa
+        .action-buttons
+            a.btn.btn-edit(href=`${prefixAdmin}/roles/edit/${record.id}`)
+                i.fa.fa-edit.mr-2
+                | Chỉnh sửa
+            
+            a.btn.btn-back(href=`${prefixAdmin}/roles`)
+                i.fa.fa-arrow-left.mr-2
+                | Quay lại

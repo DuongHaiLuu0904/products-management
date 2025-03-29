@@ -271,11 +271,21 @@ module.exports.detail = async (req, res) => {
         }
         const product = await ProductCategory.findOne(find)
 
+        if(product.parent_id) {
+            const record = await ProductCategory.findOne({ 
+                _id: product.parent_id,
+                deleted: false
+            })
+            product.parent = record.title
+        }
+        
+
         res.render('admin/pages/products-category/detail', {
             title: 'Chi tiết sản phẩm',
             product: product
         });
     } catch (error) {
+        console.log(error)
         res.redirect(`${systemConfix.prefixAdmin}/products-category`);
     }
 }
