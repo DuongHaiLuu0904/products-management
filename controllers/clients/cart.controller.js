@@ -10,8 +10,7 @@ module.exports.index = async (req, res) => {
     const cart = await Cart.findOne({
         _id: cartId
     }) 
-    console.log(cart)
-
+    
     if(cart.products.length > 0) {
         for(const item of cart.products) {
             const product = await Product.findOne({
@@ -77,4 +76,23 @@ module.exports.addPost = async (req, res) => {
 
                                                                      
     res.redirect(req.headers.referer)                            
+}
+
+// [GET] /cart/delete/:id
+module.exports.delete = async (req, res) => {
+    const cartId = req.cookies.cartId
+    const productId = req.params.id
+
+    await Cart.updateOne(
+        {
+            _id: cartId
+        },
+        {
+            $pull: { products: { product_id: productId } }
+        }
+    )
+
+    req.flash('success', 'Xóa sản phẩm khỏi giỏ hàng thành công!')
+
+    res.redirect(req.headers.referer)
 }
