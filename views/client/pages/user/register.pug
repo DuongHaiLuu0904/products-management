@@ -1,0 +1,48 @@
+extends ../../layouts/default.pug
+include ../../mixins/alert.pug
+
+block main 
+    +alert-error(3000)
+    .container.my-5 
+        .row.justify-content-center
+            .col-8 
+                h1(class="text-center") Đăng ký tài khoản
+                form(
+                    method="POST" 
+                    action=`/user/register`
+                )
+                    div(class='form-group') 
+                        label(for='fullName') Họ tên
+                        input(
+                            type='fullName' 
+                            class='form-control'
+                            id='fullName'
+                            name='fullName' 
+                            required autofocus
+                        )
+
+                    div(class='form-group') 
+                        label(for='email') Email
+                        input(
+                            type='email' 
+                            class='form-control'
+                            id='email'
+                            name='email' 
+                            required autofocus
+                        )
+
+                    div(class='form-group') 
+                        label(for='password') Password
+                        input(
+                            type='password' 
+                            class='form-control'
+                            id='password'
+                            name='password' 
+                            required
+                        )
+
+                    div(class='form-group')
+                        button(
+                            type='submit' 
+                            class='btn btn-primary btn-block d-block mx-auto'
+                        ) Đăng ký

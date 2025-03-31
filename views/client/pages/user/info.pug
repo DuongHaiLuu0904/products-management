@@ -1,0 +1,14 @@
+extend ../../layouts/default.pug
+include ../../mixins/box-head
+include ../../mixins/alert.pug
+
+block main 
+    +alert-success(3000)
+    +alert-error(3000)
+    
+    .container.my-5
+        .row 
+            .col-12 
+                +box-head('Thông tin tài khoản', 'user')
+
+                div #{user}
