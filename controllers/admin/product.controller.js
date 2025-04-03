@@ -74,8 +74,6 @@ module.exports.index = async (req, res) => {
         
     }
 
-    
-
     res.render('admin/pages/product/index', {
         title: 'Trang sản phẩm',
         products: products,
@@ -87,7 +85,7 @@ module.exports.index = async (req, res) => {
 
 // [PATCH] /admin/products/change-status/:status/:id
 module.exports.changeStatus = async (req, res) => {
-    const permissions = req.locals.role.permissions
+    const permissions = res.locals.role.permissions
     if(!permissions.includes("products_edit")) {
         req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
         return res.redirect(`${systemConfix.prefixAdmin}/products`);

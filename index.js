@@ -54,11 +54,11 @@ app.locals.moment = moment
 routerAdmin(app)
 router(app)
 
-app.get('*', (req, res) => {
-    res.render('client/pages/error/404', {
-        title: 'Trang chủ'
-    })
-})
+// app.get('*', (req, res) => {
+//     res.render('client/pages/error/404', {
+//         title: 'Trang chủ'
+//     })
+// })
 
 app.listen(port, () => {
     console.log(`app listening on port ${port}`)

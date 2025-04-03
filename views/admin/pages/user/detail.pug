@@ -1,0 +1,35 @@
+extends ../../layouts/default.pug
+
+block main 
+    div(class="account-detail-container")
+        if(record.fullName) 
+            h1(class="mb-4") #{record.fullName}
+
+        if(record.email) 
+            p(class="mb-4") Email: <b>#{record.email}</b>
+
+        if(record.phone)
+            p(class="mb-4") Số điện thoại: <b>#{record.phone}</b>
+
+        if(record.avatar)
+            div(class="avatar-section")
+                img(src= record.avatar, alt= record.fullName, width = "100px", height = auto)
+        
+        if(record.status)
+            div(class="status-section")
+                span(class="status-label") Trạng thái: 
+                if(record.status == "active")
+                    span(class="badge badge-success") Hoạt động 
+                else 
+                    span(class="badge badge-danger") Dừng hoạt động
+
+       
+
+        if(record.description)
+            div.description-section
+                div.description-content !{record.description}
+
+        div.action-buttons
+            a(href=`${prefixAdmin}/users/edit/${record.id}` class="btn btn-warning") 
+                i.fa.fa-edit.mr-2
+                | Chỉnh sửa

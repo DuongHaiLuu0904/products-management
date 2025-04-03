@@ -3,14 +3,12 @@ const ProductCategory = require('../../models/product-category.model');
 const systemConfix = require("../../config/system")
 const filterStatusHelper = require("../../helpers/filterStatus")
 const searchHelper = require("../../helpers/search")
-const paginationHelper = require("../../helpers/pagination")
 const createTreeHelper = require("../../helpers/createTree")
 
 // [GET] /admin/products-category
 module.exports.index = async (req, res) => {
     // Bộ lọc 
     const filterStatus = filterStatusHelper(req.query)
-
     let find = {
         deleted: false
     }
@@ -28,18 +26,6 @@ module.exports.index = async (req, res) => {
     }
     //
 
-    // Phân trang 
-    const countProducts = await ProductCategory.countDocuments(find)
-
-    let objectPangination = paginationHelper(
-        {
-            currentPage: 1,
-            limitItems: 4
-        },
-        req.query,
-        countProducts
-    )
-    //
 
     // Sort
     let sort = {}
@@ -59,8 +45,7 @@ module.exports.index = async (req, res) => {
         title: 'Danh mục sản phẩm',
         records: newRecords,
         filterStatus: filterStatus,
-        keyword: objectSearch.keyword,
-        pagination: objectPangination
+        keyword: objectSearch.keyword
     });
 }
 
@@ -116,7 +101,6 @@ module.exports.changeStatus = async (req, res) => {
 
     req.flash('success', 'Cập nhật trạng thái thành công!');
 
-    // res.location("back")
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);
 }

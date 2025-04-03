@@ -1,6 +1,7 @@
 extends  ../../layouts/default.pug
 include ../../mixins/box-head.pug
 include ../../mixins/product-layout.pug
+include ../../mixins/pagination.pug
 
 block main 
     .container.my-3 
@@ -10,4 +11,8 @@ block main
         
         .row 
             +product-grid(products)
-            
+        
+        .row.mt-4
+            .col-12.d-flex.justify-content-center
+                nav.pagination-container
+                    +pagination(pagination)

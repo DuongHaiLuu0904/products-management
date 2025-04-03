@@ -1,37 +1,48 @@
 extends ../../layouts/default.pug
 
 block main 
-    h1(class="mb-4") Tài khoản của tôi
+    div(class="my-account-container")
+        h1(class="mb-4") Tài khoản của tôi
 
-    if(user.avatar)
-        div(class="mb-4")
-            img(src= user.avatar, alt= user.title, width = "100px",height = auto)
+        if(user.avatar)
+            div(class="avatar-wrapper")
+                img(src= user.avatar, alt= user.title, width = "100px", height = auto)
 
-    if(user.fullName) 
-        p(class="mb-4") Họ tên: <b>#{user.fullName}</b>
+        div(class="profile-info")
+            if(user.fullName) 
+                div(class="profile-detail-item")
+                    span(class="label") Họ tên
+                    span(class="value") #{user.fullName}
 
-    if(user.email) 
-        p(class="mb-4") Email: <b>#{user.email}</b>
+            if(user.email) 
+                div(class="profile-detail-item")
+                    span(class="label") Email
+                    span(class="value") #{user.email}
 
-    if(user.phone)
-        p(class="mb-4") Số điện thoại: <b>#{user.phone}</b>
+            if(user.phone)
+                div(class="profile-detail-item")
+                    span(class="label") Số điện thoại
+                    span(class="value") #{user.phone}
+            
+            if(user.status)
+                div(class="profile-detail-item")
+                    span(class="label") Trạng thái
+                    div(class="status-badge-container")
+                        if(user.status == "active")
+                            span(class="badge status-badge active") Hoạt động 
+                        else 
+                            span(class="badge status-badge inactive") Dừng hoạt động
 
-    
-    
-    if(user.status)
-        div(class="mb-4")
-            span Trạng thái: 
-            if(user.status == "active")
-                span(class="badge badge-success") Hoạt động 
-            else 
-                span(class="badge badge-danger") Dừng hoạt động
+            if(role.title)
+                div(class="profile-detail-item")
+                    span(class="label") Phân quyền
+                    span(class="value")
+                        span(class="role-badge") #{role.title}
 
-    if(role.title)
-        div(class="mb-4") Phân quyền:  <b>#{role.title}</b>
+        div(class="button-container")
+            a(
+                href=`${prefixAdmin}/my-account/edit`
+                class='update-button'
+            ) Cập nhật thông tin
 
-    a(
-        href=`${prefixAdmin}/my-account/edit`
-        class='btn btn-warning btn-sm'
-    ) Cập nhật thông tin
-
-    script(src="/admin/js/product.js") 
+    script(src="/admin/js/product.js")

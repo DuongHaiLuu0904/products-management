@@ -2,21 +2,20 @@ extends ../../layouts/default.pug
 include ../../mixins/alert.pug
 
 block main
-    if(role.permissions.includes('accounts_view'))
+    if(role.permissions.includes('users_edit'))
         +alert-error("3000")
         +alert-success("3000")
-        h1 Tài Khoản Admin 
+        h1 Tài khoản Khách hàng
 
         .card.mb-3
             .card-header Danh sách
             .card-body 
-                .row
+                .row   
                     .col-8 
-                    
                     .col-4.text-end
-                        if(role.permissions.includes('accounts_create'))
+                        if(role.permissions.includes('users_create'))
                             a(
-                                href=`${prefixAdmin}/accounts/create`
+                                href=`${prefixAdmin}/users/create`
                                 class='btn btn-outline-success'
                             ) + Thêm mới
                 .table-responsive
@@ -28,8 +27,7 @@ block main
                             tr 
                                 th STT 
                                 th Avatar 
-                                th Họ Tên
-                                th Phân quyền 
+                                th Họ Tên 
                                 th Email 
                                 th Trạng thái
                                 th Hành động
@@ -40,10 +38,9 @@ block main
                                     td 
                                         img(src= item.avatar, alt= item.fullName, width = "80px", height = auto)
                                     td #{item.fullName}
-                                    td #{item.role.title}
                                     td #{item.email}
                                     td 
-                                        if(role.permissions.includes("accounts_edit"))
+                                        if(role.permissions.includes("users_edit"))
                                             if(item.status === 'active')
                                                 a(
                                                     href='javascript:;'
@@ -69,15 +66,15 @@ block main
                                     td 
                                         .d-flex.flex-wrap.gap-1
                                             a(
-                                                href=`${prefixAdmin}/accounts/detail/${item.id}`
+                                                href=`${prefixAdmin}/users/detail/${item.id}`
                                                 class='btn btn-outline-secondary btn-sm'
                                             ) Chi tiết
-                                            if(role.permissions.includes('accounts_edit'))
+                                            if(role.permissions.includes('users_edit'))
                                                 a(
-                                                    href=`${prefixAdmin}/accounts/edit/${item.id}`
+                                                    href=`${prefixAdmin}/users/edit/${item.id}`
                                                     class='btn btn-outline-warning btn-sm'
                                                 ) Sửa
-                                            if(role.permissions.includes('accounts_delete'))
+                                            if(role.permissions.includes('users_delete'))
                                                 button(
                                                     class='btn btn-danger btn-sm'
                                                     button-delete 
@@ -88,14 +85,14 @@ block main
             action=""
             method="POST"
             id="form-change-status"
-            data-path=`${prefixAdmin}/accounts/change-status`
+            data-path=`${prefixAdmin}/users/change-status`
         )
 
         form(
             action=""
             method="POST"
             id="form-delete-item"
-            data-path=`${prefixAdmin}/accounts/delete`
+            data-path=`${prefixAdmin}/users/delete`
         )
 
         script(src="/admin/js/product.js")

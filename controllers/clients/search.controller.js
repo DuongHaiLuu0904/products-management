@@ -21,6 +21,7 @@ module.exports.index = async (req, res) => {
 
     res.render('client/pages/search/index', {
         title: 'Kết quả tìm kiếm',
-        products: newProducts
+        products: newProducts,
+        keyword: keyword 
     })
 }

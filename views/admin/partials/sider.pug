@@ -1,6 +1,6 @@
 .sider 
     .sidebar-toggle
-        button#toggleSidebar
+        button#toggleSidebar(onclick="toggleSidebar()")
             i.fas.fa-bars
     .inner-menu 
         ul 
@@ -36,10 +36,16 @@
             if(role.permissions.includes('accounts_view'))
                 li 
                     a(href=`${prefixAdmin}/accounts`)
-                        i.fas.fa-users
-                        span Danh sách tài khoản
+                        i.fas.fa-user-shield.me-2
+                        span Tài khoản Admin 
             
+            li 
+                a(href=`${prefixAdmin}/users`)
+                    i.fas.fa-users
+                    span Tài khoản khách hàng
+
             li 
                 a(href=`${prefixAdmin}/setting/general`)
                     i.fas.fa-cog
                     span Cài đặt chung
+

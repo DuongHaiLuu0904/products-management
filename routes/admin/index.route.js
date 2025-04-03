@@ -10,6 +10,7 @@ const accountRoute = require('./account.route')
 const authRoute = require('./auth.route')
 const my_accountRoute = require('./my-account.route')
 const settingRoute = require('./setting.route')
+const userRoute = require('./user.route')
 
 module.exports = (app) => {
     const PATH_ADMIN = systemconfig.prefixAdmin
@@ -30,4 +31,5 @@ module.exports = (app) => {
 
     app.use(PATH_ADMIN + '/setting', middleware.reuireAuth, settingRoute)
 
+    app.use(PATH_ADMIN + '/users', middleware.reuireAuth, userRoute)
 }

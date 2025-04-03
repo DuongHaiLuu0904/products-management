@@ -1,4 +1,3 @@
-const Product = require('../models/product.model');
 
 module.exports = (query) => {
     let filterStatus = [

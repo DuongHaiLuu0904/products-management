@@ -219,28 +219,47 @@ if(sort) {
 }
 // End sort
 
-// Sidebar Toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('toggleSidebar');
+// Standalone Sidebar Toggle Function
+function toggleSidebar() {
     const sider = document.querySelector('.sider');
     const main = document.querySelector('.main');
     
-    // Check if there's a saved state in localStorage
-    const sidebarState = localStorage.getItem('sidebarCollapsed');
-    
-    // Apply the saved state on page load
-    if (sidebarState === 'true') {
-        sider.classList.add('collapsed');
-        main.classList.add('expanded');
-    }
-    
-    // Toggle sidebar on button click
-    toggleBtn.addEventListener('click', function() {
+    if(sider && main) {
         sider.classList.toggle('collapsed');
         main.classList.toggle('expanded');
         
-        // Save state to localStorage
         localStorage.setItem('sidebarCollapsed', sider.classList.contains('collapsed'));
-    });
+        console.log("Sidebar toggled via direct function");
+    } else {
+        console.error("Sidebar elements not found in toggle function");
+    }
+}
+
+// Sidebar Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('toggleSidebar') || document.querySelector('.sidebar-toggle button');
+    const sider = document.querySelector('.sider');
+    const main = document.querySelector('.main');
+    
+    if(toggleBtn && sider && main) {
+        const sidebarState = localStorage.getItem('sidebarCollapsed');
+        
+        if (sidebarState === 'true') {
+            sider.classList.add('collapsed');
+            main.classList.add('expanded');
+        }
+        
+        toggleBtn.addEventListener('click', function() {
+            toggleSidebar();
+        });
+        
+        console.log("Sidebar toggle initialized successfully");
+    } else {
+        console.error("Sidebar elements not found:", {
+            toggleBtn: !!toggleBtn,
+            sider: !!sider,
+            main: !!main
+        });
+    }
 });
 // End Sidebar Toggle

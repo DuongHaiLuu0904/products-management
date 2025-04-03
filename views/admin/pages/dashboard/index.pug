@@ -6,51 +6,50 @@ block main
 
     .row.mt-4
         .col-12
-            .card.mb-4
-                .card-header Thông tin tài khoản
-                .card-body
-                    if user.avatar
-                        img(
-                            src=user.avatar,
-                            style='height: 100px; margin-bottom: 15px;'
-                        )
-                    if user.fullName
-                        p Họ tên: <b>#{user.fullName}</b>
-                    if user.email
-                        p Email: <b>#{user.email}</b>
-                    if user.phone
-                        p Số điện thoại: <b>#{user.phone}</b>
-                    if role.title
-                        p Phân quyền: <b>#{role.title}</b>
+            .user-info-card
+                if user.avatar
+                    img(
+                        src=user.avatar,
+                        style='height: 100px; margin-bottom: 15px;'
+                    )
+                if user.fullName
+                    p Họ tên: <b>#{user.fullName}</b>
+                if user.email
+                    p Email: <b>#{user.email}</b>
+                if user.phone
+                    p Số điện thoại: <b>#{user.phone}</b>
+                if role.title
+                    p Phân quyền: <b>#{role.title}</b>
 
-        .col-6 
-            .card.mb-4
+    .row.dashboard-stats-row
+        .col-6(style="--index: 1")
+            .dashboard-card.category
                 .card-header Danh mục sản phẩm
                 .card-body
                     p Số lượng: <b>#{statistics.category.total}</b>
                     p Hoạt động: <b>#{statistics.category.active}</b>
                     p Dừng hoạt động: <b>#{statistics.category.inactive}</b>
 
-        .col-6 
-            .card.mb-4
+        .col-6(style="--index: 2")
+            .dashboard-card.product
                 .card-header Sản phẩm
                 .card-body
-                   p Số lượng: <b>#{statistics.product.total}</b>
+                    p Số lượng: <b>#{statistics.product.total}</b>
                     p Hoạt động: <b>#{statistics.product.active}</b>
                     p Dừng hoạt động: <b>#{statistics.product.inactive}</b>
 
-        .col-6 
-            .card.mb-4
+        .col-6.mt-4(style="--index: 3")
+            .dashboard-card.account
                 .card-header Tài khoản Admin
                 .card-body
                     p Số lượng: <b>#{statistics.account.total}</b>
                     p Hoạt động: <b>#{statistics.account.active}</b>
                     p Dừng hoạt động: <b>#{statistics.account.inactive}</b>
 
-        .col-6 
-            .card.mb-4
+        .col-6.mt-4(style="--index: 4")
+            .dashboard-card.user
                 .card-header Tài khoản Khách hàng
                 .card-body
-                   p Số lượng: <b>#{statistics.user.total}</b>
+                    p Số lượng: <b>#{statistics.user.total}</b>
                     p Hoạt động: <b>#{statistics.user.active}</b>
                     p Dừng hoạt động: <b>#{statistics.user.inactive}</b>

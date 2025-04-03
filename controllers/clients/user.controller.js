@@ -202,6 +202,6 @@ module.exports.resetPasswordPost = async (req, res) => {
 module.exports.info = async (req, res) => {
     
     res.render('client/pages/user/info', {
-        title: 'Đặt lại mật khẩu'
+        title: 'Thông tin tài khoản'
     })
 }

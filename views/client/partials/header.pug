@@ -23,30 +23,45 @@ header.header
                         )
                         button(
                             type="submit"
-                            class="btn btn-primary"
-                        ) Tìm
+                            class="btn btn-primary search-button"
+                        ) 
+                            i.fa-solid.fa-magnifying-glass
+                            span.search-text Tìm
                         
             .col-4
                 .inner-menu 
                     ul 
                         li 
-                            a(href="/") Trang chủ 
+                            a(href="/", class="icon-link")
+                                i.fa-solid.fa-house
+                                span.menu-text Home
                         li(class="sub-menu")
                             -const pathProduct = "/products"
-                            a(href="/products") Trang sản phẩm
+                            a(href="/products", class="icon-link")
+                                i.fa-solid.fa-list
+                                span.menu-text Category
                                 +sub_item(layoutProductCategory, pathProduct)
                         li 
-                            a(href="/cart") Giỏ hàng (#{cart ? cart.totalQuantity : 0})
+                            a(href="/cart", class="icon-link")
+                                i.fa-solid.fa-cart-shopping
+                                span.menu-text Shopping Cart (#{cart ? cart.totalQuantity : 0})
                         
                         if(user)
                             li 
-                                a(href=`/user/info`) #{user.fullName}
+                                a(href="/user/info", class="icon-link")
+                                    i.fa-solid.fa-user
+                                    span.menu-text #{user.fullName}
                             li 
-                                a(href="/user/logout") Đăng xuất   
+                                a(href="/user/logout", class="icon-link")
+                                    i.fa-solid.fa-right-from-bracket
+                                    span.menu-text Logout
                         else 
                             li 
-                                a(href="/user/register") Đăng ký
+                                a(href="/user/register", class="icon-link")
+                                    i.fa-solid.fa-user-plus
+                                    span.menu-text Register
                             li
-                                a(href="/user/login") Đăng nhập
+                                a(href="/user/login", class="icon-link")
+                                    i.fa-solid.fa-right-to-bracket
+                                    span.menu-text Login
 
-                        

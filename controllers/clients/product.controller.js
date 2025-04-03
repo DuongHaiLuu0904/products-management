@@ -1,20 +1,37 @@
 const Product = require('../../models/product.model');
 const ProductCategory = require('../../models/product-category.model');
+
 const productHelper = require('../../helpers/product')
 const productCategoryHelper = require('../../helpers/products-category')
+const paginationHelper = require("../../helpers/pagination")
 
 // [GET] /products
 module.exports.index = async (req, res) => {
-    const products = await Product.find({
+    const find = {
         status: 'active',
         deleted: false
-    }).sort({ position: "desc" })
+    }
+    // Phân trang 
+    const countProducts = await Product.countDocuments(find)
+
+    let objectPangination = paginationHelper(
+        {
+            currentPage: 1,
+            limitItems: 6
+        },
+        req.query,
+        countProducts
+    )
+    //
+
+    const products = await Product.find(find).limit(objectPangination.limitItems).skip(objectPangination.skip).sort({ position: "desc" })
 
     const newProducts = productHelper.priceNew(products)
 
     res.render('client/pages/products/index', {
         title: 'Trang sản phẩm',
-        products: newProducts
+        products: newProducts,
+        pagination: objectPangination
     })
 }
 

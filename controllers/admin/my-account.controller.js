@@ -38,6 +38,11 @@ module.exports.editPatch = async (req, res) => {
                 delete req.body.password
             }
             
+            // Xử lý file avatar
+            if (req.file && req.file.path) {
+                req.body.avatar = req.file.path;
+            }
+            
             await Account.updateOne({ _id: id }, req.body)
             req.flash('success', 'Cập nhật thành công!');
         }

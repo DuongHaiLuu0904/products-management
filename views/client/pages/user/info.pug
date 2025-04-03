@@ -11,4 +11,51 @@ block main
             .col-12 
                 +box-head('Thông tin tài khoản', 'user')
 
-                div #{user}
+                .card.shadow-sm.mb-4.rounded-3.border-0.user-info
+                    .card-header.bg-primary.text-white.py-3
+                        h5.mb-0
+                            i.fa.fa-user.me-2
+                            | Thông tin chi tiết
+                    .card-body.p-4
+                        .row.user-info-container
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-user-circle.me-1
+                                        | Họ và tên:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.fullName}
+                            
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-envelope.me-1
+                                        | Email:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.email}
+                            
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-check-circle.me-1
+                                        | Trạng thái:
+                                    if user.status === 'active'
+                                        span.badge.bg-success.px-3.py-2.fs-6 
+                                            i.fa.fa-check-circle.me-1
+                                            | Hoạt động
+                                    else
+                                        span.badge.bg-danger.px-3.py-2.fs-6
+                                            i.fa.fa-times-circle.me-1
+                                            | Đã khóa
+                            
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-calendar.me-1
+                                        | Ngày tạo:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{new Date(user.createdAt).toLocaleDateString('vi-VN')}
+                            
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-clock.me-1
+                                        | Cập nhật gần nhất:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{new Date(user.updatedAt).toLocaleDateString('vi-VN')}
