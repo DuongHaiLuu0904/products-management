@@ -1,12 +1,23 @@
 extends  ../../layouts/default.pug
 include ../../mixins/box-head.pug
-include ../../mixins/product-layout.pug
+include ../../mixins/product-item.pug
 
 block main 
-    .container.my-3 
+    .container.my-3.search-page-container
         .row 
             .col-12 
                 +box-head(title)
+                if products.length > 0
+                    .search-result-count Tìm thấy #{products.length} sản phẩm phù hợp
                 
-            .row 
-                +product-grid(products)
+        if products.length > 0
+            .search-products-grid
+                each item in products
+                    .search-product-wrapper
+                        +product-item(item)
+        else
+            .empty-results
+                i.fa-solid.fa-search
+                h3 Không tìm thấy sản phẩm phù hợp
+                p Vui lòng thử lại với từ khóa khác hoặc xem qua các sản phẩm khác của chúng tôi.
+                a.btn-return(href="/") Quay lại trang chủ

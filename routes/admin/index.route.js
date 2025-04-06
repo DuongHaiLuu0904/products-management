@@ -12,8 +12,12 @@ const my_accountRoute = require('./my-account.route')
 const settingRoute = require('./setting.route')
 const userRoute = require('./user.route')
 
+const authController = require('../../controllers/admin/auth.controller')
+
 module.exports = (app) => {
     const PATH_ADMIN = systemconfig.prefixAdmin
+
+    app.get(PATH_ADMIN + '/', authController.login)
 
     app.use(PATH_ADMIN + '/dashboard', middleware.reuireAuth, dashboardRoute)
 

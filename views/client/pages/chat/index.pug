@@ -1,0 +1,58 @@
+extends  ../../layouts/default.pug
+include ../../mixins/box-head.pug
+include ../../mixins/product-layout.pug
+include ../../mixins/pagination.pug
+
+block main 
+    .container.my-3 
+        .row 
+            .col-12 
+                +box-head(title)
+        
+        .row 
+            .col-12 
+                .chat.chat-container(my-id=user.id)
+                    .inner-head
+                        .inner-info
+                            .inner-status Trò chuyện trực tuyến
+                        .inner-actions
+                            button.btn-settings
+                                i.fa-solid.fa-sliders
+                    .inner-body 
+                        each chat in chats
+                            div(class=(chat.user.id === user.id ? 'inner-outgoing' : 'inner-incoming'))
+                                if(chat.user.id != user.id)
+                                    .inner-name  #{chat.user.fullName}
+                                if(chat.content)
+                                    .inner-content 
+                                        | #{chat.content}
+                                if(chat.images && chat.images.length > 0)
+                                    .inner-images
+                                        each image in chat.images
+                                            img(src=image, alt="Chat image" onclick=`openImagePreview('${image}')`)
+
+                        div(class="inner-list-typing")
+                            
+                    .inner-preview-images
+                        .custom-file-container(data-upload-id="upload-image")
+                            
+                    .inner-foot
+                       
+                        form(
+                            class="inner-form"
+                            action=""
+                        ) 
+                            input(type="text", name="content", placeholder="Nhập tin nhắn ....")
+                            
+                            span(class="button-icon") 
+                                i.fa-regular.fa-face-smile
+                            
+                            span(class="button-add-images")
+                                i.fa-solid.fa-image
+                                input(type="file" id="upload-image__upload-image" accept="image/*" multiple)
+                            
+                            button(type="submit")
+                                i.fa-solid.fa-paper-plane
+    
+    div(class="tooltip" role="tooltip")
+        emoji-picker

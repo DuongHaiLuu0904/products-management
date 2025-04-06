@@ -39,8 +39,8 @@ module.exports.createPost = async (req, res) => {
 
     if (emmailExist) {
         req.flash('error', 'Email đã tồn tại!');
-
         res.redirect(req.headers.referer)
+        
     } else {
         req.body.password = md5(req.body.password)
 

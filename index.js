@@ -6,6 +6,9 @@ const flash = require('express-flash')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const moment = require('moment')
+const http = require('http')
+const { Server } = require("socket.io");
+
 
 require("dotenv").config()
 
@@ -29,6 +32,12 @@ app.use(methodOverride('_method'))
 
 app.set('views', `${__dirname}/views`)
 app.set('view engine', 'pug')
+
+// Socket.io
+const server = http.createServer(app);
+const io = new Server(server);
+global._io = io;
+
 
 // Flash
 app.use(cookieParser('IamHaiLuu')); // key ramdom
@@ -54,12 +63,12 @@ app.locals.moment = moment
 routerAdmin(app)
 router(app)
 
-// app.get('*', (req, res) => {
-//     res.render('client/pages/error/404', {
-//         title: 'Trang chủ'
-//     })
-// })
+app.get('*', (req, res) => {
+    res.render('client/pages/error/404', {
+        title: 'Trang chủ'
+    })
+})
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`app listening on port ${port}`)
 })

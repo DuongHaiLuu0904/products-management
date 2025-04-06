@@ -6,7 +6,10 @@ html(lang="en")
         link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css")
         link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css")
         link(rel="stylesheet", href="/css/style.css")
-
+        link(rel="stylesheet", href="/css/search.css")
+        link(rel="stylesheet", href="/css/products.css")
+        link(rel="stylesheet", href="/css/chat.css")
+        link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/file-upload-with-preview/6.1.2/style.css")
 
         title #{title}
     body 
@@ -19,3 +22,10 @@ html(lang="en")
         script(src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js") 
         script(src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js")
         script(src="/js/script.js")
+        script(src="/socket.io/socket.io.js")
+        script(src="/js/socket.js")
+
+        script(type="module", src="/js/chat.js")
+        script(type="module", src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js")
+
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/file-upload-with-preview/6.1.2/index.iife.min.js") 

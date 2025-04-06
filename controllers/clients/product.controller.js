@@ -6,7 +6,10 @@ const productCategoryHelper = require('../../helpers/products-category')
 const paginationHelper = require("../../helpers/pagination")
 
 // [GET] /products
+const cache = {}
+
 module.exports.index = async (req, res) => {
+
     const find = {
         status: 'active',
         deleted: false

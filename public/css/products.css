@@ -1,0 +1,212 @@
+.container.products-container {
+    padding: 2rem 0;
+}
+
+/* Box head styling */
+.box-head {
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.box-head h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Product grid styling */
+.products-container .row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin: 0;
+}
+
+.products-container .row .product-item {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.product-item {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-item .inner-image {
+    position: relative;
+    overflow: hidden;
+    padding-top: 75%; /* Tỷ lệ khung hình 4:3 */
+    background: #f8f8f8;
+    border-radius: 12px 12px 0 0;
+}
+
+.product-item .inner-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s ease;
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+.product-item:hover .inner-image img {
+    transform: scale(1.08);
+}
+
+.products-container .inner-featured {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e44d26;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.product-item .inner-content {
+    padding: 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+.product-item .inner-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    flex-grow: 1;
+}
+
+.product-item .inner-title a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-item .inner-title a:hover {
+    color: #e44d26;
+}
+
+.product-item .inner-price-new {
+    color: #e44d26;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.product-item .inner-price-old {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.product-item .inner-discount {
+    color: #28a745;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: rgba(40, 167, 69, 0.1);
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+/* Pagination styling */
+.pagination-container {
+    margin: 2rem 0;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 0.5rem;
+}
+
+.page-item {
+    margin: 0 2px;
+}
+
+.page-link {
+    padding: 0.5rem 1rem;
+    border: 1px solid #dee2e6;
+    color: #333;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.page-link:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .products-container .row {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .products-container .row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .box-head h2 {
+        font-size: 1.5rem;
+    }
+    
+    .product-item .inner-image {
+        padding-top: 66.67%; /* Tỷ lệ khung hình 3:2 cho tablet */
+    }
+}
+
+@media (max-width: 576px) {
+    .products-container .row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .product-item .inner-image {
+        padding-top: 60%; /* Tỷ lệ khung hình 5:3 cho mobile */
+    }
+
+    .product-item .inner-title {
+        font-size: 1rem;
+    }
+} 

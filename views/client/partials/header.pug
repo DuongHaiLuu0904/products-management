@@ -48,6 +48,10 @@ header.header
                         
                         if(user)
                             li 
+                                a(href="/chat", class="icon-link")
+                                    i.fa-solid.fa-message
+                                    span.menu-text Chat
+                            li 
                                 a(href="/user/info", class="icon-link")
                                     i.fa-solid.fa-user
                                     span.menu-text #{user.fullName}
