@@ -1049,7 +1049,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -1238,3 +1237,136 @@
     visibility: visible;
     opacity: 1;
 }
+
+/* User Box Styling */
+.box-user {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.box-user:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  background-color: #fff;
+}
+
+.box-user .inner-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 15px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.box-user .inner-avatar:hover {
+  border-color: #007bff;
+  transform: scale(1.05);
+}
+
+.box-user .inner-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.box-user .inner-info {
+  flex: 1;
+}
+
+.box-user .inner-name {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #343a40;
+}
+
+.box-user .inner-buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.box-user .inner-buttons button {
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.box-user .inner-buttons button i {
+  margin-right: 5px;
+}
+
+.box-user .inner-buttons .btn-primary:hover {
+  background-color: #0069d9;
+  transform: translateY(-2px);
+}
+
+.box-user .inner-buttons .btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Responsive styling */
+@media (max-width: 767px) {
+  .box-user {
+    padding: 10px;
+  }
+  
+  .box-user .inner-avatar {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .box-user .inner-name {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .box-user .inner-buttons button {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .box-user {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .box-user .inner-avatar {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .box-user .inner-buttons {
+    justify-content: center;
+  }
+}
+
+
+.box-user button[button-add-friend] {
+    display: inline-block;
+}
+
+.box-user button[button-cancel-friend] {
+    display: none;
+}
+
+.box-user.add button[button-add-friend] {
+    display: none;
+}
+
+.box-user.add button[button-cancel-friend] {
+    display: inline-block;
+}
+
+

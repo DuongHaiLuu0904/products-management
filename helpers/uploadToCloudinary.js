@@ -1,6 +1,5 @@
-const cloudinary = require('cloudinary').v2
-const streamifier = require('streamifier')
-
+import { v2 as cloudinary } from 'cloudinary';
+import streamifier from 'streamifier';
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -16,14 +15,13 @@ let streamUpload = (buffer) => {
       } else {
         reject(error);
       }
-    }
-    )
+    })
 
     streamifier.createReadStream(buffer).pipe(stream);
   })
 }
 
-module.exports = async (buffer) => {
+export const uploadToCloudinary = async (buffer) => {
   let result = await streamUpload(buffer)
   return result.url
 }

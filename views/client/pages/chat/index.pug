@@ -5,6 +5,8 @@ include ../../mixins/pagination.pug
 
 block main 
     .container.my-3 
+        include ../../partials/list-button-user.pug
+        
         .row 
             .col-12 
                 +box-head(title)
@@ -56,3 +58,6 @@ block main
     
     div(class="tooltip" role="tooltip")
         emoji-picker
+
+block script
+    script(type="module", src="/js/chat.js")

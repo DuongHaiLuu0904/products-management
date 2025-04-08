@@ -237,29 +237,58 @@ function toggleSidebar() {
 
 // Sidebar Toggle
 document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('toggleSidebar') || document.querySelector('.sidebar-toggle button');
+    // Tìm button bằng nhiều cách để đảm bảo tìm được đúng element
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const siderToggleContainer = document.querySelector('.sidebar-toggle');
     const sider = document.querySelector('.sider');
     const main = document.querySelector('.main');
     
-    if(toggleBtn && sider && main) {
-        const sidebarState = localStorage.getItem('sidebarCollapsed');
-        
+    // Khôi phục trạng thái sidebar từ localStorage
+    const sidebarState = localStorage.getItem('sidebarCollapsed');
+    
+    if (sider && main) {
         if (sidebarState === 'true') {
             sider.classList.add('collapsed');
             main.classList.add('expanded');
         }
         
-        toggleBtn.addEventListener('click', function() {
-            toggleSidebar();
-        });
+        // Đảm bảo sự kiện click được gắn đúng cách
+        if (toggleBtn) {
+            // Xóa tất cả event listeners cũ nếu có
+            const newToggleBtn = toggleBtn.cloneNode(true);
+            toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+            
+            // Thêm event listener mới
+            newToggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleSidebar();
+                console.log("Toggle button clicked via event listener");
+            });
+            
+            console.log("Direct toggle button event attached");
+        } 
+        
+        // Đảm bảo cả container cũng có thể nhận sự kiện click
+        if (siderToggleContainer) {
+            siderToggleContainer.addEventListener('click', function(e) {
+                // Chỉ xử lý khi click vào container hoặc button trong container
+                if (e.target.closest('.sidebar-toggle')) {
+                    toggleSidebar();
+                    console.log("Toggle container clicked");
+                }
+            });
+            
+            console.log("Container toggle event attached");
+        }
         
         console.log("Sidebar toggle initialized successfully");
     } else {
         console.error("Sidebar elements not found:", {
             toggleBtn: !!toggleBtn,
+            siderToggleContainer: !!siderToggleContainer,
             sider: !!sider,
             main: !!main
         });
     }
 });
-// End Sidebar Toggle

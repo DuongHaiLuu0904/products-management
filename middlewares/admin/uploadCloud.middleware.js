@@ -1,10 +1,22 @@
 const { uploadToCloudinary } = require('../../helpers/uploadToCloudinary')
 
 module.exports.upload = async (req, res, next) => {
-  if (req.file) {
-    const result = await uploadToCloudinary(req.file.buffer)
-    console.log(result)
-    req.body[req.file.fieldname] = result
+  try {
+    if (req.file) {
+      console.log("Đang tải lên hình ảnh lên Cloudinary...");
+      const result = await uploadToCloudinary(req.file.buffer);
+      
+      if (result) {
+        console.log("Tải lên thành công:", result);
+        req.body[req.file.fieldname] = result;
+      } else {
+        console.error("Không nhận được URL từ Cloudinary");
+      }
+    }
+    next();
+  } catch (error) {
+    console.error("Lỗi khi tải ảnh lên Cloudinary:", error);
+    
+    next();
   }
-  next()
 }
