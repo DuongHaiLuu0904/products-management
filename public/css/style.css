@@ -1370,3 +1370,34 @@
 }
 
 
+.box-user [button-delete-friend] {
+    display: none !important;
+}
+
+.box-user.refuse [button-accept-friend] {
+    display: none;
+}
+
+.box-user.refuse [button-refuse-friend] {
+    display: none;
+}
+
+.box-user.refuse [button-delete-friend] {
+    display: inline-block !important;
+}
+
+.box-user [button-accepted-friend] {
+    display: none !important;
+}
+
+.box-user.accepted [button-accept-friend] {
+    display: none;
+}
+
+.box-user.accepted [button-refuse-friend] {
+    display: none;
+}
+
+.box-user.accepted [button-accepted-friend] {
+    display: inline-block !important;
+}
