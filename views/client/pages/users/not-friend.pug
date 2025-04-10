@@ -9,10 +9,10 @@ block main
             .col-12 
                 +box-head(title)
 
-        .row 
-            .col-6 
+        .row(data-users-not-friend=user.id)
+            each user in users
                 
-                each user in users
+                .col-6(user-id=user.id)
                     div(class='box-user')
                         div(class='inner-avatar')
                             img(

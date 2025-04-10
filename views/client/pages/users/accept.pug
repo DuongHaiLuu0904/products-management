@@ -9,8 +9,8 @@ block main
             .col-12 
                 +box-head(title)
 
-        .row 
-            .col-6 
+        .row(data-users-accept=user.id)
+            .col-6(user-id=user.id)
                 
                 each user in users
                     div(class='box-user')

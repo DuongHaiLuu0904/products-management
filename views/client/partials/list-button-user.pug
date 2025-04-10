@@ -24,3 +24,7 @@
         )
             i.fa-solid.fa-user-check
             | Lời mời kết bạn
+            span(
+                class="badge badge-light m-1"
+                badge-users-accept=user.id
+            )  #{user.acceptFriend.length}

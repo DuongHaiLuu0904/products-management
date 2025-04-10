@@ -31,6 +31,23 @@ module.exports = async (res) => {
                     { $push: { requestFriend: userId } }
                 )
             }
+
+            // cập nhật số lượng người dùng trong danh sách acceptFriend B
+            const infoUserB = await User.findOne({ _id: userId })
+            const countUserB = infoUserB.acceptFriend.length
+
+            socket.broadcast.emit('Server_Return_Length_Accept_Friend', {
+                userId: userId,
+                lengthAcceptFriend: countUserB
+            })  
+            
+            // Lấy thông tin của A trả về cho B
+            const infoUserA = await User.findOne({ _id: myUserId }).select('id fullName avatar')
+            
+            socket.broadcast.emit('Server_Return_Info_Accept_Friend', {
+                userId: userId,
+                infoUserA: infoUserA
+            })
         })
 
         // chức năng hủy yêu cầu kết bạn
@@ -62,6 +79,12 @@ module.exports = async (res) => {
                     { $pull: { requestFriend: userId } }
                 )
             }
+
+            // Lấy userId của A trả về cho B
+            socket.broadcast.emit('Server_Return_User_Id_Cancel_Friend', {
+                userId: userId,
+                userIdA: myUserId
+            })
         })
 
         // chức năng từ chối yêu cầu kết bạn
