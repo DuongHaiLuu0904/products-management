@@ -1,5 +1,6 @@
 const Product = require('../../models/product.model');
 const ProductCategory = require('../../models/product-category.model');
+const User = require('../../models/user.model');
 
 const productHelper = require('../../helpers/product')
 const productCategoryHelper = require('../../helpers/products-category')
@@ -59,9 +60,40 @@ module.exports.detail = async (req, res) => {
 
         product.priceNew = productHelper.priceNewProduct(product)
 
+        // Lấy tất cả comments cho sản phẩm này
+        const users = await User.find({
+            'productComments.product_id': product._id.toString(),
+            status: 'active',
+            deleted: false
+        }).select('fullName avatar productComments');
+
+        let comments = [];
+        users.forEach(user => {
+            const userComments = user.productComments.filter(comment => 
+                comment.product_id === product._id.toString()
+            );
+            userComments.forEach(comment => {
+                comments.push({
+                    _id: comment._id,
+                    content: comment.content,
+                    rating: comment.rating,
+                    createdAt: comment.createdAt,
+                    user: {
+                        _id: user._id,
+                        fullName: user.fullName,
+                        avatar: user.avatar
+                    }
+                });
+            });
+        });
+
+        // Sắp xếp comments theo thời gian mới nhất
+        comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
         res.render('client/pages/products/detail', {
             title: 'Chi tiết sản phẩm',
-            product: product
+            product: product,
+            comments: comments
         });
     } catch (error) {
         res.redirect(`/products`);
@@ -91,4 +123,107 @@ module.exports.category = async (req, res) => {
         title: category.title,
         products: newProducts
     })
+}
+
+// [POST] /products/comment/add
+module.exports.addComment = async (req, res) => {
+    try {
+        const { product_id, content, rating } = req.body;
+        const userId = res.locals.user.id;
+
+        if (!content || !rating || !product_id) {
+            req.flash('error', 'Vui lòng điền đầy đủ thông tin');
+            return res.redirect('back');
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            req.flash('error', 'Không tìm thấy người dùng');
+            return res.redirect('back');
+        }
+
+        const newComment = {
+            product_id: product_id,
+            content: content,
+            rating: parseInt(rating),
+            createdAt: new Date()
+        };
+
+        user.productComments.push(newComment);
+        await user.save();
+
+        req.flash('success', 'Thêm bình luận thành công');
+        res.redirect('back');
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Có lỗi xảy ra');
+        res.redirect('back');
+    }
+}
+
+// [PATCH] /products/comment/edit/:commentId
+module.exports.editComment = async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const { content, rating } = req.body;
+        const userId = res.locals.user.id;
+
+        if (!content || !rating) {
+            req.flash('error', 'Vui lòng điền đầy đủ thông tin');
+            return res.redirect('back');
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            req.flash('error', 'Không tìm thấy người dùng');
+            return res.redirect('back');
+        }
+
+        const comment = user.productComments.id(commentId);
+        if (!comment) {
+            req.flash('error', 'Không tìm thấy bình luận');
+            return res.redirect('back');
+        }
+
+        comment.content = content;
+        comment.rating = parseInt(rating);
+        await user.save();
+
+        req.flash('success', 'Cập nhật bình luận thành công');
+        res.redirect('back');
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Có lỗi xảy ra');
+        res.redirect('back');
+    }
+}
+
+// [DELETE] /products/comment/delete/:commentId
+module.exports.deleteComment = async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const userId = res.locals.user.id;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            req.flash('error', 'Không tìm thấy người dùng');
+            return res.redirect('back');
+        }
+
+        const comment = user.productComments.id(commentId);
+        if (!comment) {
+            req.flash('error', 'Không tìm thấy bình luận');
+            return res.redirect('back');
+        }
+
+        user.productComments.pull(commentId);
+        await user.save();
+
+        req.flash('success', 'Xóa bình luận thành công');
+        res.redirect('back');
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Có lỗi xảy ra');
+        res.redirect('back');
+    }
 }

@@ -61,6 +61,10 @@ app.use(express.static(`${__dirname}/public`))
 // app local variables
 app.locals.prefixAdmin = systemConfig.prefixAdmin
 app.locals.moment = moment
+app.locals.formatCurrency = function (num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' đ';
+};
+
 
 // router
 routerAdmin(app)

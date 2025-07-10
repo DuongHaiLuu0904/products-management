@@ -76,8 +76,8 @@ block main
                                         td 
                                             img(src=item.productInfo.thumbnail, alt=item.productInfo.title, width="100px")
                                         td #{item.productInfo.title}
-                                        td #{item.priceNew}đ
+                                        td #{formatCurrency(item.priceNew)}
                                         td #{item.quantity}
-                                        td #{item.totalPrice}đ
+                                        td #{formatCurrency(item.totalPrice)}
                                 
-                    h3(class='text-right') Tổng đơn hàng: #{order.totalPrice}đ
+                    h3(class='text-right') Tổng đơn hàng: #{formatCurrency(order.totalPrice)}
