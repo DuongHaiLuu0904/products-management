@@ -8,6 +8,7 @@ const filterStatusHelper = require("../../helpers/filterStatus")
 const searchHelper = require("../../helpers/search")
 const paginationHelper = require("../../helpers/pagination")
 const createTreeHelper = require("../../helpers/createTree")
+const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
 
 // [GET] /admin/products
 module.exports.index = async (req, res) => {
@@ -205,19 +206,23 @@ module.exports.deleteItem = async (req, res) => {
 
     const id = req.params.id
 
-    // await Product.deleteOne({_id: id})
-    await Product.updateOne(
-        { _id: id },
-        {
-            deleted: true,
-            deletedBy: {
-                account_id: res.locals.user.id,
-                deleteAt: new Date()
+    try {
+        await Product.updateOne(
+            { _id: id },
+            {
+                deleted: true,
+                deletedBy: {
+                    account_id: res.locals.user.id,
+                    deleteAt: new Date()
+                }
             }
-        }
-    )
+        )
 
-    req.flash('success', 'Cập nhật trạng thái thành công!');
+        req.flash('success', 'Cập nhật trạng thái thành công!');
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Xóa thất bại!');
+    }
 
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);
@@ -310,6 +315,14 @@ module.exports.editPATCH = async (req, res) => {
     req.body.position = parseInt(req.body.position)
 
     try {
+        // Get the current product to access the public_id
+        const currentProduct = await Product.findOne({ _id: id });
+
+        // If a new file is being uploaded and there's an existing public_id, delete the old image
+        if (req.body.public_id && currentProduct.public_id) {
+            await deleteFromCloudinary(currentProduct.public_id);
+        }
+
         const update = {
             account_id: res.locals.user.id,
             updateAt: new Date()

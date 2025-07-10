@@ -11,6 +11,7 @@ const accountSchema = new mongoose.Schema({
     },
     phone: String,
     avatar: String,
+    public_id: String,
     role_id: String,
     status: String,
     deleted: {

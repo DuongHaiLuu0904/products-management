@@ -8,7 +8,7 @@ const session = require('express-session')
 const moment = require('moment')
 const http = require('http')
 const { Server } = require("socket.io");
-
+const cors = require('cors')
 
 require("dotenv").config()
 
@@ -50,6 +50,9 @@ app.use(session({
 app.use(flash());
 // End Flash
 
+// CORS 
+app.use(cors());
+
 // TinyMCE
 app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')));
 
@@ -63,12 +66,12 @@ app.locals.moment = moment
 routerAdmin(app)
 router(app)
 
-// app.get('*', (req, res) => {
-//     res.render('client/pages/error/404', {
-//         title: 'Trang chủ'
-//     })
-// })
+app.get('*', (req, res) => {
+    res.render('client/pages/error/404', {
+        title: 'Trang lỗi'
+    })
+})
 
 server.listen(port, () => {
-    console.log(`app listening on port ${port}`)
+    console.log(`App listening on port ${port}`)
 })

@@ -70,7 +70,6 @@ module.exports.orderPost = async (req, res) => {
     const order = new Order(objectOrder)
     await order.save()
 
-
     await Cart.updateOne({
         _id: cartId
     }, {
@@ -97,14 +96,14 @@ module.exports.success = async (req, res) => {
         product.productInfo = productInfo
 
         product.priceNew = productHelper.priceNewProduct(product)
-
-        product.totalPrice = product.priceNew * product.quantity
+        
+        product.totalPrice = product.quantity * product.priceNew
     }
-    
+
     order.totalPrice = order.products.reduce((sum, item) => sum + item.totalPrice, 0)
 
     res.render('client/pages/checkout/success', {
-        title: 'Thanh toán thành công',
+        title: 'Đặt hàng thành công',
         order: order
     })
 }

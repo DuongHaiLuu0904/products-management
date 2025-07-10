@@ -3,6 +3,7 @@ const Account = require('../../models/account.model')
 const Role = require("../../models/role.model")
 
 const systemConfix = require("../../config/system")
+const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
 
 module.exports.index = async (req, res) => {
     let find = {
@@ -117,6 +118,14 @@ module.exports.editPatch = async (req, res) => {
             const backURL = req.get("Referrer") || "/";
             return res.redirect(backURL)
         } else {
+            // Get the current account to access the public_id
+            const currentAccount = await Account.findOne({ _id: id });
+
+            // If a new avatar is being uploaded and there's an existing public_id, delete the old image
+            if (req.body.public_id && currentAccount.public_id) {
+                await deleteFromCloudinary(currentAccount.public_id);
+            }
+
             if(req.body.password) {
                 req.body.password = md5(req.body.password)
             } else {
@@ -144,12 +153,25 @@ module.exports.deleteItem = async (req, res) => {
 
     const id = req.params.id
     
-    await Account.updateOne({ _id: id }, {
-        deleted: true,
-        deleteAt: new Date()
-    })
+    try {
+        // Get the account to access the public_id
+        const account = await Account.findOne({ _id: id });
 
-    req.flash('success', 'Cập nhật trạng thái thành công!');
+        // Delete the avatar from Cloudinary if public_id exists
+        if (account.public_id) {
+            await deleteFromCloudinary(account.public_id);
+        }
+        
+        await Account.updateOne({ _id: id }, {
+            deleted: true,
+            deleteAt: new Date()
+        })
+
+        req.flash('success', 'Cập nhật trạng thái thành công!');
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Xóa thất bại!');
+    }
 
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);

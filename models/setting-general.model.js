@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const settingGeneralSchema = new mongoose.Schema({
     webSiteName: String,
     logo: String,
+    public_id: String,
     phone: String,
     email: String,
     address: String,

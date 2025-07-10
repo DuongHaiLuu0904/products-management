@@ -4,6 +4,7 @@ const systemConfix = require("../../config/system")
 const filterStatusHelper = require("../../helpers/filterStatus")
 const searchHelper = require("../../helpers/search")
 const createTreeHelper = require("../../helpers/createTree")
+const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
 
 // [GET] /admin/products-category
 module.exports.index = async (req, res) => {
@@ -68,7 +69,7 @@ module.exports.create = async (req, res) => {
 // [POST] /admin/products-category/create
 module.exports.createPost = async (req, res) => {
     const permission = res.locals.role.permissions
-    if (!permission.includes("products-category-create")) {
+    if (!permission.includes("products-category_create")) {
         req.flash('error', 'Bạn không có quyền tạo danh mục sản phẩm!');
         return
     }
@@ -184,13 +185,17 @@ module.exports.deleteItem = async (req, res) => {
 
     const id = req.params.id
 
-    // await Product.deleteOne({_id: id})
-    await ProductCategory.updateOne({ _id: id }, {
-        deleted: true,
-        deleteAt: new Date()
-    })
+    try {
+        await ProductCategory.updateOne({ _id: id }, {
+            deleted: true,
+            deleteAt: new Date()
+        })
 
-    req.flash('success', 'Cập nhật trạng thái thành công!');
+        req.flash('success', 'Cập nhật trạng thái thành công!');
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Xóa thất bại!');
+    }
 
     // res.location("back")
     const backURL = req.get("Referrer") || "/";
@@ -235,6 +240,14 @@ module.exports.editPATCH = async (req, res) => {
     }
 
     try {
+        // Get the current category to access the public_id
+        const currentCategory = await ProductCategory.findOne({ _id: id });
+
+        // If a new file is being uploaded and there's an existing public_id, delete the old image
+        if (req.body.public_id && currentCategory.public_id) {
+            await deleteFromCloudinary(currentCategory.public_id);
+        }
+
         await ProductCategory.updateOne({ _id: id }, req.body)
         req.flash('success', 'Cập nhật thành công!');
     } catch (error) {

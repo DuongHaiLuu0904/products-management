@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const slug = require('mongoose-slug-updater')
+mongoose.plugin(slug)
 
 const roleSchema = new mongoose.Schema({
     title: String,

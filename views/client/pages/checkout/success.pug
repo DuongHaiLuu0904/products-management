@@ -38,6 +38,24 @@ block main
                                 td Địa chỉ giao hàng
                                 td 
                                     b #{order.userInfo.address}
+                            tr
+                                td Phương thức thanh toán
+                                td 
+                                    if(order.payment && order.payment.method)
+                                        if(order.payment.method === 'cod')
+                                            b Thanh toán khi nhận hàng (COD)
+                            tr
+                                td Trạng thái thanh toán
+                                td 
+                                    if(order.payment && order.payment.status)
+                                        if(order.payment.status === 'pending')
+                                            span.badge.badge-warning Chưa thanh toán
+                                        else if(order.payment.status === 'paid')
+                                            span.badge.badge-success Đã thanh toán
+                                            if(order.payment.transactionId)
+                                                p.mt-1.mb-0 Mã giao dịch: #{order.payment.transactionId}
+                                        else if(order.payment.status === 'failed')
+                                            span.badge.badge-danger Thanh toán thất bại
             .row 
                 .col-12 
                     table(class='table table-bordered')
@@ -58,8 +76,8 @@ block main
                                         td 
                                             img(src=item.productInfo.thumbnail, alt=item.productInfo.title, width="100px")
                                         td #{item.productInfo.title}
-                                        td #{item.priceNew}$
+                                        td #{item.priceNew}đ
                                         td #{item.quantity}
-                                        td #{item.totalPrice}$
+                                        td #{item.totalPrice}đ
                                 
-                    h3(class='text-right') Tổng đơn hàng: #{order.totalPrice}$
+                    h3(class='text-right') Tổng đơn hàng: #{order.totalPrice}đ

@@ -1,4 +1,5 @@
 const Setting = require('../../models/setting-general.model');
+const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary");
 
 // [GET] /admin/setting/general
 module.exports.general = async (req, res) => {
@@ -12,15 +13,26 @@ module.exports.general = async (req, res) => {
 
 // [PATCH] /admin/setting/general
 module.exports.generalPatch = async (req, res) => {
-    const setting = await Setting.findOne({})
+    try {
+        const setting = await Setting.findOne({})
 
-    if (setting) {
-        await Setting.updateOne({ _id: setting.id }, req.body)
-    } else {
-        const record = new Setting(req.body)
-        await record.save()
+        if (setting) {
+            // If a new logo is being uploaded and there's an existing public_id, delete the old image
+            if (req.body.public_id && setting.public_id) {
+                await deleteFromCloudinary(setting.public_id);
+            }
+            
+            await Setting.updateOne({ _id: setting.id }, req.body)
+        } else {
+            const record = new Setting(req.body)
+            await record.save()
+        }
+        
+        req.flash('success', 'Cập nhật thành công')
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Cập nhật thất bại!');
     }
     
-    req.flash('success', 'Cập nhật thành công')
     res.redirect(req.headers.referer)
 }

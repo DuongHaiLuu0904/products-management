@@ -2,6 +2,7 @@ const User = require("../../models/user.model")
 const md5 = require('md5')
 
 const systemConfix = require("../../config/system")
+const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
 
 module.exports.index = async (req, res) => {
     let find = {
@@ -99,6 +100,14 @@ module.exports.editPatch = async (req, res) => {
     
             res.redirect(req.headers.referer)
         } else {
+            // Get the current user to access the public_id
+            const currentUser = await User.findOne({ _id: id });
+
+            // If a new avatar is being uploaded and there's an existing public_id, delete the old image
+            if (req.body.public_id && currentUser.public_id) {
+                await deleteFromCloudinary(currentUser.public_id);
+            }
+            
             if(req.body.password) {
                 req.body.password = md5(req.body.password)
             } else {
@@ -144,10 +153,23 @@ module.exports.deleteItem = async (req, res) => {
 
     const id = req.params.id
     
-    await User.updateOne({ _id: id }, {
-        deleted: true,
-        deleteAt: new Date()
-    })
+    try {
+        // Get the user to access the public_id
+        const user = await User.findOne({ _id: id });
+
+        // Delete the avatar from Cloudinary if public_id exists
+        if (user.public_id) {
+            await deleteFromCloudinary(user.public_id);
+        }
+        
+        await User.updateOne({ _id: id }, {
+            deleted: true,
+            deleteAt: new Date()
+        })
+    } catch (error) {
+        console.log(error);
+        req.flash('error', 'Xóa thất bại!');
+    }
 
     req.flash('success', 'Cập nhật trạng thái thành công!');
 

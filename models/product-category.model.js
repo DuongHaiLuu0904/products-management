@@ -10,6 +10,7 @@ const productCategorySchema = new mongoose.Schema({
     },
     description: String,
     thumbnail: String,
+    public_id: String,
     status: String,
     position: Number,
     slug: {

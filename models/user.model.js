@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
         default: () => generate.generateRamdomString(32) 
     },
     phone: String,
+    public_id: String,
     avatar: String,
     friendList: [
         {

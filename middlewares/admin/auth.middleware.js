@@ -5,7 +5,7 @@ const systemConfix = require("../../config/system")
 
 module.exports.reuireAuth = async (req, res, next) => {
     if(!req.cookies.token) {
-        res.redirect(`${systemConfix.prefixAdmin}/auth/login`)
+        return res.redirect(`${systemConfix.prefixAdmin}/auth/login`)
     } else {
         const user = await Account.findOne({
             token: req.cookies.token,
@@ -13,7 +13,7 @@ module.exports.reuireAuth = async (req, res, next) => {
         }).select("-password")
 
         if(!user) {
-            res.redirect(`${systemConfix.prefixAdmin}/auth/login`)
+            return res.redirect(`${systemConfix.prefixAdmin}/auth/login`)
         } else {
             const role = await Role.findOne( {
                 _id: user.role_id
