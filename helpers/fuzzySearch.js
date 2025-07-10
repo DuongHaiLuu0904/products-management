@@ -1,4 +1,5 @@
 const Fuse = require('fuse.js');
+const diacritics = require('diacritics');
 
 module.exports.fuzzySearch = (data, keyword, options = {}) => {
     if (!data || !Array.isArray(data) || !keyword) {
@@ -7,6 +8,9 @@ module.exports.fuzzySearch = (data, keyword, options = {}) => {
             resultsWithScore: []
         };
     }
+
+    // Loại bỏ dấu từ keyword trước khi tìm kiếm
+    const normalizedKeyword = diacritics.remove(keyword.toLowerCase());
 
     // Cấu hình mặc định cho Fuse.js
     const defaultOptions = {
@@ -29,15 +33,43 @@ module.exports.fuzzySearch = (data, keyword, options = {}) => {
     // Merge với options tùy chỉnh
     const fuseOptions = { ...defaultOptions, ...options };
 
-    // Tạo instance Fuse
-    const fuse = new Fuse(data, fuseOptions);
+    // Chuẩn hóa dữ liệu: loại bỏ dấu từ các trường cần tìm kiếm
+    const normalizedData = data.map(item => {
+        const normalizedItem = { ...item };
+        
+        // Lấy danh sách keys từ options hoặc sử dụng keys mặc định
+        const searchKeys = fuseOptions.keys || ['title', 'description'];
+        
+        searchKeys.forEach(key => {
+            if (typeof key === 'string' && item[key]) {
+                normalizedItem[key] = diacritics.remove(item[key].toLowerCase());
+            } else if (typeof key === 'object' && key.name && item[key.name]) {
+                normalizedItem[key.name] = diacritics.remove(item[key.name].toLowerCase());
+            }
+        });
+        
+        return normalizedItem;
+    });
 
-    // Thực hiện tìm kiếm
-    const searchResults = fuse.search(keyword);
+    // Tạo instance Fuse với dữ liệu đã chuẩn hóa
+    const fuse = new Fuse(normalizedData, fuseOptions);
 
+    // Thực hiện tìm kiếm với keyword đã chuẩn hóa
+    const searchResults = fuse.search(normalizedKeyword);
+
+    // Trả về kết quả với dữ liệu gốc (chưa chuẩn hóa)
     return {
-        results: searchResults.map(result => result.item),
-        resultsWithScore: searchResults,
+        results: searchResults.map(result => {
+            const originalIndex = normalizedData.indexOf(result.item);
+            return data[originalIndex];
+        }),
+        resultsWithScore: searchResults.map(result => {
+            const originalIndex = normalizedData.indexOf(result.item);
+            return {
+                ...result,
+                item: data[originalIndex]
+            };
+        }),
         totalFound: searchResults.length
     };
 };
@@ -49,7 +81,7 @@ module.exports.searchProducts = (products, keyword) => {
         keys: [
             {
                 name: 'title',
-                weight: 0.5
+                weight: 0.7
             }
         ]
     };
@@ -64,7 +96,7 @@ module.exports.searchCategories = (categories, keyword) => {
         keys: [
             {
                 name: 'title',
-                weight: 0.5
+                weight: 0.8
             }
         ]
     };
@@ -79,7 +111,7 @@ module.exports.searchUsers = (users, keyword) => {
         keys: [
             {
                 name: 'fullName',
-                weight: 0.5
+                weight: 0.6
             }
         ]
     };
