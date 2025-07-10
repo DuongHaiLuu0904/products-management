@@ -56,10 +56,21 @@ block main
                     h3(class='text-right') Tổng tiền: #{cartDetail.totalPrice}$
 
                     div(class="text-right mt-3")
-                        a(
-                            href="/checkout"
-                            class="btn btn-primary"
-                        ) Thanh toán
+                        if user
+                            a(
+                                href="/checkout"
+                                class="btn btn-primary"
+                            ) Thanh toán
+                        else
+                            p.text-danger.text-right Vui lòng đăng nhập để thanh toán
+                            a(
+                                href="/user/login"
+                                class="btn btn-warning mr-2"
+                            ) Đăng nhập
+                            a(
+                                href="/user/register"
+                                class="btn btn-success"
+                            ) Đăng ký
 
 
     script(src="/js/cart.js") 

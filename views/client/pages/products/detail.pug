@@ -37,35 +37,47 @@ block main
                     if(product.stock)
                         div(class="inner-stock") Còn lại: <span>#{product.stock}</span> sản phẩm
 
-                    form(
-                        action=`/cart/add/${product.id}`
-                        method="POST"
-                    )
-                        div(class="quantity-control mb-3")
+                    if user
+                        form(
+                            action=`/cart/add/${product.id}`
+                            method="POST"
+                        )
+                            div(class="quantity-control mb-3")
+                                button(
+                                    type="button"
+                                    class="quantity-btn quantity-decrease"
+                                    onclick="decreaseQuantity()"
+                                ) -
+                                input(
+                                    class="form-control quantity-input"
+                                    type="number"
+                                    id="quantity-input"
+                                    name="quantity"
+                                    value="1"
+                                    min="1"
+                                    max=product.stock
+                                    readonly
+                                )
+                                button(
+                                    type="button"
+                                    class="quantity-btn quantity-increase"
+                                    onclick="increaseQuantity()"
+                                ) +
                             button(
-                                type="button"
-                                class="quantity-btn quantity-decrease"
-                                onclick="decreaseQuantity()"
-                            ) -
-                            input(
-                                class="form-control quantity-input"
-                                type="number"
-                                id="quantity-input"
-                                name="quantity"
-                                value="1"
-                                min="1"
-                                max=product.stock
-                                readonly
-                            )
-                            button(
-                                type="button"
-                                class="quantity-btn quantity-increase"
-                                onclick="increaseQuantity()"
-                            ) +
-                        button(
-                            class="btn btn-success btn-block"
-                            type="submit"
-                        ) Thêm vào giỏ hàng
+                                class="btn btn-success btn-block"
+                                type="submit"
+                            ) Thêm vào giỏ hàng
+                    else
+                        .alert.alert-warning.mt-3
+                            p.mb-2 Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng
+                            a(
+                                href="/user/login"
+                                class="btn btn-warning mr-2"
+                            ) Đăng nhập
+                            a(
+                                href="/user/register"
+                                class="btn btn-success"
+                            ) Đăng ký
         
         hr
         .container

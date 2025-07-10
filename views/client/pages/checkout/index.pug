@@ -47,14 +47,32 @@ block main
                         )
                             .form-group
                                 label(for='fullname') Họ tên
-                                input.form-control(type='text', name='fullname', id='fullname', required=true)
+                                input.form-control(
+                                    type='text', 
+                                    name='fullname', 
+                                    id='fullname', 
+                                    value=user ? user.fullName : '',
+                                    required=true
+                                )
                             
                             .form-group
                                 label(for='phone') Số điện thoại
-                                input.form-control(type='text', name='phone', id='phone', required=true)
+                                input.form-control(
+                                    type='text', 
+                                    name='phone', 
+                                    id='phone', 
+                                    value=user ? user.phone : '',
+                                    required=true
+                                )
                             
                             .form-group
                                 label(for='address') Địa chỉ giao hàng
-                                input.form-control(type='text', name='address', id='address', required=true)
+                                input.form-control(
+                                    type='text', 
+                                    name='address', 
+                                    id='address', 
+                                    value=user ? user.address : '',
+                                    required=true
+                                )
                             
                             button.btn.btn-success.btn-block.mt-4(type='submit') Đặt hàng
