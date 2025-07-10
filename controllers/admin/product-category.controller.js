@@ -3,6 +3,7 @@ const ProductCategory = require('../../models/product-category.model');
 const systemConfix = require("../../config/system")
 const filterStatusHelper = require("../../helpers/filterStatus")
 const searchHelper = require("../../helpers/search")
+const fuzzySearchHelper = require("../../helpers/fuzzySearch")
 const createTreeHelper = require("../../helpers/createTree")
 const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
 
@@ -19,14 +20,7 @@ module.exports.index = async (req, res) => {
     }
     //
 
-    // Tìm kiếm
-    const objectSearch = searchHelper(req.query)
-
-    if (objectSearch.regex) {
-        find.title = objectSearch.regex
-    }
     //
-
 
     // Sort
     let sort = {}
@@ -38,16 +32,46 @@ module.exports.index = async (req, res) => {
     }
     //
 
-    const records = await ProductCategory.find(find).sort(sort)
+    // Tìm kiếm
+    const objectSearch = searchHelper(req.query)
+    let records = []
+    let newRecords = []
 
-    const newRecords = createTreeHelper.createTree(records)
+    if (objectSearch.keyword) {
+        // Sử dụng tìm kiếm mờ với Fuse.js
+        const allCategories = await ProductCategory.find({
+            deleted: false,
+            ...(req.query.status && { status: req.query.status })
+        }).sort(sort)
 
-    res.render('admin/pages/products-category/index', {
-        title: 'Danh mục sản phẩm',
-        records: newRecords,
-        filterStatus: filterStatus,
-        keyword: objectSearch.keyword
-    });
+        const fuzzyResult = fuzzySearchHelper.searchCategories(allCategories, objectSearch.keyword)
+        records = fuzzyResult.results
+        newRecords = createTreeHelper.createTree(records)
+
+        res.render('admin/pages/products-category/index', {
+            title: 'Danh mục sản phẩm',
+            records: newRecords,
+            filterStatus: filterStatus,
+            keyword: objectSearch.keyword,
+            searchType: 'fuzzy',
+            totalFound: fuzzyResult.totalFound
+        });
+    } else {
+        // Tìm kiếm truyền thống khi không có từ khóa
+        if (objectSearch.regex) {
+            find.title = objectSearch.regex
+        }
+
+        records = await ProductCategory.find(find).sort(sort)
+        newRecords = createTreeHelper.createTree(records)
+
+        res.render('admin/pages/products-category/index', {
+            title: 'Danh mục sản phẩm',
+            records: newRecords,
+            filterStatus: filterStatus,
+            keyword: objectSearch.keyword
+        });
+    }
 }
 
 // [GET] /admin/products-category/create

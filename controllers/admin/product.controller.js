@@ -6,6 +6,7 @@ const systemConfix = require("../../config/system")
 
 const filterStatusHelper = require("../../helpers/filterStatus")
 const searchHelper = require("../../helpers/search")
+const fuzzySearchHelper = require("../../helpers/fuzzySearch")
 const paginationHelper = require("../../helpers/pagination")
 const createTreeHelper = require("../../helpers/createTree")
 const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
@@ -24,25 +25,6 @@ module.exports.index = async (req, res) => {
     }
     //
 
-    // Tìm kiếm
-    const objectSearch = searchHelper(req.query)
-
-    if (objectSearch.regex) {
-        find.title = objectSearch.regex
-    }
-    //
-
-    // Phân trang 
-    const countProducts = await Product.countDocuments(find)
-
-    let objectPangination = paginationHelper(
-        {
-            currentPage: 1,
-            limitItems: 6
-        },
-        req.query,
-        countProducts
-    )
     //
 
     // Sort
@@ -54,34 +36,108 @@ module.exports.index = async (req, res) => {
         sort["position"] = "desc"
     }
     //
-    
-    const products = await Product.find(find).limit(objectPangination.limitItems).skip(objectPangination.skip).sort(sort)
 
-    // Lấy danh sách tài khoản tạo sản phẩm
-    for (const product of products) {
-        const user = await Account.findOne({ _id: product.createBy.account_id })
-        if (user) {
-            product.accountFullName = user.fullName
+    // Tìm kiếm
+    const objectSearch = searchHelper(req.query)
+    let products = []
+
+    if (objectSearch.keyword) {
+        // Sử dụng tìm kiếm mờ với Fuse.js
+        const allProducts = await Product.find({
+            deleted: false,
+            ...(req.query.status && { status: req.query.status })
+        }).sort(sort)
+
+        const fuzzyResult = fuzzySearchHelper.searchProducts(allProducts, objectSearch.keyword)
+        products = fuzzyResult.results
+
+        // Cập nhật pagination cho kết quả tìm kiếm mờ
+        const countProducts = fuzzyResult.totalFound
+        let objectPangination = paginationHelper(
+            {
+                currentPage: 1,
+                limitItems: 6
+            },
+            req.query,
+            countProducts
+        )
+
+        // Apply pagination to fuzzy search results
+        const startIndex = objectPangination.skip
+        const endIndex = startIndex + objectPangination.limitItems
+        products = products.slice(startIndex, endIndex)
+
+        // Lấy danh sách tài khoản tạo sản phẩm
+        for (const product of products) {
+            const user = await Account.findOne({ _id: product.createBy.account_id })
+            if (user) {
+                product.accountFullName = user.fullName
+            }
+
+            // Lấy danh sách tài khoản cập nhật sản phẩm
+            const updatedBy = product.updatedBy[product.updatedBy.length - 1]
+            if(updatedBy) {
+                const userUpdated = await Account.findOne({ 
+                    _id: updatedBy.account_id 
+                })
+                updatedBy.updatedFullName = userUpdated.fullName
+            }
         }
 
-        // Lấy danh sách tài khoản cập nhật sản phẩm
-        const updatedBy = product.updatedBy[product.updatedBy.length - 1]
-        if(updatedBy) {
-            const userUpdated = await Account.findOne({ 
-                _id: updatedBy.account_id 
-            })
-            updatedBy.updatedFullName = userUpdated.fullName
+        res.render('admin/pages/product/index', {
+            title: 'Trang sản phẩm',
+            products: products,
+            filterStatus: filterStatus,
+            keyword: objectSearch.keyword,
+            pagination: objectPangination,
+            searchType: 'fuzzy',
+            totalFound: fuzzyResult.totalFound
+        });
+    } else {
+        // Tìm kiếm truyền thống khi không có từ khóa
+        if (objectSearch.regex) {
+            find.title = objectSearch.regex
         }
-        
+
+        // Phân trang 
+        const countProducts = await Product.countDocuments(find)
+
+        let objectPangination = paginationHelper(
+            {
+                currentPage: 1,
+                limitItems: 6
+            },
+            req.query,
+            countProducts
+        )
+
+        products = await Product.find(find).limit(objectPangination.limitItems).skip(objectPangination.skip).sort(sort)
+
+        // Lấy danh sách tài khoản tạo sản phẩm
+        for (const product of products) {
+            const user = await Account.findOne({ _id: product.createBy.account_id })
+            if (user) {
+                product.accountFullName = user.fullName
+            }
+
+            // Lấy danh sách tài khoản cập nhật sản phẩm
+            const updatedBy = product.updatedBy[product.updatedBy.length - 1]
+            if(updatedBy) {
+                const userUpdated = await Account.findOne({ 
+                    _id: updatedBy.account_id 
+                })
+                updatedBy.updatedFullName = userUpdated.fullName
+            }
+        }
+
+        res.render('admin/pages/product/index', {
+            title: 'Trang sản phẩm',
+            products: products,
+            filterStatus: filterStatus,
+            keyword: objectSearch.keyword,
+            pagination: objectPangination
+        });
     }
-
-    res.render('admin/pages/product/index', {
-        title: 'Trang sản phẩm',
-        products: products,
-        filterStatus: filterStatus,
-        keyword: objectSearch.keyword,
-        pagination: objectPangination
-    });
 }
 
 // [PATCH] /admin/products/change-status/:status/:id
