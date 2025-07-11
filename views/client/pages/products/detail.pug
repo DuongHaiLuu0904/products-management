@@ -5,6 +5,10 @@ include ../../mixins/alert.pug
 block main 
     +alert-success(3000)
     +alert-error(3000)
+    
+    // Include CSS cho star rating
+    link(rel="stylesheet" href="/css/star-rating.css")
+    
     .product-detail
         .container.my-5
             
@@ -93,19 +97,18 @@ block main
                         .comment-form.mb-4
                             form(
                                 action="/products/comment/add"
+                                id="form-create-comment"
                                 method="POST"
                                 class="border p-3 rounded"
                             )
                                 input(type="hidden" name="product_id" value=product.id)
                                 .form-group
-                                    label(for="rating") Đánh giá:
-                                    select(name="rating" id="rating" class="form-control" required)
-                                        option(value="") Chọn đánh giá
-                                        option(value="5") ⭐⭐⭐⭐⭐ (5 sao)
-                                        option(value="4") ⭐⭐⭐⭐ (4 sao)
-                                        option(value="3") ⭐⭐⭐ (3 sao)
-                                        option(value="2") ⭐⭐ (2 sao)
-                                        option(value="1") ⭐ (1 sao)
+                                    label Đánh giá:
+                                    .star-rating.mb-2
+                                        - for(let i = 1; i <= 5; i++)
+                                            span.star(data-rating=i) ★
+                                    input(type="hidden" name="rating" id="rating" required)
+                                    small.text-muted.rating-text Vui lòng chọn số sao đánh giá
                                 .form-group
                                     label(for="content") Nội dung bình luận:
                                     textarea(
@@ -142,7 +145,7 @@ block main
                                                     .comment-rating.ml-2
                                                         - for(let i = 1; i <= 5; i++)
                                                             if i <= comment.rating
-                                                                span.text-warning ⭐
+                                                                span.text-warning ★
                                                             else
                                                                 span.text-muted ☆
                                                 .comment-meta
@@ -176,35 +179,24 @@ block main
                     button.close(type="button" data-dismiss="modal")
                         span &times;
                 .modal-body
-                    form#editCommentForm(method="POST")
-                        input(type="hidden" name="_method" value="PATCH")
+                    form(
+                        id="editCommentForm"
+                        method="POST"
+                        action="/products/comment/edit/:commentId?_method=PATCH"
+                    )
                         .form-group
-                            label(for="editRating") Đánh giá:
-                            select(name="rating" id="editRating" class="form-control" required)
-                                option(value="5") ⭐⭐⭐⭐⭐ (5 sao)
-                                option(value="4") ⭐⭐⭐⭐ (4 sao)
-                                option(value="3") ⭐⭐⭐ (3 sao)
-                                option(value="2") ⭐⭐ (2 sao)
-                                option(value="1") ⭐ (1 sao)
+                            label Đánh giá:
+                            .star-rating.mb-2
+                                - for(let i = 1; i <= 5; i++)
+                                    span.star(data-rating=i) ★
+                            input(type="hidden" name="rating" id="editRating" required)
+                            small.text-muted.edit-rating-text Vui lòng chọn số sao đánh giá
                         .form-group
                             label(for="editContent") Nội dung:
                             textarea(name="content" id="editContent" class="form-control" rows="3" required)
-                .modal-footer
-                    button.btn.btn-secondary(type="button" data-dismiss="modal") Hủy
-                    button.btn.btn-primary(type="submit" form="editCommentForm") Cập nhật
+                        
+                        .modal-actions
+                            button.btn.btn-secondary(type="button" data-dismiss="modal") Hủy
+                            button.btn.btn-primary(type="submit") Cập nhật
 
-    script.
-        // Xử lý sửa comment
-        $(document).ready(function() {
-            $('.edit-comment-btn').click(function() {
-                const commentId = $(this).data('comment-id');
-                const content = $(this).data('content');
-                const rating = $(this).data('rating');
-                
-                $('#editCommentForm').attr('action', `/products/comment/edit/${commentId}`);
-                $('#editContent').val(content);
-                $('#editRating').val(rating);
-                
-                $('#editCommentModal').modal('show');
-            });
-        });
+    script(src="/js/star-rating.js")
