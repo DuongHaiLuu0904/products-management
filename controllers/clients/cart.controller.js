@@ -25,6 +25,8 @@ exports.index = async (req, res) => {
             item.productInfo = product
         }
         cart.totalPrice = cart.products.reduce((sum, item) => sum + item.totalPrice, 0)
+    } else {
+        cart.totalPrice = 0
     }
     
 
