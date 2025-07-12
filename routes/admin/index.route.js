@@ -11,6 +11,7 @@ const authRoute = require('./auth.route')
 const my_accountRoute = require('./my-account.route')
 const settingRoute = require('./setting.route')
 const userRoute = require('./user.route')
+const commentRoute = require('./comment.route')
 
 const authController = require('../../controllers/admin/auth.controller')
 
@@ -36,4 +37,6 @@ module.exports = (app) => {
     app.use(PATH_ADMIN + '/setting', middleware.reuireAuth, settingRoute)
 
     app.use(PATH_ADMIN + '/users', middleware.reuireAuth, userRoute)
+
+    app.use(PATH_ADMIN + '/comments', middleware.reuireAuth, commentRoute)
 }

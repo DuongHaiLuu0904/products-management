@@ -1,10 +1,12 @@
 const Product = require('../../models/product.model');
 const ProductCategory = require('../../models/product-category.model');
 const User = require('../../models/user.model');
+const Comment = require('../../models/comment.model');
 
 const productHelper = require('../../helpers/product')
 const productCategoryHelper = require('../../helpers/products-category')
 const paginationHelper = require("../../helpers/pagination")
+const ratingHelper = require("../../helpers/rating")
 
 // [GET] /products
 const cache = {}
@@ -61,39 +63,58 @@ module.exports.detail = async (req, res) => {
         product.priceNew = productHelper.priceNewProduct(product)
 
         // Lấy tất cả comments cho sản phẩm này
-        const users = await User.find({
-            'productComments.product_id': product._id.toString(),
-            status: 'active',
-            deleted: false
-        }).select('fullName avatar productComments');
+        const comments = await Comment.find({
+            product_id: product._id,
+            deleted: false,
+            status: 'active'
+        }).sort({ createdAt: -1 });
 
-        let comments = [];
-        users.forEach(user => {
-            const userComments = user.productComments.filter(comment => 
-                comment.product_id === product._id.toString()
-            );
-            userComments.forEach(comment => {
-                comments.push({
-                    _id: comment._id,
-                    content: comment.content,
-                    rating: comment.rating,
-                    createdAt: comment.createdAt,
-                    user: {
-                        _id: user._id,
-                        fullName: user.fullName,
-                        avatar: user.avatar
-                    }
-                });
+        // Lấy thông tin user cho mỗi comment và tổ chức comment theo cấu trúc cha-con
+        const commentTree = [];
+        const commentMap = new Map();
+
+        for (const comment of comments) {
+            const user = await User.findOne({ 
+                _id: comment.user_id,
+                status: 'active',
+                deleted: false 
             });
-        });
+            if (user) {
+                comment.user = user;
+            }
+            
+            commentMap.set(comment._id.toString(), comment);
+            
+            if (!comment.parent_id) {
+                // Comment gốc
+                comment.replies = [];
+                commentTree.push(comment);
+            }
+        }
 
-        // Sắp xếp comments theo thời gian mới nhất
-        comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // Thêm các reply vào comment cha
+        for (const comment of comments) {
+            if (comment.parent_id && commentMap.has(comment.parent_id)) {
+                const parentComment = commentMap.get(comment.parent_id);
+                if (!parentComment.replies) {
+                    parentComment.replies = [];
+                }
+                parentComment.replies.push(comment);
+            }
+        }
+
+        // Tính rating trung bình cho sản phẩm
+        const ratingInfo = await ratingHelper.calculateAverageRating(product._id);
+        const ratingDistribution = await ratingHelper.getRatingDistribution(product._id);
+        
+        product.averageRating = ratingInfo.averageRating;
+        product.totalReviews = ratingInfo.totalReviews;
+        product.ratingDistribution = ratingDistribution;
 
         res.render('client/pages/products/detail', {
             title: 'Chi tiết sản phẩm',
             product: product,
-            comments: comments
+            comments: commentTree
         });
     } catch (error) {
         res.redirect(`/products`);
@@ -128,102 +149,150 @@ module.exports.category = async (req, res) => {
 // [POST] /products/comment/add
 module.exports.addComment = async (req, res) => {
     try {
+        if (!res.locals.user) {
+            req.flash('error', 'Bạn cần đăng nhập để bình luận!');
+            return res.redirect('back');
+        }
+
         const { product_id, content, rating } = req.body;
-        const userId = res.locals.user.id;
 
-        if (!content || !rating || !product_id) {
-            req.flash('error', 'Vui lòng điền đầy đủ thông tin');
+        if (!content || !product_id) {
+            req.flash('error', 'Vui lòng nhập đầy đủ thông tin!');
             return res.redirect('back');
         }
 
-        const user = await User.findById(userId);
-        if (!user) {
-            req.flash('error', 'Không tìm thấy người dùng');
+        // Validate rating if provided
+        if (rating && (rating < 1 || rating > 5)) {
+            req.flash('error', 'Đánh giá phải từ 1 đến 5 sao!');
             return res.redirect('back');
         }
 
-        const newComment = {
-            product_id: product_id,
+        // Kiểm tra sản phẩm có tồn tại
+        const product = await Product.findOne({
+            _id: product_id,
+            deleted: false,
+            status: "active"
+        });
+
+        if (!product) {
+            req.flash('error', 'Sản phẩm không tồn tại!');
+            return res.redirect('back');
+        }
+
+        const comment = new Comment({
             content: content,
-            rating: parseInt(rating),
-            createdAt: new Date()
-        };
+            user_id: res.locals.user.id,
+            product_id: product_id,
+            rating: rating ? parseInt(rating) : null,
+            status: "active"
+        });
 
-        user.productComments.push(newComment);
-        await user.save();
+        await comment.save();
 
-        req.flash('success', 'Thêm bình luận thành công');
-        res.redirect('back');
+        req.flash('success', 'Bình luận của bạn đã được gửi thành công!');
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
     } catch (error) {
         console.log(error);
-        req.flash('error', 'Có lỗi xảy ra');
-        res.redirect('back');
+        req.flash('error', 'Có lỗi xảy ra, vui lòng thử lại!');
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
     }
 }
 
 // [PATCH] /products/comment/edit/:commentId
 module.exports.editComment = async (req, res) => {
     try {
+        if (!res.locals.user) {
+            req.flash('error', 'Bạn cần đăng nhập!');
+            return res.redirect('back');
+        }
+
         const { commentId } = req.params;
         const { content, rating } = req.body;
-        const userId = res.locals.user.id;
 
-        if (!content || !rating) {
-            req.flash('error', 'Vui lòng điền đầy đủ thông tin');
+        if (!content) {
+            req.flash('error', 'Vui lòng nhập nội dung bình luận!');
             return res.redirect('back');
         }
 
-        const user = await User.findById(userId);
-        if (!user) {
-            req.flash('error', 'Không tìm thấy người dùng');
+        // Validate rating if provided
+        if (rating && (rating < 1 || rating > 5)) {
+            req.flash('error', 'Đánh giá phải từ 1 đến 5 sao!');
             return res.redirect('back');
         }
 
-        const comment = user.productComments.id(commentId);
+        // Kiểm tra comment có tồn tại và thuộc về user hiện tại
+        const comment = await Comment.findOne({
+            _id: commentId,
+            user_id: res.locals.user.id,
+            deleted: false
+        });
+
         if (!comment) {
-            req.flash('error', 'Không tìm thấy bình luận');
+            req.flash('error', 'Bình luận không tồn tại hoặc bạn không có quyền sửa!');
             return res.redirect('back');
         }
 
-        comment.content = content;
-        comment.rating = parseInt(rating);
-        await user.save();
+        await Comment.updateOne(
+            { _id: commentId },
+            { 
+                content: content,
+                rating: rating ? parseInt(rating) : null
+            }
+        );
 
-        req.flash('success', 'Cập nhật bình luận thành công');
-        res.redirect('back');
+        req.flash('success', 'Cập nhật bình luận thành công!');
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
     } catch (error) {
         console.log(error);
-        req.flash('error', 'Có lỗi xảy ra');
-        res.redirect('back');
+        req.flash('error', 'Có lỗi xảy ra, vui lòng thử lại!');
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
     }
 }
 
 // [DELETE] /products/comment/delete/:commentId
 module.exports.deleteComment = async (req, res) => {
     try {
+        if (!res.locals.user) {
+            req.flash('error', 'Bạn cần đăng nhập!');
+            return res.redirect('back');
+        }
+
         const { commentId } = req.params;
-        const userId = res.locals.user.id;
 
-        const user = await User.findById(userId);
-        if (!user) {
-            req.flash('error', 'Không tìm thấy người dùng');
-            return res.redirect('back');
-        }
+        // Kiểm tra comment có tồn tại và thuộc về user hiện tại
+        const comment = await Comment.findOne({
+            _id: commentId,
+            user_id: res.locals.user.id,
+            deleted: false
+        });
 
-        const comment = user.productComments.id(commentId);
         if (!comment) {
-            req.flash('error', 'Không tìm thấy bình luận');
+            req.flash('error', 'Bình luận không tồn tại hoặc bạn không có quyền xóa!');
             return res.redirect('back');
         }
 
-        user.productComments.pull(commentId);
-        await user.save();
+        await Comment.updateOne(
+            { _id: commentId },
+            { 
+                deleted: true,
+                deletedBy: {
+                    account_id: res.locals.user.id,
+                    deleteAt: new Date()
+                }
+            }
+        );
 
-        req.flash('success', 'Xóa bình luận thành công');
-        res.redirect('back');
+        req.flash('success', 'Xóa bình luận thành công!');
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
     } catch (error) {
         console.log(error);
-        req.flash('error', 'Có lỗi xảy ra');
-        res.redirect('back');
+        req.flash('error', 'Có lỗi xảy ra, vui lòng thử lại!');
+        const backURL = req.get("Referrer") || "/";
+        res.redirect(backURL);
     }
 }

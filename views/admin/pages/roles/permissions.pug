@@ -180,6 +180,33 @@ block main
 
                 tr 
                     td(colspan="4") 
+                        b Quản lý bình luận
+                tr(data-name="comments_view")
+                    td Xem 
+                    each item in records
+                        td(class="text-center")
+                            input(type="checkbox")
+                
+                tr(data-name="comments_create")
+                    td Tạo mới 
+                    each item in records
+                        td(class="text-center")
+                            input(type="checkbox")
+
+                tr(data-name="comments_edit")
+                    td Sửa 
+                    each item in records
+                        td(class="text-center")
+                            input(type="checkbox")
+                
+                tr(data-name="comments_delete")
+                    td Xóa 
+                    each item in records
+                        td(class="text-center")
+                            input(type="checkbox")
+
+                tr 
+                    td(colspan="4") 
                         b Cài đặt chung 
                 tr(data-name="setting")
                     td Sửa 

@@ -21,21 +21,6 @@ const userSchema = new mongoose.Schema({
     ],
     acceptFriend: Array,
     requestFriend: Array,
-    productComments: [
-        {
-            product_id: String,
-            content: String,
-            rating: {
-                type: Number,
-                min: 1,
-                max: 5
-            },
-            createdAt: {
-                type: Date,
-                default: Date.now
-            }
-        }
-    ],
     status: {
         type: String,
         default: 'active'

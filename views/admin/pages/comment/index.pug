@@ -1,0 +1,205 @@
+extends ../../layouts/default.pug
+include ../../mixins/filter-status.pug
+include ../../mixins/search.pug  
+include ../../mixins/pagination.pug
+include ../../mixins/moment.pug
+
+block main
+    h1(class="mb-4") #{title}
+
+    div(class="card mb-3")
+        div(class="card-header") Bộ lọc và tìm kiếm
+        div(class="card-body")
+            div(class="row")
+                div(class="col-6")
+                    +filter-status(filterStatus)
+                    
+                div(class="col-6")
+                    form(action="" method="GET")
+                        div(class="input-group mb-3")
+                            input(
+                                type="text"
+                                class="form-control"
+                                placeholder="Nhập từ khóa"
+                                name="keyword"
+                                value=keyword
+                            )
+                            button(
+                                class="btn btn-success"
+                                type="submit"
+                            ) Tìm
+
+                if products && products.length > 0
+                    div(class="mb-3")
+                        label(for="product-filter" class="form-label") Lọc theo sản phẩm:
+                        select(class="form-control" id="product-filter" name="product_id" onchange="filterByProduct()")
+                            option(value="") Tất cả sản phẩm
+                            each product in products
+                                option(
+                                    value=product._id
+                                    selected=(product._id == query.product_id)
+                                )= product.title
+
+    div(class="card mb-3")
+        div(class="card-header") Danh sách bình luận
+        div(class="card-body")
+            div(class="row")
+                div(class="col-8")
+                    if(role.permissions.includes("comments_edit"))
+                        form(
+                            action=`${prefixAdmin}/comments/change-multi?_method=PATCH`
+                            method="POST"
+                            id="form-change-multi"
+                        )
+                            div(class="d-flex align-items-center flex-wrap")
+                                select(
+                                    class="form-control mr-2"
+                                    name="type"
+                                    style="width: 150px; margin-bottom: 10px; margin-right: 10px;"
+                                )
+                                    option(value="") -- Chọn hành động --
+                                    option(value="active") Kích hoạt
+                                    option(value="inactive") Ẩn
+                                    if(role.permissions.includes("comments_delete"))
+                                        option(value="delete-all") Xóa tất cả
+
+                                button(
+                                    type="submit"
+                                    class="btn btn-primary mr-2"
+                                    style="margin-bottom: 10px; margin-right: 10px;"
+                                ) Áp dụng
+
+
+                div(class="col-4")
+                    if(role.permissions.includes("comments_create"))
+                        a(
+                            class="btn btn-outline-success"
+                            href=`${prefixAdmin}/comments/create`
+                        ) + Thêm mới
+
+            div(class="table-responsive")
+                table(class="table table-hover table-sm")
+                    thead
+                        tr
+                            th
+                                input(type="checkbox" name="checkall")
+                            th STT
+                            th Nội dung
+                            th Đánh giá
+                            th Người dùng
+                            th Sản phẩm
+                            th Trạng thái
+                            th Thời gian
+                            th Hành động
+
+                    tbody
+                        if(comments.length > 0)
+                            each comment, index in comments
+                                tr
+                                    td
+                                        input(
+                                            type="checkbox"
+                                            name="id"
+                                            value=comment._id
+                                        )
+                                    td #{pagination.limitItems * (pagination.currentPage - 1) + (index + 1)}
+                                    td 
+                                        div(class="comment-content" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;")= comment.content
+                                        if comment.parentComment
+                                            div(class="small text-muted") 
+                                                | Trả lời: #{comment.parentComment.content.substring(0, 30)}...
+                                    td
+                                        if comment.rating
+                                            - var stars = Array.from({length: 5}, (_, i) => i < comment.rating)
+                                            each star in stars
+                                                if star
+                                                    i.fas.fa-star.text-warning
+                                                else
+                                                    i.far.fa-star.text-muted
+                                            span.ml-1 #{comment.rating}/5
+                                        else
+                                            span.text-muted Không có
+                                    td
+                                        if comment.userInfo
+                                            div #{comment.userInfo.fullName}
+                                            div(class="small text-muted") #{comment.userInfo.email}
+                                        else
+                                            span(class="text-muted") Người dùng đã bị xóa
+                                    td
+                                        if comment.productInfo
+                                            a(href=`${prefixAdmin}/products/detail/${comment.productInfo._id}`) #{comment.productInfo.title}
+                                        else
+                                            span(class="text-muted") Sản phẩm đã bị xóa
+                                    td
+                                        if(role.permissions.includes("comments_edit"))
+                                            if(comment.status == "active")
+                                                button(
+                                                    class="badge badge-success"
+                                                    style="border: none; cursor: pointer;"
+                                                    button-change-status
+                                                    data-status="active"
+                                                    data-id=comment._id
+                                                ) Kích hoạt
+                                            else
+                                                button(
+                                                    class="badge badge-danger"
+                                                    style="border: none; cursor: pointer;"
+                                                    button-change-status
+                                                    data-status="inactive"
+                                                    data-id=comment._id
+                                                ) Ẩn
+                                        else
+                                            if(comment.status == "active")
+                                                span(class="badge badge-success") Kích hoạt
+                                            else
+                                                span(class="badge badge-danger") Ẩn
+                                    td
+                                        +moment(comment.createdAt)
+                                    td
+                                        a(
+                                            class="btn btn-outline-info btn-sm"
+                                            href=`${prefixAdmin}/comments/detail/${comment._id}`
+                                        ) Chi tiết
+
+                                        if(role.permissions.includes("comments_delete"))
+                                            button(
+                                                class="btn btn-outline-danger btn-sm ml-1"
+                                                button-delete
+                                                data-id=comment._id
+                                            ) Xóa
+                        else
+                            tr
+                                td(colspan="9" class="text-center") Không có bình luận nào!
+
+    +pagination(pagination)
+
+    form(
+        action=""
+        method="POST"
+        id="form-change-status"
+        data-path=`${prefixAdmin}/comments/change-status`
+    )
+
+    form(
+        action=""
+        method="POST"
+        id="form-delete-item"
+        data-path=`${prefixAdmin}/comments/delete`
+    )
+
+    script(src="/admin/js/comment.js")
+
+    script.
+        function filterByProduct() {
+            const select = document.getElementById('product-filter');
+            const productId = select.value;
+            const url = new URL(window.location);
+            
+            if (productId) {
+                url.searchParams.set('product_id', productId);
+            } else {
+                url.searchParams.delete('product_id');
+            }
+            
+            window.location.href = url.toString();
+        }

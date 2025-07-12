@@ -133,15 +133,15 @@ block main
                                 .comment-item.border-bottom.py-3
                                     .d-flex.align-items-start
                                         .comment-avatar.mr-3
-                                            if comment.user.avatar
+                                            if comment.user && comment.user.avatar
                                                 img(src=comment.user.avatar alt=comment.user.fullName style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;")
                                             else
                                                 .default-avatar(style="width: 50px; height: 50px; border-radius: 50%; background-color: #007bff; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;")
-                                                    = comment.user.fullName.charAt(0).toUpperCase()
+                                                    = comment.user ? comment.user.fullName.charAt(0).toUpperCase() : 'U'
                                         .comment-content.flex-grow-1
                                             .comment-header.d-flex.justify-content-between.align-items-center
                                                 .comment-user-info
-                                                    strong= comment.user.fullName
+                                                    strong= comment.user ? comment.user.fullName : 'Người dùng không xác định'
                                                     .comment-rating.ml-2
                                                         - for(let i = 1; i <= 5; i++)
                                                             if i <= comment.rating
@@ -149,9 +149,9 @@ block main
                                                             else
                                                                 span.text-muted ☆
                                                 .comment-meta
-                                                    small.text-muted= moment(comment.createdAt).format('DD/MM/YYYY HH:mm')
+                                                    small.text-muted= new Date(comment.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
                                                     // Hiển thị nút sửa/xóa nếu là comment của user hiện tại
-                                                    if user && user.id == comment.user._id
+                                                    if user && comment.user && user.id == comment.user._id
                                                         .comment-actions.ml-2
                                                             button.btn.btn-sm.btn-outline-primary.edit-comment-btn(
                                                                 data-comment-id=comment._id

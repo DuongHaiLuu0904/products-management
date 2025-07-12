@@ -1,0 +1,182 @@
+extends ../../layouts/default.pug
+include ../../mixins/moment.pug
+
+block main
+    div(class="d-flex justify-content-between align-items-center mb-4")
+        h1 #{title}
+        a(
+            class="btn btn-outline-secondary"
+            href=`${prefixAdmin}/comments`
+        ) 
+            i(class="fa fa-arrow-left")
+            |  Quay lại
+
+    div(class="row")
+        div(class="col-12")
+            div(class="card")
+                div(class="card-header")
+                    h5(class="card-title mb-0") Thông tin bình luận
+                div(class="card-body")
+                    div(class="row")
+                        div(class="col-md-6")
+                            div(class="form-group")
+                                label(class="font-weight-bold") Người dùng:
+                                if comment.userInfo
+                                    div
+                                        if comment.userInfo.avatar
+                                            img(
+                                                src=comment.userInfo.avatar
+                                                alt=comment.userInfo.fullName
+                                                class="rounded-circle mr-2"
+                                                style="width: 40px; height: 40px; object-fit: cover;"
+                                            )
+                                        span #{comment.userInfo.fullName}
+                                    div(class="small text-muted") #{comment.userInfo.email}
+                                else
+                                    span(class="text-muted") Người dùng đã bị xóa
+
+                            div(class="form-group")
+                                label(class="font-weight-bold") Sản phẩm:
+                                if comment.productInfo
+                                    div
+                                        a(href=`${prefixAdmin}/products/detail/${comment.productInfo._id}`) #{comment.productInfo.title}
+                                    div(class="small text-muted") Giá: #{comment.productInfo.price.toLocaleString('vi-VN')} VNĐ
+                                else
+                                    span(class="text-muted") Sản phẩm đã bị xóa
+
+                        div(class="col-md-6")
+                            div(class="form-group")
+                                label(class="font-weight-bold") Trạng thái:
+                                if(comment.status == "active")
+                                    span(class="badge badge-success") Kích hoạt
+                                else
+                                    span(class="badge badge-danger") Ẩn
+
+                            div(class="form-group")
+                                label(class="font-weight-bold") Thời gian tạo:
+                                div
+                                    +moment(comment.createdAt)
+
+                            if comment.updatedAt && comment.updatedAt != comment.createdAt
+                                div(class="form-group")
+                                    label(class="font-weight-bold") Thời gian sửa:
+                                    div
+                                        +moment(comment.updatedAt)
+
+                    div(class="form-group")
+                        label(class="font-weight-bold") Nội dung bình luận:
+                        div(class="border p-3 bg-light")= comment.content
+
+                    if comment.rating
+                        div(class="form-group")
+                            label(class="font-weight-bold") Đánh giá:
+                            div
+                                - var stars = Array.from({length: 5}, (_, i) => i < comment.rating)
+                                each star in stars
+                                    if star
+                                        i.fas.fa-star.text-warning
+                                    else
+                                        i.far.fa-star.text-muted
+                                span.ml-2 #{comment.rating}/5 sao
+
+                    if comment.parentComment
+                        div(class="form-group")
+                            label(class="font-weight-bold") Trả lời cho bình luận:
+                            div(class="border p-3 bg-secondary text-white")
+                                div(class="mb-2")
+                                    strong #{comment.parentComment.userInfo ? comment.parentComment.userInfo.fullName : 'Người dùng đã bị xóa'}
+                                div= comment.parentComment.content
+
+                    div(class="form-group")
+                        div(class="btn-group")
+                            if(role.permissions.includes("comments_edit"))
+                                if(comment.status == "active")
+                                    button(
+                                        class="btn btn-warning"
+                                        button-change-status
+                                        data-status="active"
+                                        data-id=comment._id
+                                    ) Ẩn bình luận
+                                else
+                                    button(
+                                        class="btn btn-success"
+                                        button-change-status
+                                        data-status="inactive"
+                                        data-id=comment._id
+                                    ) Kích hoạt bình luận
+
+                            if(role.permissions.includes("comments_delete"))
+                                button(
+                                    class="btn btn-danger ml-2"
+                                    button-delete
+                                    data-id=comment._id
+                                ) Xóa bình luận
+
+        if childComments && childComments.length > 0
+            div(class="col-12 mt-4")
+                div(class="card")
+                    div(class="card-header")
+                        h5(class="card-title mb-0") Các phản hồi (#{childComments.length})
+                    div(class="card-body")
+                        each childComment in childComments
+                            div(class="border-bottom pb-3 mb-3")
+                                div(class="d-flex justify-content-between align-items-start")
+                                    div(class="flex-grow-1")
+                                        div(class="d-flex align-items-center mb-2")
+                                            if childComment.userInfo && childComment.userInfo.avatar
+                                                img(
+                                                    src=childComment.userInfo.avatar
+                                                    alt=childComment.userInfo.fullName
+                                                    class="rounded-circle mr-2"
+                                                    style="width: 30px; height: 30px; object-fit: cover;"
+                                                )
+                                            strong #{childComment.userInfo ? childComment.userInfo.fullName : 'Người dùng đã bị xóa'}
+                                            span(class="small text-muted ml-2")
+                                                +moment(childComment.createdAt)
+                                        div= childComment.content
+                                    div(class="ml-3")
+                                        if(childComment.status == "active")
+                                            span(class="badge badge-success") Kích hoạt
+                                        else
+                                            span(class="badge badge-danger") Ẩn
+
+                                        if(role.permissions.includes("comments_edit") || role.permissions.includes("comments_delete"))
+                                            div(class="btn-group btn-group-sm mt-2")
+                                                if(role.permissions.includes("comments_edit"))
+                                                    if(childComment.status == "active")
+                                                        button(
+                                                            class="btn btn-outline-warning btn-sm"
+                                                            button-change-status
+                                                            data-status="active"
+                                                            data-id=childComment._id
+                                                        ) Ẩn
+                                                    else
+                                                        button(
+                                                            class="btn btn-outline-success btn-sm"
+                                                            button-change-status
+                                                            data-status="inactive"
+                                                            data-id=childComment._id
+                                                        ) Kích hoạt
+
+                                                if(role.permissions.includes("comments_delete"))
+                                                    button(
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        button-delete
+                                                        data-id=childComment._id
+                                                    ) Xóa
+
+    form(
+        action=""
+        method="POST"
+        id="form-change-status"
+        data-path=`${prefixAdmin}/comments/change-status`
+    )
+
+    form(
+        action=""
+        method="POST"
+        id="form-delete-item"
+        data-path=`${prefixAdmin}/comments/delete`
+    )
+
+    script(src="/admin/js/comment.js")

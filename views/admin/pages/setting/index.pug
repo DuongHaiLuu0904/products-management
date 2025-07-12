@@ -2,91 +2,92 @@ extends ../../layouts/default.pug
 include ../../mixins/alert.pug
 
 block main
-    div(class="settings-container")
-        h1 Cài đặt chung
-        
-        +alert-error(5000)
-        +alert-success(5000)
+    if(role.permissions.includes('setting'))
+        div(class="settings-container")
+            h1 Cài đặt chung
+            
+            +alert-error(5000)
+            +alert-success(5000)
 
-        form(
-            action=`${prefixAdmin}/setting/general?_method=PATCH`
-            method="POST"
-            enctype="multipart/form-data"
-        )
-            div(class='form-group')
-                label(for="webSiteName") Tên trang
-                input(
-                    type="text"
-                    name="webSiteName"
-                    id="webSiteName"
-                    class="form-control"
-                    value=(setting ? setting.webSiteName : '')
-                )
-
-            div(
-                class='form-group'
-                upload-image
+            form(
+                action=`${prefixAdmin}/setting/general?_method=PATCH`
+                method="POST"
+                enctype="multipart/form-data"
             )
-                label(for="logo") Logo
-                input(
-                    type="file"
-                    name="logo"
-                    id="logo"
-                    class="form-control-file"
-                    accept="image/*"
-                    upload-image-input
-                )
-                img(
-                    src=(setting ? setting.logo : '')
-                    class='image-preview'
-                    upload-image-preview
-                )
-                if setting && setting.logo
-                    div
-                        span(close-image) Xóa ảnh
+                div(class='form-group')
+                    label(for="webSiteName") Tên trang
+                    input(
+                        type="text"
+                        name="webSiteName"
+                        id="webSiteName"
+                        class="form-control"
+                        value=(setting ? setting.webSiteName : '')
+                    )
 
-            div(class='form-group')
-                label(for="phone") Số điện thoại
-                input(
-                    type="text"
-                    name="phone"
-                    id="phone"
-                    class="form-control"
-                    value=(setting ? setting.phone : '')
+                div(
+                    class='form-group'
+                    upload-image
                 )
+                    label(for="logo") Logo
+                    input(
+                        type="file"
+                        name="logo"
+                        id="logo"
+                        class="form-control-file"
+                        accept="image/*"
+                        upload-image-input
+                    )
+                    img(
+                        src=(setting ? setting.logo : '')
+                        class='image-preview'
+                        upload-image-preview
+                    )
+                    if setting && setting.logo
+                        div
+                            span(close-image) Xóa ảnh
 
-            div(class='form-group') 
-                label(for="email") Email
-                input(
-                    type="text"
-                    name="email"
-                    id="email"
-                    class="form-control"
-                    value=(setting ? setting.email : '')
-                )
-            
-            div(class='form-group')
-                label(for="address") Địa chỉ
-                input(
-                    type="text"
-                    name="address"
-                    id="address"
-                    class="form-control"
-                    value=(setting ? setting.address : '')
-                )
-            
-            div(class='form-group')
-                label(for="copyRight") CopyRight
-                input(
-                    name="copyRight"
-                    id="copyRight"
-                    class="form-control"
-                    type='text'
-                    value=(setting ? setting.copyRight : '')
-                )
-            
-            div(class='form-group')
-                button(
-                    type="submit"
-                    class="btn btn-primary"
-                ) Cập nhật
+                div(class='form-group')
+                    label(for="phone") Số điện thoại
+                    input(
+                        type="text"
+                        name="phone"
+                        id="phone"
+                        class="form-control"
+                        value=(setting ? setting.phone : '')
+                    )
+
+                div(class='form-group') 
+                    label(for="email") Email
+                    input(
+                        type="text"
+                        name="email"
+                        id="email"
+                        class="form-control"
+                        value=(setting ? setting.email : '')
+                    )
+                
+                div(class='form-group')
+                    label(for="address") Địa chỉ
+                    input(
+                        type="text"
+                        name="address"
+                        id="address"
+                        class="form-control"
+                        value=(setting ? setting.address : '')
+                    )
+                
+                div(class='form-group')
+                    label(for="copyRight") CopyRight
+                    input(
+                        name="copyRight"
+                        id="copyRight"
+                        class="form-control"
+                        type='text'
+                        value=(setting ? setting.copyRight : '')
+                    )
+                
+                div(class='form-group')
+                    button(
+                        type="submit"
+                        class="btn btn-primary"
+                    ) Cập nhật

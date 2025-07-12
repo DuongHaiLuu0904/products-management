@@ -1,6 +1,8 @@
 const Product = require('../../models/product.model');
 const ProductCategory = require('../../models/product-category.model');
 const Account = require('../../models/account.model')
+const Comment = require('../../models/comment.model')
+const User = require('../../models/user.model')
 
 const systemConfix = require("../../config/system")
 
@@ -410,9 +412,24 @@ module.exports.detail = async (req, res) => {
         }
         const product = await Product.findOne(find)
 
+        // Lấy tất cả comment của sản phẩm
+        const comments = await Comment.find({
+            product_id: req.params.id,
+            deleted: false
+        }).sort({ createdAt: -1 })
+
+        // Lấy thông tin user cho mỗi comment
+        for (const comment of comments) {
+            const user = await User.findOne({ _id: comment.user_id })
+            if (user) {
+                comment.userInfo = user
+            }
+        }
+
         res.render('admin/pages/product/detail', {
             title: 'Chi tiết sản phẩm',
-            product: product
+            product: product,
+            comments: comments
         });
     } catch (error) {
         res.redirect(`${systemConfix.prefixAdmin}/products`);

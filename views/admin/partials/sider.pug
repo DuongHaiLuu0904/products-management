@@ -39,13 +39,21 @@
                         i.fas.fa-user-shield.me-2
                         span Tài khoản Admin 
             
-            li 
-                a(href=`${prefixAdmin}/users`)
-                    i.fas.fa-users
-                    span Tài khoản khách hàng
+            if(role.permissions.includes('users_view'))
+                li 
+                    a(href=`${prefixAdmin}/users`)
+                        i.fas.fa-users
+                        span Tài khoản khách hàng
 
-            li 
-                a(href=`${prefixAdmin}/setting/general`)
-                    i.fas.fa-cog
-                    span Cài đặt chung
+            if(role.permissions.includes('comments_view'))
+                li 
+                    a(href=`${prefixAdmin}/comments`)
+                        i.fas.fa-comments
+                        span Quản lý bình luận
+            
+            if(role.permissions.includes('setting'))
+                li 
+                    a(href=`${prefixAdmin}/setting/general`)
+                        i.fas.fa-cog
+                        span Cài đặt chung
 
