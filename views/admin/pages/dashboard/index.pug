@@ -1,25 +1,7 @@
 extends ../../layouts/default.pug
 
-
 block main
     h1 Trang tổng quan
-
-    .row.mt-4
-        .col-12
-            .user-info-card
-                if user.avatar
-                    img(
-                        src=user.avatar,
-                        style='height: 100px; margin-bottom: 15px;'
-                    )
-                if user.fullName
-                    p Họ tên: <b>#{user.fullName}</b>
-                if user.email
-                    p Email: <b>#{user.email}</b>
-                if user.phone
-                    p Số điện thoại: <b>#{user.phone}</b>
-                if role.title
-                    p Phân quyền: <b>#{role.title}</b>
 
     .row.dashboard-stats-row
         .col-6(style="--index: 1")
@@ -53,3 +35,23 @@ block main
                     p Số lượng: <b>#{statistics.user.total}</b>
                     p Hoạt động: <b>#{statistics.user.active}</b>
                     p Dừng hoạt động: <b>#{statistics.user.inactive}</b>
+
+        .col-6.mt-4(style="--index: 5")
+            .dashboard-card.order
+                .card-header Đơn hàng
+                .card-body
+                    p Tổng số đơn: <b>#{statistics.order.total}</b>
+                    p Đơn hàng tháng này: <b>#{statistics.order.thisMonth}</b>
+                    p Đơn hàng hôm nay: <b>#{statistics.order.today}</b>
+
+        .col-6.mt-4(style="--index: 6")
+            .dashboard-card.revenue
+                .card-header Doanh thu
+                .card-body
+                    p Tổng doanh thu: <b>#{statistics.revenue.total.toLocaleString('vi-VN')} VNĐ</b>
+                    p Doanh thu tháng này: <b>#{statistics.revenue.thisMonth.toLocaleString('vi-VN')} VNĐ</b>
+                    p Doanh thu hôm nay: <b>#{statistics.revenue.today.toLocaleString('vi-VN')} VNĐ</b>
+
+block scripts
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+    script(src="/admin/js/dashboard-charts.js")
