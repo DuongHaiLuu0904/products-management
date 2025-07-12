@@ -39,4 +39,12 @@ router.post('/password/reset', validate.resetPasswordPost, controller.resetPassw
 
 router.get('/info', authMiddleware.reuireAuth, controller.info)
 
+router.get('/edit', authMiddleware.reuireAuth, controller.edit)
+
+router.post('/edit', authMiddleware.reuireAuth, validate.editPost, controller.editPost)
+
+router.get('/change-password', authMiddleware.reuireAuth, controller.changePassword)
+
+router.post('/change-password', authMiddleware.reuireAuth, validate.changePasswordPost, controller.changePasswordPost)
+
 module.exports = router

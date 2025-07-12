@@ -1,0 +1,84 @@
+extend ../../layouts/default.pug
+include ../../mixins/box-head
+include ../../mixins/alert.pug
+
+block main 
+    +alert-success(3000)
+    +alert-error(3000)
+    
+    .container.my-5
+        .row.justify-content-center
+            .col-lg-8 
+                +box-head('Chỉnh sửa thông tin', 'edit')
+
+                .card.shadow-sm.mb-4.rounded-3.border-0
+                    .card-header.bg-primary.text-white.py-3
+                        h5.mb-0
+                            i.fa.fa-edit.me-2
+                            | Cập nhật thông tin cá nhân
+                    .card-body.p-4
+                        form(
+                            action=""
+                            method="POST"
+                        )
+                            .row
+                                .col-md-6.mb-3
+                                    label.form-label.fw-bold(for="fullName")
+                                        i.fa.fa-user.me-1
+                                        |  Họ và tên 
+                                        span.text-danger *
+                                    input.form-control(
+                                        type="text"
+                                        id="fullName"
+                                        name="fullName"
+                                        value=user.fullName
+                                        placeholder="Nhập họ và tên"
+                                        required
+                                    )
+                                
+                                .col-md-6.mb-3
+                                    label.form-label.fw-bold(for="email")
+                                        i.fa.fa-envelope.me-1
+                                        |  Email
+                                    input.form-control(
+                                        type="email"
+                                        id="email"
+                                        value=user.email
+                                        disabled
+                                        readonly
+                                    )
+                                    small.text-muted Email không thể thay đổi
+                            
+                            .row
+                                .col-md-6.mb-3
+                                    label.form-label.fw-bold(for="phone")
+                                        i.fa.fa-phone.me-1
+                                        |  Số điện thoại
+                                    input.form-control(
+                                        type="tel"
+                                        id="phone"
+                                        name="phone"
+                                        value=user.phone
+                                        placeholder="Nhập số điện thoại"
+                                    )
+                                
+                                .col-md-6.mb-3
+                                    label.form-label.fw-bold(for="address")
+                                        i.fa.fa-map-marker-alt.me-1
+                                        |  Địa chỉ
+                                    input.form-control(
+                                        type="text"
+                                        id="address"
+                                        name="address"
+                                        value=user.address
+                                        placeholder="Nhập địa chỉ"
+                                    )
+                            
+                            .row.mt-4
+                                .col-12.d-flex.justify-content-between
+                                    a.btn.btn-outline-secondary(href="/user/info")
+                                        i.fa.fa-arrow-left.me-1
+                                        |  Quay lại
+                                    button.btn.btn-primary(type="submit")
+                                        i.fa.fa-save.me-1
+                                        |  Lưu thay đổi

@@ -11,19 +11,37 @@ block main
         if(record.phone)
             p(class="mb-4") Số điện thoại: <b>#{record.phone}</b>
 
+        if(record.address)
+            p(class="mb-4") Địa chỉ: <b>#{record.address}</b>
+
         if(record.avatar)
-            div(class="avatar-section")
+            div(class="avatar-section mb-4")
                 img(src= record.avatar, alt= record.fullName, width = "100px", height = auto)
         
         if(record.status)
-            div(class="status-section")
+            div(class="status-section mb-4")
                 span(class="status-label") Trạng thái: 
                 if(record.status == "active")
                     span(class="badge badge-success") Hoạt động 
                 else 
                     span(class="badge badge-danger") Dừng hoạt động
 
-       
+        // OAuth Information
+        if(record.googleId || record.githubId)
+            div(class="oauth-section mb-4")
+                h5 Thông tin đăng nhập OAuth
+                if(record.googleId)
+                    p Google ID: <b>#{record.googleId}</b>
+                if(record.githubId)
+                    p GitHub ID: <b>#{record.githubId}</b>
+
+        // Timestamps
+        div(class="timestamp-section mb-4")
+            h5 Thông tin thời gian
+            if(record.createdAt)
+                p Ngày tạo: <b>#{record.createdAt.toLocaleDateString('vi-VN')} lúc #{record.createdAt.toLocaleTimeString('vi-VN')}</b>
+            if(record.updatedAt)
+                p Cập nhật lần cuối: <b>#{record.updatedAt.toLocaleDateString('vi-VN')} lúc #{record.updatedAt.toLocaleTimeString('vi-VN')}</b>
 
         if(record.description)
             div.description-section

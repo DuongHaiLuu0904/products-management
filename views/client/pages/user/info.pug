@@ -18,12 +18,25 @@ block main
                             | Thông tin chi tiết
                     .card-body.p-4
                         .row.user-info-container
+                            // Avatar section
+                            if user.avatar
+                                .col-12.mb-4.text-center
+                                    .info-group
+                                        label.d-block.fw-bold.mb-3.text-primary
+                                            i.fa.fa-image.me-1
+                                            | Ảnh đại diện:
+                                        img.rounded-circle.shadow-sm(
+                                            src=user.avatar
+                                            alt="Avatar"
+                                            style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #007bff;"
+                                        )
+                            
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-user-circle.me-1
                                         | Họ và tên:
-                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.fullName}
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.fullName || 'Chưa cập nhật'}
                             
                             .col-md-6.mb-4
                                 .info-group
@@ -31,6 +44,20 @@ block main
                                         i.fa.fa-envelope.me-1
                                         | Email:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.email}
+                            
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-phone.me-1
+                                        | Số điện thoại:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.phone || 'Chưa cập nhật'}
+                            
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-map-marker-alt.me-1
+                                        | Địa chỉ:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.address || 'Chưa cập nhật'}
                             
                             .col-md-6.mb-4
                                 .info-group
@@ -49,6 +76,30 @@ block main
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
+                                        i.fa.fa-id-card.me-1
+                                        | Mã người dùng:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0.font-monospace #{user._id}
+                            
+                            // OAuth information
+                            if user.googleId || user.githubId
+                                .col-12.mb-4
+                                    .info-group
+                                        label.d-block.fw-bold.mb-2.text-primary
+                                            i.fa.fa-link.me-1
+                                            | Tài khoản liên kết:
+                                        .d-flex.flex-wrap.gap-2
+                                            if user.googleId
+                                                span.badge.bg-danger.px-3.py-2.fs-6
+                                                    i.fab.fa-google.me-1
+                                                    | Google
+                                            if user.githubId
+                                                span.badge.bg-dark.px-3.py-2.fs-6
+                                                    i.fab.fa-github.me-1
+                                                    | GitHub
+                            
+                            .col-md-6.mb-4
+                                .info-group
+                                    label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-calendar.me-1
                                         | Ngày tạo:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0 #{new Date(user.createdAt).toLocaleDateString('vi-VN')}
@@ -59,3 +110,13 @@ block main
                                         i.fa.fa-clock.me-1
                                         | Cập nhật gần nhất:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0 #{new Date(user.updatedAt).toLocaleDateString('vi-VN')}
+
+                        // Action buttons
+                        .row.mt-4
+                            .col-12.text-center
+                                a.btn.btn-primary.me-3(href="/user/edit")
+                                    i.fa.fa-edit.me-1
+                                    | Chỉnh sửa thông tin
+                                a.btn.btn-outline-secondary(href="/user/change-password")
+                                    i.fa.fa-key.me-1
+                                    | Đổi mật khẩu

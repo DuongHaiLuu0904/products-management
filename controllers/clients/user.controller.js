@@ -212,6 +212,86 @@ module.exports.info = async (req, res) => {
     })
 }
 
+//[GET] /edit
+module.exports.edit = async (req, res) => {
+    
+    res.render('client/pages/user/edit-info', {
+        title: 'Chỉnh sửa thông tin'
+    })
+}
+
+//[POST] /edit
+module.exports.editPost = async (req, res) => {
+    try {
+        const user = res.locals.user
+        
+        const updateData = {
+            fullName: req.body.fullName,
+            phone: req.body.phone,
+            address: req.body.address
+        }
+
+        await User.updateOne(
+            {
+                _id: user.id,
+                deleted: false
+            },
+            updateData
+        )
+
+        req.flash('success', 'Cập nhật thông tin thành công!')
+        res.redirect('/user/info')
+    } catch (error) {
+        req.flash('error', 'Có lỗi xảy ra khi cập nhật thông tin!')
+        res.redirect('back')
+    }
+}
+
+//[GET] /change-password
+module.exports.changePassword = async (req, res) => {
+    
+    res.render('client/pages/user/change-password', {
+        title: 'Đổi mật khẩu'
+    })
+}
+
+//[POST] /change-password
+module.exports.changePasswordPost = async (req, res) => {
+    try {
+        const user = res.locals.user
+        const { currentPassword, newPassword } = req.body
+
+        // Kiểm tra mật khẩu hiện tại
+        const userPassword = await User.findOne({
+            _id: user.id,
+            password: md5(currentPassword),
+            deleted: false
+        })
+
+        if (!userPassword) {
+            req.flash('error', 'Mật khẩu hiện tại không đúng!')
+            return res.redirect('back')
+        }
+
+        // Cập nhật mật khẩu mới
+        await User.updateOne(
+            {
+                _id: user.id,
+                deleted: false
+            },
+            {
+                password: md5(newPassword)
+            }
+        )
+
+        req.flash('success', 'Đổi mật khẩu thành công!')
+        res.redirect('/user/info')
+    } catch (error) {
+        req.flash('error', 'Có lỗi xảy ra khi đổi mật khẩu!')
+        res.redirect('back')
+    }
+}
+
 // Google OAuth Routes
 //[GET] /auth/google
 module.exports.googleAuth = (req, res, next) => {
