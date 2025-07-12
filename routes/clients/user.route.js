@@ -15,6 +15,16 @@ router.post('/login', validate.loginPost, controller.loginPost)
 
 router.get('/logout', controller.logout)
 
+// Google OAuth
+router.get('/auth/google', controller.googleAuth)
+
+router.get('/auth/google/callback', controller.googleCallback)
+
+// GitHub OAuth
+router.get('/auth/github', controller.githubAuth)
+
+router.get('/auth/github/callback', controller.githubCallback)
+
 router.get('/password/forgot', controller.forgotPassword)
 
 router.post('/password/forgot', controller.forgotPasswordPost)

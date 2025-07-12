@@ -5,6 +5,7 @@ const Cart = require('../../models/cart.model')
 const md5 = require('md5')
 const generate = require('../../helpers/generate')
 const sendMailHelper = require('../../helpers/sendMail')
+const passport = require('passport')
 
 //[GET] /register
 module.exports.register = async (req, res) => {
@@ -45,47 +46,52 @@ module.exports.login = async (req, res) => {
 }
 
 //[POST] /login
-module.exports.loginPost = async (req, res) => {
-    const email = req.body.email
-    const password = req.body.password
-
-    const user = await User.findOne({
-        email: email,
-        deleted: false
-    })
-
-    if(!user) {
-        req.flash('error', 'Email không tồn tại')
-        return  res.redirect(req.headers.referer)  
-    }
-    if(md5(password) !== user.password) {
-        req.flash('error', 'Mật khẩu không đúng')
-        return  res.redirect(req.headers.referer)  
-    }
-    if(user.status == 'inactive') {
-        req.flash('error', 'Tài khoản đã bị khóa')
-        return  res.redirect(req.headers.referer)  
-    }
-
-    res.cookie('tokenUser', user.tokenUser)
-
-    // Lưu userId và collection cart 
-    await Cart.updateOne(
-        {
-            _id: req.cookies.cartId
-        },
-        {
-            user_id: user.id
+module.exports.loginPost = async (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return next(err);
         }
-    )
-
-    res.redirect('/')
+        if (!user) {
+            req.flash('error', info.message);
+            return res.redirect(req.headers.referer);
+        }
+        
+        req.logIn(user, async (err) => {
+            if (err) {
+                return next(err);
+            }
+            
+            res.cookie('tokenUser', user.tokenUser);
+            
+            // Lưu userId và collection cart 
+            await Cart.updateOne(
+                {
+                    _id: req.cookies.cartId
+                },
+                {
+                    user_id: user.id
+                }
+            )
+            
+            res.redirect('/');
+        });
+    })(req, res, next);
 }
 
 //[GET] /logout
 module.exports.logout = async (req, res) => {
-    res.clearCookie('tokenUser')
-    res.redirect('/')
+    // Logout from passport session
+    if (req.logout) {
+        req.logout((err) => {
+            if (err) {
+                console.error('Logout error:', err);
+            }
+        });
+    }
+    
+    // Clear cookie
+    res.clearCookie('tokenUser');
+    res.redirect('/');
 }
 
 //[GET] /password/forgot
@@ -204,4 +210,100 @@ module.exports.info = async (req, res) => {
     res.render('client/pages/user/info', {
         title: 'Thông tin tài khoản'
     })
+}
+
+// Google OAuth Routes
+//[GET] /auth/google
+module.exports.googleAuth = (req, res, next) => {
+    try {
+        return passport.authenticate('google', {
+            scope: ['profile', 'email']
+        })(req, res, next);
+    } catch (error) {
+        req.flash('error', 'Google OAuth không khả dụng');
+        return res.redirect('/user/login');
+    }
+};
+
+//[GET] /auth/google/callback
+module.exports.googleCallback = async (req, res, next) => {
+    passport.authenticate('google', async (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            req.flash('error', 'Đăng nhập Google thất bại');
+            return res.redirect('/user/login');
+        }
+        
+        req.logIn(user, async (err) => {
+            if (err) {
+                return next(err);
+            }
+            
+            res.cookie('tokenUser', user.tokenUser);
+            
+            // Lưu userId và collection cart 
+            if (req.cookies.cartId) {
+                await Cart.updateOne(
+                    {
+                        _id: req.cookies.cartId
+                    },
+                    {
+                        user_id: user.id
+                    }
+                )
+            }
+            
+            res.redirect('/');
+        });
+    })(req, res, next);
+}
+
+// GitHub OAuth Routes
+//[GET] /auth/github
+module.exports.githubAuth = (req, res, next) => {
+    try {
+        return passport.authenticate('github', {
+            scope: ['user:email']
+        })(req, res, next);
+    } catch (error) {
+        req.flash('error', 'GitHub OAuth không khả dụng');
+        return res.redirect('/user/login');
+    }
+};
+
+//[GET] /auth/github/callback
+module.exports.githubCallback = async (req, res, next) => {
+    passport.authenticate('github', async (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            req.flash('error', 'Đăng nhập GitHub thất bại');
+            return res.redirect('/user/login');
+        }
+        
+        req.logIn(user, async (err) => {
+            if (err) {
+                return next(err);
+            }
+            
+            res.cookie('tokenUser', user.tokenUser);
+            
+            // Lưu userId và collection cart 
+            if (req.cookies.cartId) {
+                await Cart.updateOne(
+                    {
+                        _id: req.cookies.cartId
+                    },
+                    {
+                        user_id: user.id
+                    }
+                )
+            }
+            
+            res.redirect('/');
+        });
+    })(req, res, next);
 }

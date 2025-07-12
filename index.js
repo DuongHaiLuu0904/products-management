@@ -9,6 +9,7 @@ const moment = require('moment')
 const http = require('http')
 const { Server } = require("socket.io");
 const cors = require('cors')
+const passport = require('./config/passport') // Import passport config
 
 require("dotenv").config()
 
@@ -45,9 +46,13 @@ app.use(session({
     secret: 'IamHaiLuu',       // Chuỗi bí mật để mã hóa session (nên đặt trong biến môi trường)
     resave: false,             // Không lưu session nếu không có thay đổi
     saveUninitialized: false,  // Không lưu session mới nếu chưa có dữ liệu
-    cookie: { maxAge: 60000 }  // Thời gian sống của session (60 giây)
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }  // Thời gian sống của session (24 giờ)
 }))
 app.use(flash());
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 // End Flash
 
 // CORS 

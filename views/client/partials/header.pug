@@ -3,69 +3,69 @@ include ../mixins/sub-menu.pug
 header.header 
     .container 
         .row 
-            .col-3 
+            .col-2
                 .inner-logo 
-                    img(src=setting.logo, alt="Logo")
+                    a(href="/")
+                        img(src=setting.logo, alt="Logo", title="Trang chủ")
 
-
-            .col-5
-                form(
+            .col-3
+                form.search-form(
                     action="/search"
                     method="GET"  
                 )
-                    div(class="form-group d-flex mb-0")
-                        input(
+                    .form-group
+                        input.form-control(
                             type="text"
-                            class="form-control"
                             name="keyword"
-                            placeholder="Tìm kiếm sản phẩm"
-                            value = keyword
+                            placeholder="Tìm kiếm sản phẩm..."
+                            value=keyword
+                            autocomplete="off"
                         )
-                        button(
-                            type="submit"
-                            class="btn btn-primary search-button"
-                        ) 
+                        button.search-button(type="submit", title="Tìm kiếm") 
                             i.fa-solid.fa-magnifying-glass
                             span.search-text Tìm
                         
-            .col-4
-                .inner-menu 
-                    ul 
-                        li 
-                            a(href="/", class="icon-link")
+            .col-7
+                nav.inner-menu 
+                    ul.menu-list
+                        li.menu-item 
+                            a.icon-link(href="/", title="Home")
                                 i.fa-solid.fa-house
                                 span.menu-text Home
-                        li(class="sub-menu")
+                        li.menu-item.sub-menu
                             -const pathProduct = "/products"
-                            a(href="/products", class="icon-link")
+                            a.icon-link.category-trigger(href="/products", title="Danh mục sản phẩm")
                                 i.fa-solid.fa-list
                                 span.menu-text Category
-                                +sub_item(layoutProductCategory, pathProduct)
-                        li 
-                            a(href="/cart", class="icon-link")
+                                i.fa-solid.fa-chevron-down.dropdown-arrow
+                            +sub_item(layoutProductCategory, pathProduct)
+                        li.menu-item 
+                            a.icon-link(href="/cart", title="Giỏ hàng")
                                 i.fa-solid.fa-cart-shopping
-                                span.menu-text Shopping Cart (#{cart ? cart.totalQuantity : 0})
+                                span.menu-text Cart
+                                if cart && cart.totalQuantity > 0
+                                    span.cart-count (#{cart.totalQuantity})
                         
                         if(user)
-                            li 
-                                a(href="/chat", class="icon-link")
+                            li.menu-item 
+                                a.icon-link(href="/chat", title="Chat")
                                     i.fa-solid.fa-message
                                     span.menu-text Chat
-                            li 
-                                a(href="/user/info", class="icon-link")
+                            li.menu-item.user-menu 
+                                a.icon-link(href="/user/info", title="Thông tin tài khoản")
                                     i.fa-solid.fa-user
-                                    span.menu-text #{user.fullName}
-                            li 
-                                a(href="/user/logout", class="icon-link")
+                                    span.menu-text= user.fullName
+                            li.menu-item 
+                                a.icon-link(href="/user/logout", title="Đăng xuất")
                                     i.fa-solid.fa-right-from-bracket
                                     span.menu-text Logout
                         else 
-                            li 
-                                a(href="/user/register", class="icon-link")
+                            li.menu-item 
+                                a.icon-link(href="/user/register", title="Đăng ký")
                                     i.fa-solid.fa-user-plus
                                     span.menu-text Register
-                            li
-                                a(href="/user/login", class="icon-link")
+                            li.menu-item
+                                a.icon-link(href="/user/login", title="Đăng nhập")
                                     i.fa-solid.fa-right-to-bracket
                                     span.menu-text Login
 

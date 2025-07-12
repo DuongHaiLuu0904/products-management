@@ -1,7 +1,7 @@
 mixin sub_item(items, path) 
-    ul 
+    ul.dropdown-menu
         each item in items
-            li 
-                a(href=`${path}/${item.slug}`) #{item.title}
+            li.dropdown-item(class=item.children && item.children.length > 0 ? 'has-children' : '')
+                a.dropdown-link(href=`${path}/${item.slug}`) #{item.title}
                 if item.children && item.children.length > 0 
                     +sub_item(item.children, path)
