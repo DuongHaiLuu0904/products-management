@@ -34,5 +34,5 @@ const refreshTokenSchema = new mongoose.Schema({
 // Index để tự động xóa token hết hạn
 refreshTokenSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });
 
-const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema, 'refresh_tokens');
+const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema, 'refresh-tokens');
 module.exports = RefreshToken;
