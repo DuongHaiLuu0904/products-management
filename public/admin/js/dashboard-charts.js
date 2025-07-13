@@ -41,15 +41,8 @@ class DashboardCharts {
     }
 
     createDemoChart(period) {
-        // Tạo dữ liệu demo nếu không có dữ liệu thật
-        const demoData = {
-            '2025-07-10': { orders: 5, revenue: 1500000 },
-            '2025-07-11': { orders: 8, revenue: 2400000 },
-            '2025-07-12': { orders: 3, revenue: 900000 },
-            '2025-07-13': { orders: 6, revenue: 1800000 }
-        };
-        
-        this.renderChart(demoData, period);
+        // Hiển thị thông báo không có dữ liệu thay vì dữ liệu demo
+        this.displayNoDataMessage(period);
     }
 
     renderChart(data, period) {
@@ -328,6 +321,49 @@ class DashboardCharts {
         `;
 
         chartSummary.innerHTML = tableHTML;
+    }
+
+    displayNoDataMessage(period) {
+        // Tạo container cho thông báo không có dữ liệu
+        let chartContainer = document.getElementById('revenue-chart-container');
+        if (!chartContainer) {
+            chartContainer = document.createElement('div');
+            chartContainer.id = 'revenue-chart-container';
+            
+            // Thêm vào trang
+            const dashboardElement = document.querySelector('.dashboard-stats-row');
+            if (dashboardElement) {
+                dashboardElement.parentNode.insertBefore(chartContainer, dashboardElement.nextSibling);
+            }
+        }
+
+        chartContainer.innerHTML = `
+            <div class="mt-5 mb-4">
+                <h3 class="text-center">📊 Biểu đồ Doanh thu và Đơn hàng</h3>
+            </div>
+            <div class="chart-controls mb-3 text-center">
+                <button class="btn btn-sm btn-outline-primary period-btn" data-period="week">📅 Tuần</button>
+                <button class="btn btn-sm btn-primary period-btn" data-period="month">📅 Tháng</button>
+                <button class="btn btn-sm btn-outline-primary period-btn" data-period="year">📅 Năm</button>
+            </div>
+            <div class="chart-wrapper text-center" style="height: 400px; position: relative; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+                <div>
+                    <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Không có dữ liệu để hiển thị</h4>
+                    <p class="text-muted">Hiện tại chưa có dữ liệu thống kê cho ${this.getPeriodLabel(period)}</p>
+                </div>
+            </div>
+        `;
+
+        // Active button
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-outline-primary');
+            if (btn.dataset.period === period) {
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-primary');
+            }
+        });
     }
 
     setupEventListeners() {
