@@ -60,6 +60,16 @@ module.exports.orderPost = async (req, res) => {
             _id: product.product_id
         })
         
+        // Kiểm tra số lượng sản phẩm phải lớn hơn 0
+        if(product.quantity <= 0) {
+            req.flash('error', `Số lượng sản phẩm "${productInfo.title}" không hợp lệ. Vui lòng kiểm tra lại.`)
+            return res.redirect('/checkout')
+        }
+        if(product.stock <= 0) {
+            req.flash('error', `Sản phẩm "${productInfo.title}" đã hết hàng, không thể đặt hàng.`)
+            return res.redirect('/checkout')
+        }
+
         if(productInfo.stock < product.quantity) {
             req.flash('error', `Sản phẩm "${productInfo.title}" chỉ còn ${productInfo.stock} sản phẩm trong kho, không đủ số lượng bạn yêu cầu (${product.quantity}).`)
             return res.redirect('/checkout')
