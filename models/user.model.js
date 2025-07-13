@@ -9,6 +9,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: () => generate.generateRamdomString(32) 
     },
+    refreshToken: {
+        type: String,
+        default: null
+    },
+    refreshTokenExpires: {
+        type: Date,
+        default: null
+    },
     // OAuth fields
     googleId: String,
     githubId: String,

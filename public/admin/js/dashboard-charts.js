@@ -240,6 +240,12 @@ class DashboardCharts {
                         },
                         grid: {
                             color: 'rgba(255, 99, 132, 0.1)'
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return Number.isInteger(value) ? value : '';
+                            }
                         }
                     },
                     y1: {

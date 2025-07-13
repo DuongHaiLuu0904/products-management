@@ -1,4 +1,5 @@
 const User = require("../../models/user.model")
+const { verifyAccessToken } = require("../../helpers/jwt")
 
 module.exports.reuireAuth = async (req, res, next) => {
     let user = null;
@@ -7,7 +8,30 @@ module.exports.reuireAuth = async (req, res, next) => {
     if (req.user) {
         user = req.user;
     }
-    // Then check for token in cookies
+    // Check for JWT access token in Authorization header
+    else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        const token = req.headers.authorization.substring(7);
+        const decoded = verifyAccessToken(token);
+        
+        if (decoded && decoded.userType === 'user') {
+            user = await User.findOne({
+                _id: decoded.id,
+                deleted: false
+            }).select("-password");
+        }
+    }
+    // Check for JWT access token in cookies
+    else if (req.cookies.accessToken) {
+        const decoded = verifyAccessToken(req.cookies.accessToken);
+        
+        if (decoded && decoded.userType === 'user') {
+            user = await User.findOne({
+                _id: decoded.id,
+                deleted: false
+            }).select("-password");
+        }
+    }
+    // Fallback to old tokenUser for backward compatibility
     else if (req.cookies.tokenUser) {
         user = await User.findOne({
             tokenUser: req.cookies.tokenUser,
@@ -16,6 +40,14 @@ module.exports.reuireAuth = async (req, res, next) => {
     }
     
     if (!user) {
+        // If it's an API request, return JSON error
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Unauthorized access' 
+            });
+        }
+        
         res.redirect(`/user/login`);
         return;
     }

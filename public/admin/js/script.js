@@ -175,7 +175,6 @@ if(uploadImage) {
                 if(uploadImageInput) {
                     uploadImageInput.value = ""
                 }
-                console.log("Đã xóa ảnh")
             }
         })
     }
@@ -229,7 +228,6 @@ function toggleSidebar() {
         main.classList.toggle('expanded');
         
         localStorage.setItem('sidebarCollapsed', sider.classList.contains('collapsed'));
-        console.log("Sidebar toggled via direct function");
     } else {
         console.error("Sidebar elements not found in toggle function");
     }
@@ -263,27 +261,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 e.stopPropagation();
                 toggleSidebar();
-                console.log("Toggle button clicked via event listener");
             });
-            
-            console.log("Direct toggle button event attached");
         } 
         
-        // Đảm bảo cả container cũng có thể nhận sự kiện click
         if (siderToggleContainer) {
             siderToggleContainer.addEventListener('click', function(e) {
-                // Chỉ xử lý khi click vào container hoặc button trong container
                 if (e.target.closest('.sidebar-toggle')) {
                     toggleSidebar();
-                    console.log("Toggle container clicked");
                 }
             });
-            
-            console.log("Container toggle event attached");
         }
-        
-        console.log("Sidebar toggle initialized successfully");
-    } else {
+    }
+    else {
         console.error("Sidebar elements not found:", {
             toggleBtn: !!toggleBtn,
             siderToggleContainer: !!siderToggleContainer,

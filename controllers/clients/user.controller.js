@@ -5,6 +5,7 @@ const Cart = require('../../models/cart.model')
 const md5 = require('md5')
 const generate = require('../../helpers/generate')
 const sendMailHelper = require('../../helpers/sendMail')
+const { generateTokenPair, getRefreshTokenExpiry } = require('../../helpers/jwt')
 const passport = require('passport')
 
 //[GET] /register
@@ -32,7 +33,32 @@ module.exports.registerPost = async (req, res) => {
     const user = new User(req.body)
     await user.save()
 
-    res.cookie('tokenUser', user.tokenUser)
+    // Tạo JWT tokens
+    const { accessToken, refreshToken } = generateTokenPair(user, 'user');
+    
+    // Lưu refresh token vào database
+    await User.updateOne(
+        { _id: user._id },
+        {
+            refreshToken: refreshToken,
+            refreshTokenExpires: getRefreshTokenExpiry(refreshToken)
+        }
+    );
+
+    // Set cookies
+    res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000 // 15 phút
+    });
+    
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
+    });
 
     res.redirect('/')
 }
@@ -47,7 +73,7 @@ module.exports.login = async (req, res) => {
 
 //[POST] /login
 module.exports.loginPost = async (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', async (err, user, info) => {
         if (err) {
             return next(err);
         }
@@ -56,42 +82,119 @@ module.exports.loginPost = async (req, res, next) => {
             return res.redirect(req.headers.referer);
         }
         
-        req.logIn(user, async (err) => {
-            if (err) {
-                return next(err);
-            }
+        try {
+            // Tạo JWT tokens
+            const { accessToken, refreshToken } = generateTokenPair(user, 'user');
             
-            res.cookie('tokenUser', user.tokenUser);
-            
-            // Lưu userId và collection cart 
-            await Cart.updateOne(
+            // Lưu refresh token vào database
+            await User.updateOne(
+                { _id: user._id },
                 {
-                    _id: req.cookies.cartId
-                },
-                {
-                    user_id: user.id
+                    refreshToken: refreshToken,
+                    refreshTokenExpires: getRefreshTokenExpiry(refreshToken)
                 }
-            )
+            );
+
+            // Set cookies
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 15 * 60 * 1000 // 15 phút
+            });
             
-            res.redirect('/');
-        });
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
+            });
+            
+            // Login with passport for session support
+            req.logIn(user, async (err) => {
+                if (err) {
+                    console.error('Passport login error:', err);
+                }
+                
+                // Lưu userId và collection cart 
+                if (req.cookies.cartId) {
+                    await Cart.updateOne(
+                        {
+                            _id: req.cookies.cartId
+                        },
+                        {
+                            user_id: user.id
+                        }
+                    );
+                }
+                
+                // Check if it's an API request
+                if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                    return res.json({
+                        success: true,
+                        message: 'Login successful',
+                        tokens: {
+                            accessToken,
+                            expiresIn: 15 * 60
+                        }
+                    });
+                }
+                
+                res.redirect('/');
+            });
+        } catch (error) {
+            console.error('Login error:', error);
+            req.flash('error', 'Có lỗi xảy ra khi đăng nhập');
+            return res.redirect(req.headers.referer);
+        }
     })(req, res, next);
 }
 
 //[GET] /logout
 module.exports.logout = async (req, res) => {
-    // Logout from passport session
-    if (req.logout) {
-        req.logout((err) => {
-            if (err) {
-                console.error('Logout error:', err);
+    try {
+        // Clear refresh token from database
+        if (req.cookies.refreshToken || res.locals.user) {
+            const userId = res.locals.user ? res.locals.user._id : null;
+            
+            if (userId) {
+                await User.updateOne(
+                    { _id: userId },
+                    {
+                        refreshToken: null,
+                        refreshTokenExpires: null
+                    }
+                );
             }
-        });
+        }
+        
+        // Logout from passport session
+        if (req.logout) {
+            req.logout((err) => {
+                if (err) {
+                    console.error('Logout error:', err);
+                }
+            });
+        }
+        
+        // Clear all authentication cookies
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
+        res.clearCookie('tokenUser'); // For backward compatibility
+        
+        // Check if it's an API request
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.json({
+                success: true,
+                message: 'Logout successful'
+            });
+        }
+        
+        res.redirect('/');
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.redirect('/');
     }
-    
-    // Clear cookie
-    res.clearCookie('tokenUser');
-    res.redirect('/');
 }
 
 //[GET] /password/forgot
@@ -316,27 +419,58 @@ module.exports.googleCallback = async (req, res, next) => {
             return res.redirect('/user/login');
         }
         
-        req.logIn(user, async (err) => {
-            if (err) {
-                return next(err);
-            }
+        try {
+            // Tạo JWT tokens
+            const { accessToken, refreshToken } = generateTokenPair(user, 'user');
             
-            res.cookie('tokenUser', user.tokenUser);
+            // Lưu refresh token vào database
+            await User.updateOne(
+                { _id: user._id },
+                {
+                    refreshToken: refreshToken,
+                    refreshTokenExpires: getRefreshTokenExpiry(refreshToken)
+                }
+            );
+
+            // Set cookies
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 15 * 60 * 1000 // 15 phút
+            });
             
-            // Lưu userId và collection cart 
-            if (req.cookies.cartId) {
-                await Cart.updateOne(
-                    {
-                        _id: req.cookies.cartId
-                    },
-                    {
-                        user_id: user.id
-                    }
-                )
-            }
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
+            });
             
-            res.redirect('/');
-        });
+            req.logIn(user, async (err) => {
+                if (err) {
+                    console.error('Passport login error:', err);
+                }
+                
+                // Lưu userId và collection cart 
+                if (req.cookies.cartId) {
+                    await Cart.updateOne(
+                        {
+                            _id: req.cookies.cartId
+                        },
+                        {
+                            user_id: user.id
+                        }
+                    );
+                }
+                
+                res.redirect('/');
+            });
+        } catch (error) {
+            console.error('Google OAuth error:', error);
+            req.flash('error', 'Có lỗi xảy ra khi đăng nhập với Google');
+            return res.redirect('/user/login');
+        }
     })(req, res, next);
 }
 
@@ -364,26 +498,57 @@ module.exports.githubCallback = async (req, res, next) => {
             return res.redirect('/user/login');
         }
         
-        req.logIn(user, async (err) => {
-            if (err) {
-                return next(err);
-            }
+        try {
+            // Tạo JWT tokens
+            const { accessToken, refreshToken } = generateTokenPair(user, 'user');
             
-            res.cookie('tokenUser', user.tokenUser);
+            // Lưu refresh token vào database
+            await User.updateOne(
+                { _id: user._id },
+                {
+                    refreshToken: refreshToken,
+                    refreshTokenExpires: getRefreshTokenExpiry(refreshToken)
+                }
+            );
+
+            // Set cookies
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 15 * 60 * 1000 // 15 phút
+            });
             
-            // Lưu userId và collection cart 
-            if (req.cookies.cartId) {
-                await Cart.updateOne(
-                    {
-                        _id: req.cookies.cartId
-                    },
-                    {
-                        user_id: user.id
-                    }
-                )
-            }
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
+            });
             
-            res.redirect('/');
-        });
+            req.logIn(user, async (err) => {
+                if (err) {
+                    console.error('Passport login error:', err);
+                }
+                
+                // Lưu userId và collection cart 
+                if (req.cookies.cartId) {
+                    await Cart.updateOne(
+                        {
+                            _id: req.cookies.cartId
+                        },
+                        {
+                            user_id: user.id
+                        }
+                    );
+                }
+                
+                res.redirect('/');
+            });
+        } catch (error) {
+            console.error('GitHub OAuth error:', error);
+            req.flash('error', 'Có lỗi xảy ra khi đăng nhập với GitHub');
+            return res.redirect('/user/login');
+        }
     })(req, res, next);
 }

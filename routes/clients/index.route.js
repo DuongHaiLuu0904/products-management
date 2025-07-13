@@ -7,15 +7,18 @@ const userRoute = require('./user.route')
 const chatRoute = require('./chat.route')
 const usersRoute = require('./users.route')
 const commentRoute = require('./comment.route')
+const tokenRoute = require('./token.route')
 
 const categoryMiddleware = require('../../middlewares/client/category.middleware')
 const cartMiddleware = require('../../middlewares/client/cart.middleware')
 const userMiddleware = require('../../middlewares/client/user.middleware')
 const settingMiddleware = require('../../middlewares/client/setting.middleware')
+const autoRefreshMiddleware = require('../../middlewares/client/autoRefresh.middleware')
 
 const authMiddleware = require('../../middlewares/client/auth.middleware.js')
 
 module.exports = (app) => {
+    app.use(autoRefreshMiddleware.autoRefreshToken)
     app.use(categoryMiddleware.caegory)
     app.use(cartMiddleware.cardId)
     app.use(userMiddleware.infoUser)
@@ -38,4 +41,6 @@ module.exports = (app) => {
     app.use('/users', authMiddleware.reuireAuth, usersRoute)
 
     app.use('/comments', commentRoute)
+    
+    app.use('/token', tokenRoute)
 }

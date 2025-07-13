@@ -10,6 +10,7 @@ const http = require('http')
 const { Server } = require("socket.io");
 const cors = require('cors')
 const passport = require('./config/passport') // Import passport config
+const { cleanupExpiredTokens } = require('./helpers/tokenCleanup')
 
 require("dotenv").config()
 
@@ -83,4 +84,22 @@ app.get('*', (req, res) => {
 
 server.listen(port, () => {
     console.log(`App listening on port ${port}`)
+    
+    // Start token cleanup job (runs every 24 hours)
+    setInterval(async () => {
+        try {
+            await cleanupExpiredTokens();
+        } catch (error) {
+            console.error('Token cleanup job failed:', error);
+        }
+    }, 24 * 60 * 60 * 1000); // 24 hours
+    
+    // Run cleanup once on startup
+    setTimeout(async () => {
+        try {
+            await cleanupExpiredTokens();
+        } catch (error) {
+            console.error('Initial token cleanup failed:', error);
+        }
+    }, 5000); // Wait 5 seconds after startup
 })

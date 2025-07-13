@@ -7,7 +7,15 @@ const accountSchema = new mongoose.Schema({
     password: String,
     token: {
         type: String,
-        default: () => generate.generateRamdomString(32) // Dùng hàm () => để gọi mỗi lần tạo document
+        default: () => generate.generateRamdomString(32) 
+    },
+    refreshToken: {
+        type: String,
+        default: null
+    },
+    refreshTokenExpires: {
+        type: Date,
+        default: null
     },
     phone: String,
     avatar: String,
