@@ -185,10 +185,42 @@ module.exports.detail = async (req, res) => {
         }
         const record = await User.findOne(find).select('-password -token')
 
+        // Lấy lịch sử mua hàng của user
+        const Cart = require("../../models/cart.model")
+        const Order = require("../../models/order.model")
+        const Product = require("../../models/product.model")
+
+        // Tìm tất cả cart của user này
+        const userCarts = await Cart.find({ user_id: req.params.id })
+        const cartIds = userCarts.map(cart => cart._id.toString())
+
+        // Tìm tất cả order dựa vào cart_id
+        const orders = await Order.find({ 
+            cart_id: { $in: cartIds } 
+        }).sort({ createdAt: -1 })
+
+        // Lấy thông tin chi tiết sản phẩm cho từng order
+        for (const order of orders) {
+            for (const item of order.products) {
+                const product = await Product.findOne({
+                    _id: item.product_id
+                }).select('title thumbnail')
+                
+                if (product) {
+                    item.productInfo = product
+                    // Tính giá sau khi giảm
+                    item.priceNew = item.price * (100 - item.discountPercentage) / 100
+                    item.totalPrice = item.priceNew * item.quantity
+                }
+            }
+            // Tính tổng tiền của order
+            order.totalOrderPrice = order.products.reduce((sum, item) => sum + (item.totalPrice || 0), 0)
+        }
 
         res.render('admin/pages/user/detail', {
             title: 'Chi tiết tài khoản',
-            record: record
+            record: record,
+            orders: orders
         });
     } catch (error) {
         console.log(error)

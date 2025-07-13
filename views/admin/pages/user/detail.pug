@@ -1,6 +1,32 @@
 extends ../../layouts/default.pug
 
 block main 
+    style.
+        .order-history-section .table {
+            font-size: 14px;
+        }
+        .order-history-section .product-item {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .order-history-section .product-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .order-history-section img {
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        .order-history-section .table td {
+            vertical-align: middle;
+        }
+        .account-detail-container h5 {
+            color: #495057;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+    
     div(class="account-detail-container")
         if(record.fullName) 
             h1(class="mb-4") #{record.fullName}
@@ -46,6 +72,57 @@ block main
         if(record.description)
             div.description-section
                 div.description-content !{record.description}
+
+        // Lịch sử mua hàng
+        div(class="order-history-section mb-4")
+            h5 Lịch sử mua hàng
+            if(orders && orders.length > 0)
+                div(class="table-responsive")
+                    table(class="table table-striped table-bordered")
+                        thead(class="thead-dark")
+                            tr
+                                th(scope="col") Mã đơn hàng
+                                th(scope="col") Ngày đặt
+                                th(scope="col") Thông tin nhận hàng
+                                th(scope="col") Sản phẩm
+                                th(scope="col") Tổng tiền
+                        tbody
+                            each order in orders
+                                tr
+                                    td 
+                                        strong ##{order._id.toString().slice(-8).toUpperCase()}
+                                    td #{moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
+                                    td
+                                        div
+                                            strong #{order.userInfo.fullname}
+                                        div
+                                            i.fa.fa-phone.mr-1
+                                            | #{order.userInfo.phone}
+                                        div
+                                            i.fa.fa-map-marker.mr-1
+                                            | #{order.userInfo.address}
+                                    td
+                                        each product in order.products
+                                            if(product.productInfo)
+                                                div(class="product-item mb-2")
+                                                    div(class="d-flex align-items-center")
+                                                        if(product.productInfo.thumbnail)
+                                                            img(src=product.productInfo.thumbnail, alt=product.productInfo.title, width="40", height="40", class="mr-2")
+                                                        div
+                                                            div(class="font-weight-bold") #{product.productInfo.title}
+                                                            div(class="text-muted small") 
+                                                                | Số lượng: #{product.quantity} × 
+                                                                if(product.discountPercentage > 0)
+                                                                    span(class="text-decoration-line-through text-muted") #{product.price.toLocaleString()}đ
+                                                                    span(class="text-danger ml-1") #{product.priceNew.toLocaleString()}đ
+                                                                else
+                                                                    span #{product.price.toLocaleString()}đ
+                                    td
+                                        strong(class="text-success") #{order.totalOrderPrice.toLocaleString()}đ
+            else
+                div(class="alert alert-info")
+                    i.fa.fa-info-circle.mr-2
+                    | Người dùng này chưa có đơn hàng nào.
 
         div.action-buttons
             a(href=`${prefixAdmin}/users/edit/${record.id}` class="btn btn-warning") 

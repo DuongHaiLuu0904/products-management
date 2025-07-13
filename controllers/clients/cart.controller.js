@@ -12,7 +12,7 @@ exports.index = async (req, res) => {
         _id: cartId
     }) 
 
-    if(cart.products.length > 0) {
+    if(cart && cart.products && cart.products.length > 0) {
         for(const item of cart.products) {
             const product = await Product.findOne({
                 _id: item.product_id
@@ -26,7 +26,9 @@ exports.index = async (req, res) => {
         }
         cart.totalPrice = cart.products.reduce((sum, item) => sum + item.totalPrice, 0)
     } else {
-        cart.totalPrice = 0
+        if(cart) {
+            cart.totalPrice = 0
+        }
     }
     
 

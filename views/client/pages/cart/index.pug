@@ -49,10 +49,15 @@ block main
                                                 href=`/cart/delete/${item.product_id}`
                                                 class="btn btn-danger"
                                             ) Xóa
+                            else
+                                tr
+                                    td(colspan="7" class="text-center") 
+                                        p.text-muted.mb-0 Giỏ hàng của bạn đang trống
+                                        a(href="/products" class="btn btn-primary mt-2") Tiếp tục mua sắm
                         else
 
                            
-                if(cartDetail)           
+                if(cartDetail && cartDetail.products && cartDetail.products.length > 0)           
                     h3(class='text-right') Tổng tiền: #{formatCurrency(cartDetail.totalPrice || 0)}
 
                     div(class="text-right mt-3")

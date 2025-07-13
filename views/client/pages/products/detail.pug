@@ -5,8 +5,7 @@ include ../../mixins/alert.pug
 block main 
     +alert-success(3000)
     +alert-error(3000)
-    
-    // Include CSS cho star rating
+
     link(rel="stylesheet" href="/css/star-rating.css")
     
     .product-detail
@@ -118,7 +117,9 @@ block main
                                         rows="3"
                                         placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
                                         required
+                                        maxlength="500"
                                     )
+                                    small.text-muted#content-limit Còn lại <span id="content-remaining">500</span> ký tự
                                 button(type="submit" class="btn btn-primary") Gửi đánh giá
                     else
                         .alert.alert-info
@@ -149,7 +150,7 @@ block main
                                                             else
                                                                 span.text-muted ☆
                                                 .comment-meta
-                                                    small.text-muted= new Date(comment.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+                                                    small.text-muted= moment(comment.createdAt).format('DD/MM/YYYY HH:mm')
                                                     // Hiển thị nút sửa/xóa nếu là comment của user hiện tại
                                                     if user && comment.user && user.id == comment.user._id
                                                         .comment-actions.ml-2
@@ -200,3 +201,4 @@ block main
                             button.btn.btn-primary(type="submit") Cập nhật
 
     script(src="/js/star-rating.js")
+    script(src="/js/comment-limit.js")

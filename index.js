@@ -9,17 +9,17 @@ const moment = require('moment')
 const http = require('http')
 const { Server } = require("socket.io");
 const cors = require('cors')
-const passport = require('./config/passport') // Import passport config
+
+const passport = require('./config/passport')
 const { cleanupExpiredTokens } = require('./helpers/tokenCleanup')
 
 require("dotenv").config()
 
 
 const database = require('./config/database')
-database.connect()
+database.connect()  
 
 const systemConfig = require('./config/system');
-
 
 const router = require('./routes/clients/index.route')
 const routerAdmin = require('./routes/admin/index.route')
@@ -85,7 +85,6 @@ app.get('*', (req, res) => {
 server.listen(port, () => {
     console.log(`App listening on port ${port}`)
     
-    // Start token cleanup job (runs every 24 hours)
     setInterval(async () => {
         try {
             await cleanupExpiredTokens();
@@ -94,7 +93,6 @@ server.listen(port, () => {
         }
     }, 24 * 60 * 60 * 1000); // 24 hours
     
-    // Run cleanup once on startup
     setTimeout(async () => {
         try {
             await cleanupExpiredTokens();

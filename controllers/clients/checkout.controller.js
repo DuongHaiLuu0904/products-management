@@ -12,6 +12,12 @@ module.exports.index = async (req, res) => {
         _id: cartId
     }) 
     
+    // Kiểm tra nếu giỏ hàng trống thì không cho phép thanh toán
+    if(!cart.products || cart.products.length === 0) {
+        req.flash('error', 'Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi thanh toán.')
+        return res.redirect('/cart')
+    }
+    
     if(cart.products.length > 0) {
         for(const item of cart.products) {
             const product = await Product.findOne({
@@ -41,6 +47,12 @@ module.exports.orderPost = async (req, res) => {
     const cart = await Cart.findOne({
         _id: cartId
     })
+
+    // Kiểm tra nếu giỏ hàng trống thì không cho phép đặt hàng
+    if(!cart.products || cart.products.length === 0) {
+        req.flash('error', 'Giỏ hàng của bạn đang trống. Không thể thực hiện đặt hàng.')
+        return res.redirect('/cart')
+    }
 
     // Kiểm tra số lượng tồn kho trước khi đặt hàng
     for(const product of cart.products) {

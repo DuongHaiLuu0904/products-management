@@ -11,8 +11,18 @@ module.exports.createPost = async (req, res) => {
 
         const { content, product_id, parent_id, rating } = req.body;
 
+
         if (!content || !product_id) {
             req.flash('error', 'Vui lòng nhập đầy đủ thông tin!');
+            return res.redirect('back');
+        }
+        // Giới hạn số ký tự và kích thước dữ liệu
+        if (content.length > 500) {
+            req.flash('error', 'Nội dung bình luận không được vượt quá 500 ký tự!');
+            return res.redirect('back');
+        }
+        if (Buffer.byteLength(content, 'utf8') > 5 * 1024) {
+            req.flash('error', 'Nội dung bình luận không được vượt quá 5KB dữ liệu!');
             return res.redirect('back');
         }
 
@@ -65,8 +75,18 @@ module.exports.editPatch = async (req, res) => {
         const { content, rating } = req.body;
         const commentId = req.params.id;
 
+
         if (!content) {
             req.flash('error', 'Vui lòng nhập nội dung bình luận!');
+            return res.redirect('back');
+        }
+        // Giới hạn số ký tự và kích thước dữ liệu
+        if (content.length > 500) {
+            req.flash('error', 'Nội dung bình luận không được vượt quá 500 ký tự!');
+            return res.redirect('back');
+        }
+        if (Buffer.byteLength(content, 'utf8') > 1024) {
+            req.flash('error', 'Nội dung bình luận không được vượt quá 1KB dữ liệu!');
             return res.redirect('back');
         }
 
