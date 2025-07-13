@@ -50,7 +50,7 @@ header.header
                             li.menu-item.user-menu 
                                 a.icon-link(href="/user/info", title="Thông tin tài khoản")
                                     i.fa-solid.fa-user
-                                    span.menu-text= user.fullName
+                                    span.menu-text #{user.fullName.trim().split(' ').pop()}
                             li.menu-item 
                                 a.icon-link(href="/user/logout", title="Đăng xuất")
                                     i.fa-solid.fa-right-from-bracket

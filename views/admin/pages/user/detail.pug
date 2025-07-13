@@ -39,9 +39,9 @@ block main
         div(class="timestamp-section mb-4")
             h5 Thông tin thời gian
             if(record.createdAt)
-                p Ngày tạo: <b>#{record.createdAt.toLocaleDateString('vi-VN')} lúc #{record.createdAt.toLocaleTimeString('vi-VN')}</b>
+                p Ngày tạo: <b>#{moment(record.createdAt).format('DD/MM/YYYY')} lúc #{moment(record.createdAt).format('HH:mm:ss')}</b>
             if(record.updatedAt)
-                p Cập nhật lần cuối: <b>#{record.updatedAt.toLocaleDateString('vi-VN')} lúc #{record.updatedAt.toLocaleTimeString('vi-VN')}</b>
+                p Cập nhật lần cuối: <b>#{moment(record.updatedAt).format('DD/MM/YYYY')} lúc #{moment(record.updatedAt).format('HH:mm:ss')}</b>
 
         if(record.description)
             div.description-section

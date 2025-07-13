@@ -15,7 +15,7 @@ block main
                     .card-header.bg-primary.text-white.py-3
                         h5.mb-0
                             i.fa.fa-user.me-2
-                            | Thông tin chi tiết
+                            |  Thông tin chi tiết
                     .card-body.p-4
                         .row.user-info-container
                             // Avatar section
@@ -24,7 +24,7 @@ block main
                                     .info-group
                                         label.d-block.fw-bold.mb-3.text-primary
                                             i.fa.fa-image.me-1
-                                            | Ảnh đại diện:
+                                            |  Ảnh đại diện:
                                         img.rounded-circle.shadow-sm(
                                             src=user.avatar
                                             alt="Avatar"
@@ -35,49 +35,49 @@ block main
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-user-circle.me-1
-                                        | Họ và tên:
+                                        |  Họ và tên:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.fullName || 'Chưa cập nhật'}
                             
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-envelope.me-1
-                                        | Email:
+                                        |  Email:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.email}
                             
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-phone.me-1
-                                        | Số điện thoại:
+                                        |  Số điện thoại:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.phone || 'Chưa cập nhật'}
                             
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-map-marker-alt.me-1
-                                        | Địa chỉ:
+                                        |  Địa chỉ:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0 #{user.address || 'Chưa cập nhật'}
                             
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-check-circle.me-1
-                                        | Trạng thái:
+                                        |  Trạng thái:
                                     if user.status === 'active'
                                         span.badge.bg-success.px-3.py-2.fs-6 
                                             i.fa.fa-check-circle.me-1
-                                            | Hoạt động
+                                            |  Hoạt động
                                     else
                                         span.badge.bg-danger.px-3.py-2.fs-6
                                             i.fa.fa-times-circle.me-1
-                                            | Đã khóa
+                                            |  Đã khóa
                             
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-id-card.me-1
-                                        | Mã người dùng:
+                                        |  Mã người dùng:
                                     p.user-value.bg-light.p-3.rounded-3.mb-0.font-monospace #{user._id}
                             
                             // OAuth information
@@ -86,37 +86,37 @@ block main
                                     .info-group
                                         label.d-block.fw-bold.mb-2.text-primary
                                             i.fa.fa-link.me-1
-                                            | Tài khoản liên kết:
+                                            |  Tài khoản liên kết:
                                         .d-flex.flex-wrap.gap-2
                                             if user.googleId
                                                 span.badge.bg-danger.px-3.py-2.fs-6
                                                     i.fab.fa-google.me-1
-                                                    | Google
+                                                    |  Google
                                             if user.githubId
                                                 span.badge.bg-dark.px-3.py-2.fs-6
                                                     i.fab.fa-github.me-1
-                                                    | GitHub
+                                                    |  GitHub
                             
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-calendar.me-1
-                                        | Ngày tạo:
-                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{new Date(user.createdAt).toLocaleDateString('vi-VN')}
+                                        |  Ngày tạo:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{moment(user.createdAt).format('DD/MM/YYYY')}
                             
                             .col-md-6.mb-4
                                 .info-group
                                     label.d-block.fw-bold.mb-2.text-primary
                                         i.fa.fa-clock.me-1
-                                        | Cập nhật gần nhất:
-                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{new Date(user.updatedAt).toLocaleDateString('vi-VN')}
+                                        |  Cập nhật gần nhất:
+                                    p.user-value.bg-light.p-3.rounded-3.mb-0 #{moment(user.updatedAt).format('DD/MM/YYYY')}
 
                         // Action buttons
                         .row.mt-4
                             .col-12.text-center
                                 a.btn.btn-primary.me-3(href="/user/edit")
                                     i.fa.fa-edit.me-1
-                                    | Chỉnh sửa thông tin
+                                    |  Chỉnh sửa thông tin
                                 a.btn.btn-outline-secondary(href="/user/change-password")
                                     i.fa.fa-key.me-1
-                                    | Đổi mật khẩu
+                                    |  Đổi mật khẩu

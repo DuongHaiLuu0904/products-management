@@ -1136,6 +1136,20 @@
     background: linear-gradient(45deg, #dc3545, #ff6b6b) !important;
 }
 
+.user-info .badge.bg-dark {
+    background: linear-gradient(45deg, #24292e, #586069) !important;
+    color: #ffffff !important;
+    border: 1px solid #444d56;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-info .badge.bg-dark:hover {
+    background: linear-gradient(45deg, #1b1f23, #444d56) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+}
+
 /* Responsive styling for user info */
 @media (max-width: 767px) {
     .user-info-container .info-group {
