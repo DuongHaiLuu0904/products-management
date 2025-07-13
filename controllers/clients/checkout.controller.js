@@ -42,6 +42,18 @@ module.exports.orderPost = async (req, res) => {
         _id: cartId
     })
 
+    // Kiểm tra số lượng tồn kho trước khi đặt hàng
+    for(const product of cart.products) {
+        const productInfo = await Product.findOne({
+            _id: product.product_id
+        })
+        
+        if(productInfo.stock < product.quantity) {
+            req.flash('error', `Sản phẩm "${productInfo.title}" chỉ còn ${productInfo.stock} sản phẩm trong kho, không đủ số lượng bạn yêu cầu (${product.quantity}).`)
+            return res.redirect('/checkout')
+        }
+    }
+
     let products = []
 
     for(const product of cart.products) {
@@ -69,6 +81,17 @@ module.exports.orderPost = async (req, res) => {
 
     const order = new Order(objectOrder)
     await order.save()
+
+    // Cập nhật số lượng tồn kho của các sản phẩm sau khi đặt hàng thành công
+    for(const product of cart.products) {
+        await Product.updateOne({
+            _id: product.product_id
+        }, {
+            $inc: {
+                stock: -product.quantity
+            }
+        })
+    }
 
     await Cart.updateOne({
         _id: cartId
