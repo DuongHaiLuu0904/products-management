@@ -1,12 +1,14 @@
+const md5 = require('md5')
+const passport = require('passport')
+
 const User = require('../../models/user.model')
 const forgotPassword = require('../../models/forgot-password.model')
 const Cart = require('../../models/cart.model')
 
-const md5 = require('md5')
 const generate = require('../../helpers/generate')
 const sendMailHelper = require('../../helpers/sendMail')
 const { generateTokenPair, getRefreshTokenExpiry } = require('../../helpers/jwt')
-const passport = require('passport')
+const { deleteFromCloudinary } = require('../../helpers/uploadToCloudinary');
 
 //[GET] /register
 module.exports.register = async (req, res) => {
@@ -328,10 +330,26 @@ module.exports.editPost = async (req, res) => {
     try {
         const user = res.locals.user
         
+
         const updateData = {
             fullName: req.body.fullName,
             phone: req.body.phone,
             address: req.body.address
+        };
+
+        if (req.body.avatar && req.body.public_id) {
+            if (user.public_id && user.avatar && user.avatar !== req.body.avatar) {
+                try {
+                    await deleteFromCloudinary(user.public_id);
+                } catch (err) {
+                    console.error('Lỗi xóa ảnh cũ Cloudinary:', err);
+                }
+            }
+            updateData.avatar = req.body.avatar;
+            updateData.public_id = req.body.public_id;
+        } else {
+            updateData.avatar = user.avatar || '';
+            updateData.public_id = user.public_id || '';
         }
 
         await User.updateOne(

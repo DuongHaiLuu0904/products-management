@@ -1,9 +1,13 @@
 const express = require('express')
 const router = express.Router()
 
+const multer = require('multer')
+const upload = multer()
+
 const controller = require('../../controllers/clients/user.controller.js')
 const validate = require('../../validates/client/user.validate.js')
 const authMiddleware = require('../../middlewares/client/auth.middleware.js')
+const uploadCloud = require('../../middlewares/client/uploadCloud.middleware')
 
 router.get('/register', controller.register)
 
@@ -41,7 +45,7 @@ router.get('/info', authMiddleware.reuireAuth, controller.info)
 
 router.get('/edit', authMiddleware.reuireAuth, controller.edit)
 
-router.post('/edit', authMiddleware.reuireAuth, validate.editPost, controller.editPost)
+router.post('/edit', authMiddleware.reuireAuth, upload.single('avatar'), uploadCloud.upload, validate.editPost, controller.editPost)
 
 router.get('/change-password', authMiddleware.reuireAuth, controller.changePassword)
 
