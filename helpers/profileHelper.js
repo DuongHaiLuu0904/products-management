@@ -80,4 +80,4 @@ const linkOAuthAccount = (existingUser, profile, provider, oauthIdField) => {
     return needsUpdate || profileUpdated;
 };
 
-module.exports = { updateUserProfile, linkOAuthAccount, extractEmailFromProfile };
+export default { updateUserProfile, linkOAuthAccount, extractEmailFromProfile };

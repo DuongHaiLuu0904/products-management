@@ -1,11 +1,12 @@
-const md5 = require('md5')
-const Account = require('../../models/account.model')
-const Role = require("../../models/role.model")
+import md5 from 'md5'
+import Account from '../../models/account.model.js'
+import Role from "../../models/role.model.js"
 
-const systemConfix = require("../../config/system")
-const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
+import { prefixAdmin } from "../../config/system.js"
+import uploadCloudinary from "../../helpers/uploadToCloudinary.js"
+const { deleteFromCloudinary } = uploadCloudinary;
 
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     let find = {
         deleted: false
     }
@@ -27,7 +28,7 @@ module.exports.index = async (req, res) => {
 }
 
 // [GET] /admin/accounts/create
-module.exports.create = async (req, res) => {
+export async function create(req, res) {
     let find = {
         deleted: false
     }
@@ -41,7 +42,7 @@ module.exports.create = async (req, res) => {
 }
 
 // [POST] /admin/accounts/createPost
-module.exports.createPost = async (req, res) => {
+export async function createPost(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("accounts_create")) {
         req.flash('error', 'Bạn không có quyền tạo tài khoản!');
@@ -65,12 +66,12 @@ module.exports.createPost = async (req, res) => {
         record.save()
 
         req.flash('success', 'Thêm mới thành công!');
-        res.redirect(`${systemConfix.prefixAdmin}/accounts`);
+        res.redirect(`${prefixAdmin}/accounts`);
     }
 }
 
 // [GET] /admin/accounts/edit/:id
-module.exports.edit = async (req, res) => {
+export async function edit(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("accounts_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -91,12 +92,12 @@ module.exports.edit = async (req, res) => {
             roles: roles
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/products`);
+        res.redirect(`${prefixAdmin}/products`);
     }
 }
 
 // [PATCH] /admin/accounts/edit/:id
-module.exports.editPatch = async (req, res) => {
+export async function editPatch(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("accounts_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -134,17 +135,17 @@ module.exports.editPatch = async (req, res) => {
 
             await Account.updateOne({ _id: id }, req.body)
             req.flash('success', 'Cập nhật thành công!');
-            res.redirect(`${systemConfix.prefixAdmin}/accounts`);
+            res.redirect(`${prefixAdmin}/accounts`);
         }
     } catch (error) {
         console.log(error)
         req.flash('error', 'Cập nhật thất bại!');
-        res.redirect(`${systemConfix.prefixAdmin}/accounts`);
+        res.redirect(`${prefixAdmin}/accounts`);
     }
 }
 
 // [DELETE] /admin/accounts/delete/:id
-module.exports.deleteItem = async (req, res) => {
+export async function deleteItem(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("accounts_delete")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -178,7 +179,7 @@ module.exports.deleteItem = async (req, res) => {
 }
 
 // [PATCH] /admin/accounts/change-status/:status/:id
-module.exports.changeStatus = async (req, res) => {
+export async function changeStatus(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("accounts_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -198,7 +199,7 @@ module.exports.changeStatus = async (req, res) => {
 }
 
 // [GET] /admin/accounts/detial/:id
-module.exports.detail = async (req, res) => {
+export async function detail(req, res) {
     try {
         const find = {
             deleted: false,
@@ -217,6 +218,6 @@ module.exports.detail = async (req, res) => {
             record: record
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/accounts`);
+        res.redirect(`${prefixAdmin}/accounts`);
     }
 }

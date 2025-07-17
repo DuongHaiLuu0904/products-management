@@ -1,4 +1,4 @@
-module.exports.generateRamdomString = (length) => {
+export function generateRamdomString(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
 
@@ -9,7 +9,7 @@ module.exports.generateRamdomString = (length) => {
     return result;
 }
 
-module.exports.generateRamdomNumber = (length) => {
+export function generateRamdomNumber(length) {
     const characters = '1234567890';
     let result = '';
 

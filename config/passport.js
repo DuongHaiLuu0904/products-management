@@ -1,12 +1,16 @@
-require('dotenv').config(); 
+import { config } from 'dotenv';
+config(); 
 
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const GitHubStrategy = require('passport-github2').Strategy;
-const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/user.model');
-const md5 = require('md5');
-const { updateUserProfile, linkOAuthAccount, extractEmailFromProfile } = require('../helpers/profileHelper');
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as GitHubStrategy } from 'passport-github2';
+import { Strategy as LocalStrategy } from 'passport-local';
+import md5 from 'md5';
+
+import User from '../models/user.model.js';
+
+import profileHelper from '../helpers/profileHelper.js';
+const { updateUserProfile, linkOAuthAccount, extractEmailFromProfile } = profileHelper;
 
 // Serialize user for the session
 passport.serializeUser((user, done) => {
@@ -177,4 +181,4 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
     }));
 }
 
-module.exports = passport;
+export default passport;

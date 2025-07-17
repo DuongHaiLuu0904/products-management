@@ -1,7 +1,7 @@
-const { verifyRefreshToken, generateTokenPair, getRefreshTokenExpiry } = require('../../helpers/jwt');
-const User = require('../../models/user.model');
+import { verifyRefreshToken, generateTokenPair, getRefreshTokenExpiry } from '../../helpers/jwt.js';
+import User from '../../models/user.model.js';
 
-module.exports.autoRefreshToken = async (req, res, next) => {
+export async function autoRefreshToken(req, res, next) {
     try {
         const accessToken = req.cookies.accessToken;
         const refreshToken = req.cookies.refreshToken;
@@ -53,4 +53,4 @@ module.exports.autoRefreshToken = async (req, res, next) => {
         console.error('Auto refresh token error:', error);
         next();
     }
-};
+}

@@ -1,15 +1,15 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const controller = require('../../controllers/clients/cart.controller.js')
-const authMiddleware = require('../../middlewares/client/auth.middleware.js')
+import { index, addPost, deleteProduct, update } from '../../controllers/clients/cart.controller.js'
+import { reuireAuth } from '../../middlewares/client/auth.middleware.js'
 
-router.get('/', authMiddleware.reuireAuth, controller.index)
+router.get('/', reuireAuth, index)
 
-router.post('/add/:productId', authMiddleware.reuireAuth, controller.addPost)
+router.post('/add/:productId', reuireAuth, addPost)
 
-router.get('/delete/:id', authMiddleware.reuireAuth, controller.delete)
+router.get('/delete/:id', reuireAuth, deleteProduct)
 
-router.get('/update/:id/:quantity', authMiddleware.reuireAuth, controller.update)
+router.get('/update/:id/:quantity', reuireAuth, update)
 
-module.exports = router
+export default router

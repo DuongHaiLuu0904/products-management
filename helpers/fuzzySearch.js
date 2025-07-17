@@ -1,7 +1,7 @@
-const Fuse = require('fuse.js');
-const diacritics = require('diacritics');
+import Fuse from 'fuse.js';
+import { remove } from 'diacritics';
 
-module.exports.fuzzySearch = (data, keyword, options = {}) => {
+export function fuzzySearch(data, keyword, options = {}) {
     if (!data || !Array.isArray(data) || !keyword) {
         return {
             results: [],
@@ -10,7 +10,7 @@ module.exports.fuzzySearch = (data, keyword, options = {}) => {
     }
 
     // Loại bỏ dấu từ keyword trước khi tìm kiếm
-    const normalizedKeyword = diacritics.remove(keyword.toLowerCase());
+    const normalizedKeyword = remove(keyword.toLowerCase());
 
     // Cấu hình mặc định cho Fuse.js
     const defaultOptions = {
@@ -42,9 +42,9 @@ module.exports.fuzzySearch = (data, keyword, options = {}) => {
         
         searchKeys.forEach(key => {
             if (typeof key === 'string' && item[key]) {
-                normalizedItem[key] = diacritics.remove(item[key].toLowerCase());
+                normalizedItem[key] = remove(item[key].toLowerCase());
             } else if (typeof key === 'object' && key.name && item[key.name]) {
-                normalizedItem[key.name] = diacritics.remove(item[key.name].toLowerCase());
+                normalizedItem[key.name] = remove(item[key.name].toLowerCase());
             }
         });
         
@@ -72,10 +72,10 @@ module.exports.fuzzySearch = (data, keyword, options = {}) => {
         }),
         totalFound: searchResults.length
     };
-};
+}
 
 
-module.exports.searchProducts = (products, keyword) => {
+export function searchProducts(products, keyword) {
     const options = {
         threshold: 0.3,
         keys: [
@@ -87,10 +87,10 @@ module.exports.searchProducts = (products, keyword) => {
     };
 
     return this.fuzzySearch(products, keyword, options);
-};
+}
 
 
-module.exports.searchCategories = (categories, keyword) => {
+export function searchCategories(categories, keyword) {
     const options = {
         threshold: 0.3,
         keys: [
@@ -102,10 +102,10 @@ module.exports.searchCategories = (categories, keyword) => {
     };
 
     return this.fuzzySearch(categories, keyword, options);
-};
+}
 
 
-module.exports.searchUsers = (users, keyword) => {
+export function searchUsers(users, keyword) {
     const options = {
         threshold: 0.3,
         keys: [
@@ -117,4 +117,4 @@ module.exports.searchUsers = (users, keyword) => {
     };
 
     return this.fuzzySearch(users, keyword, options);
-};
+}

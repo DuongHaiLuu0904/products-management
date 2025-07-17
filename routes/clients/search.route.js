@@ -1,7 +1,7 @@
-const express = require('express')
-const router = express.Router()
-const controller = require('../../controllers/clients/search.controller')
+import { Router } from 'express'
+const router = Router()
+import { index } from '../../controllers/clients/search.controller.js'
 
-router.get('/', controller.index)
+router.get('/', index)
 
-module.exports = router
+export default router

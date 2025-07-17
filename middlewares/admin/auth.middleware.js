@@ -1,10 +1,10 @@
-const Account = require("../../models/account.model")
-const Role = require("../../models/role.model")
-const { verifyAccessToken } = require("../../helpers/jwt")
+import Account from "../../models/account.model.js"
+import Role from "../../models/role.model.js"
+import { verifyAccessToken } from "../../helpers/jwt.js"
 
-const systemConfix = require("../../config/system")
+import { prefixAdmin } from "../../config/system.js"
 
-module.exports.reuireAuth = async (req, res, next) => {
+export async function reuireAuth(req, res, next) {
     let user = null;
     
     // Check for JWT access token in Authorization header
@@ -47,10 +47,10 @@ module.exports.reuireAuth = async (req, res, next) => {
             });
         }
         
-        return res.redirect(`${systemConfix.prefixAdmin}/auth/login`);
+        return res.redirect(`${prefixAdmin}/auth/login`);
     }
 
-    const role = await Role.findOne( {
+    const role = await Role.findOne({
         _id: user.role_id
     }).select("title permissions"); 
 

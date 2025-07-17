@@ -1,17 +1,17 @@
-const md5 = require('md5')
-const passport = require('passport')
+import md5 from 'md5'
+import passport from 'passport'
 
-const User = require('../../models/user.model')
-const forgotPassword = require('../../models/forgot-password.model')
-const Cart = require('../../models/cart.model')
+import User from '../../models/user.model.js'
+import ForgotPassword from '../../models/forgot-password.model.js'
+import Cart from '../../models/cart.model.js'
 
-const generate = require('../../helpers/generate')
-const sendMailHelper = require('../../helpers/sendMail')
-const { generateTokenPair, getRefreshTokenExpiry } = require('../../helpers/jwt')
-const { deleteFromCloudinary } = require('../../helpers/uploadToCloudinary');
+import { generateRamdomNumber } from '../../helpers/generate.js'
+import { sendMail } from '../../helpers/sendMail.js'
+import { generateTokenPair, getRefreshTokenExpiry } from '../../helpers/jwt.js'
+import cloudinary from '../../helpers/uploadToCloudinary.js'
 
 //[GET] /register
-module.exports.register = async (req, res) => {
+export async function register(req, res) {
    
     res.render('client/pages/user/register', {
         title: 'Register'
@@ -19,7 +19,7 @@ module.exports.register = async (req, res) => {
 }
 
 //[POST] /register
-module.exports.registerPost = async (req, res) => {
+export async function registerPost(req, res) {
     
     const exitsEmail = await User.findOne({
         email: req.body.email,
@@ -66,7 +66,7 @@ module.exports.registerPost = async (req, res) => {
 }
 
 //[GET] /login
-module.exports.login = async (req, res) => {
+export async function login(req, res) {
     
     res.render('client/pages/user/login', {
         title: 'Login'
@@ -74,7 +74,7 @@ module.exports.login = async (req, res) => {
 }
 
 //[POST] /login
-module.exports.loginPost = async (req, res, next) => {
+export async function loginPost(req, res, next) {
     passport.authenticate('local', async (err, user, info) => {
         if (err) {
             return next(err);
@@ -120,7 +120,7 @@ module.exports.loginPost = async (req, res, next) => {
                 
                 // Lưu userId và collection cart 
                 if (req.cookies.cartId) {
-                    await Cart.updateOne(
+                    await _updateOne(
                         {
                             _id: req.cookies.cartId
                         },
@@ -153,7 +153,7 @@ module.exports.loginPost = async (req, res, next) => {
 }
 
 //[GET] /logout
-module.exports.logout = async (req, res) => {
+export async function logout(req, res) {
     try {
         // Clear refresh token from database
         if (req.cookies.refreshToken || res.locals.user) {
@@ -200,15 +200,17 @@ module.exports.logout = async (req, res) => {
 }
 
 //[GET] /password/forgot
-module.exports.forgotPassword = async (req, res) => {
-    
+const _forgotPassword = async (req, res) => {
+
     res.render('client/pages/user/forgot-password', {
         title: 'Quên mật khẩu'
     })
 }
 
+export { _forgotPassword as forgotPassword }
+
 //[POST] /password/forgot
-module.exports.forgotPasswordPost = async (req, res) => {
+export async function forgotPasswordPost(req, res) {
     const email = req.body.email
     const user = await User.findOne({
         email: email,
@@ -221,7 +223,7 @@ module.exports.forgotPasswordPost = async (req, res) => {
     }
 
     // Tạo mã otp và lưu Otp, email vào db
-    const otp = generate.generateRamdomNumber(6)
+    const otp = generateRamdomNumber(6)
 
     const objectForgotPassword = {
         email: email,
@@ -229,7 +231,7 @@ module.exports.forgotPasswordPost = async (req, res) => {
         expriredAt: Date.now() 
     }
 
-    const forgotPasswordData = await forgotPassword(objectForgotPassword)
+    const forgotPasswordData = new ForgotPassword(objectForgotPassword)
     await forgotPasswordData.save()
 
     // Gửi Otp qua email
@@ -240,14 +242,14 @@ module.exports.forgotPasswordPost = async (req, res) => {
         <p>Vui lòng không chia sẻ mã OTP này với bất kỳ ai.</p>
     `
 
-    sendMailHelper.sendMail(email, subject, html)
+    sendMail(email, subject, html)
     req.flash('success', 'Mã OTP đã được gửi đến email của bạn')
 
     res.redirect(`/user/password/otp?email=${email}`)
 }
 
 //[GET] /password/otp
-module.exports.otpPassword = async (req, res) => {
+export async function otpPassword(req, res) {
     const email = req.query.email
 
     res.render('client/pages/user/otp-password', {
@@ -257,11 +259,11 @@ module.exports.otpPassword = async (req, res) => {
 }
 
 //[POST] /password/otp
-module.exports.otpPasswordPost = async (req, res) => {
+export async function otpPasswordPost(req, res) {
     const email = req.body.email
     const otp = req.body.otp
 
-    const forgotPasswordData = await forgotPassword.findOne({
+    const forgotPasswordData = await ForgotPassword.findOne({
         email: email,
         otp: otp
     })
@@ -282,7 +284,7 @@ module.exports.otpPasswordPost = async (req, res) => {
 }
 
 //[GET] /password/reset
-module.exports.resetPassword = async (req, res) => {
+export async function resetPassword(req, res) {
     const email = req.query.email
 
     res.render('client/pages/user/reset-password', {
@@ -292,7 +294,7 @@ module.exports.resetPassword = async (req, res) => {
 }
 
 //[POST] /password/reset
-module.exports.resetPasswordPost = async (req, res) => {
+export async function resetPasswordPost(req, res) {
     const password = req.body.password
     const tokenUser = req.cookies.tokenUser
    
@@ -310,7 +312,7 @@ module.exports.resetPasswordPost = async (req, res) => {
 }
 
 //[GET] /info
-module.exports.info = async (req, res) => {
+export async function info(req, res) {
     
     res.render('client/pages/user/info', {
         title: 'Thông tin tài khoản'
@@ -318,7 +320,7 @@ module.exports.info = async (req, res) => {
 }
 
 //[GET] /edit
-module.exports.edit = async (req, res) => {
+export async function edit(req, res) {
     
     res.render('client/pages/user/edit-info', {
         title: 'Chỉnh sửa thông tin'
@@ -326,7 +328,7 @@ module.exports.edit = async (req, res) => {
 }
 
 //[POST] /edit
-module.exports.editPost = async (req, res) => {
+export async function editPost(req, res) {
     try {
         const user = res.locals.user
         
@@ -340,7 +342,7 @@ module.exports.editPost = async (req, res) => {
         if (req.body.avatar && req.body.public_id) {
             if (user.public_id && user.avatar && user.avatar !== req.body.avatar) {
                 try {
-                    await deleteFromCloudinary(user.public_id);
+                    await cloudinary.deleteFromCloudinary(user.public_id);
                 } catch (err) {
                     console.error('Lỗi xóa ảnh cũ Cloudinary:', err);
                 }
@@ -369,7 +371,7 @@ module.exports.editPost = async (req, res) => {
 }
 
 //[GET] /change-password
-module.exports.changePassword = async (req, res) => {
+export async function changePassword(req, res) {
     
     res.render('client/pages/user/change-password', {
         title: 'Đổi mật khẩu'
@@ -377,7 +379,7 @@ module.exports.changePassword = async (req, res) => {
 }
 
 //[POST] /change-password
-module.exports.changePasswordPost = async (req, res) => {
+export async function changePasswordPost(req, res) {
     try {
         const user = res.locals.user
         const { currentPassword, newPassword } = req.body
@@ -415,7 +417,7 @@ module.exports.changePasswordPost = async (req, res) => {
 
 // Google OAuth Routes
 //[GET] /auth/google
-module.exports.googleAuth = (req, res, next) => {
+export function googleAuth(req, res, next) {
     try {
         return passport.authenticate('google', {
             scope: ['profile', 'email']
@@ -424,10 +426,10 @@ module.exports.googleAuth = (req, res, next) => {
         req.flash('error', 'Google OAuth không khả dụng');
         return res.redirect('/user/login');
     }
-};
+}
 
 //[GET] /auth/google/callback
-module.exports.googleCallback = async (req, res, next) => {
+export async function googleCallback(req, res, next) {
     passport.authenticate('google', async (err, user, info) => {
         if (err) {
             return next(err);
@@ -494,7 +496,7 @@ module.exports.googleCallback = async (req, res, next) => {
 
 // GitHub OAuth Routes
 //[GET] /auth/github
-module.exports.githubAuth = (req, res, next) => {
+export function githubAuth(req, res, next) {
     try {
         return passport.authenticate('github', {
             scope: ['user:email']
@@ -503,10 +505,10 @@ module.exports.githubAuth = (req, res, next) => {
         req.flash('error', 'GitHub OAuth không khả dụng');
         return res.redirect('/user/login');
     }
-};
+}
 
 //[GET] /auth/github/callback
-module.exports.githubCallback = async (req, res, next) => {
+export async function githubCallback(req, res, next) {
     passport.authenticate('github', async (err, user, info) => {
         if (err) {
             return next(err);

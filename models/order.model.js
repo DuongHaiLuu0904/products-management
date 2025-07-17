@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
-const { priceNew } = require('../helpers/product');
+import { Schema, model } from 'mongoose';
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new Schema({
     cart_id: String,
     userInfo: {
         fullname: String,
@@ -20,5 +19,5 @@ const orderSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const Order = mongoose.model('Order', orderSchema, 'order');
-module.exports = Order;
+const Order = model('Order', orderSchema, 'order');
+export default Order;

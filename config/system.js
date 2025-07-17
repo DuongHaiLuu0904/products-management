@@ -1,5 +1,3 @@
 const PATH_ADMIN = '/admin';
 
-module.exports = {
-    prefixAdmin: PATH_ADMIN
-};
+export const prefixAdmin = PATH_ADMIN;

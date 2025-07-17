@@ -1,9 +1,8 @@
-const User = require('../../models/user.model.js')
-
-const userSocket = require('../../socket/client/user.socket')
+import User from '../../models/user.model.js'
+import userSocket from '../../socket/client/user.socket.js'
 
 // [GET] /users/not-friend
-exports.notFriend = async (req, res) => {
+export async function notFriend(req, res) {
     userSocket(res)
 
     const userId = res.locals.user.id
@@ -29,11 +28,10 @@ exports.notFriend = async (req, res) => {
 }
 
 // [GET] /users/request
-exports.request = async (req, res) => {
+export async function request(req, res) {
     userSocket(res)
 
     const userId = res.locals.user.id
-
     const myUser = await User.findOne({ _id: userId })
 
     const requestFriend = myUser.requestFriend
@@ -51,7 +49,7 @@ exports.request = async (req, res) => {
 }
 
 // [GET] /users/accept
-exports.accept = async (req, res) => {
+export async function accept(req, res) {
     userSocket(res)
 
     const userId = res.locals.user.id
@@ -70,4 +68,3 @@ exports.accept = async (req, res) => {
         users: users
     })
 }
-

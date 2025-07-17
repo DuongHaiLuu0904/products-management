@@ -1,15 +1,15 @@
-const Product = require('../../models/product.model')
-const productHelper = require('../../helpers/product')
+import Product from '../../models/product.model.js'
+import { priceNew } from '../../helpers/product.js'
 
 // [GET] /
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     const productFeature = await Product.find({
         featured: "1",
         deleted: false,
         status: "active"
     })
 
-    const newProducts = productHelper.priceNew(productFeature)
+    const newProducts = priceNew(productFeature)
 
     res.render('client/pages/home/index', {
         title: 'Trang chủ',

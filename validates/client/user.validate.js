@@ -1,4 +1,4 @@
-module.exports.registerPost = async (req, res, next) => {
+export async function registerPost(req, res, next) {
     if(!req.body.fullName) {
         req.flash('error', 'Vui lòng nhập họ tên!');
         
@@ -26,7 +26,7 @@ module.exports.registerPost = async (req, res, next) => {
     next()
 }
 
-module.exports.loginPost = async (req, res, next) => {
+export async function loginPost(req, res, next) {
     if(!req.body.email) {
         req.flash('error', 'Vui lòng nhập email!');
         
@@ -46,7 +46,7 @@ module.exports.loginPost = async (req, res, next) => {
     next()
 }
 
-module.exports.resetPasswordPost = async (req, res, next) => {
+export async function resetPasswordPost(req, res, next) {
     if(!req.body.password) {
         req.flash('error', 'Vui lòng nhập mật khẩu!');
         const backURL = req.get("Referrer") || "/";
@@ -71,7 +71,7 @@ module.exports.resetPasswordPost = async (req, res, next) => {
     next()
 }
 
-module.exports.editPost = async (req, res, next) => {
+export async function editPost(req, res, next) {
     if(!req.body.fullName) {
         req.flash('error', 'Vui lòng nhập họ tên!');
         const backURL = req.get("Referrer") || "/";
@@ -82,7 +82,7 @@ module.exports.editPost = async (req, res, next) => {
     next()
 }
 
-module.exports.changePasswordPost = async (req, res, next) => {
+export async function changePasswordPost(req, res, next) {
     if(!req.body.currentPassword) {
         req.flash('error', 'Vui lòng nhập mật khẩu hiện tại!');
         const backURL = req.get("Referrer") || "/";

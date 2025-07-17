@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
-const controller = require('../../controllers/clients/token.controller');
+import { refreshToken, checkStatus } from '../../controllers/clients/token.controller.js';
 
-router.post('/refresh', controller.refreshToken);
-router.get('/status', controller.checkStatus);
+router.post('/refresh', refreshToken);
+router.get('/status', checkStatus);
 
-module.exports = router;
+export default router;

@@ -1,11 +1,11 @@
-const Category = require('../../models/product-category.model')
-const Product = require('../../models/product.model')
-const User = require('../../models/user.model')
-const Account = require('../../models/account.model')
-const Order = require('../../models/order.model')
+import ProductCategory from '../../models/product-category.model.js'
+import Product from '../../models/product.model.js'
+import User from '../../models/user.model.js'
+import Account from '../../models/account.model.js'
+import Order from '../../models/order.model.js'
 
 // [GET] /admin/dashboard
-module.exports.dashboard = async (req, res) => {
+export async function dashboard(req, res) {
     // Tính toán doanh thu và thống kê đơn hàng
     const orders = await Order.find({});
     
@@ -61,9 +61,9 @@ module.exports.dashboard = async (req, res) => {
 
     let statistics = {
         category: {
-            total: await Category.countDocuments({deleted: false}),
-            active: await Category.countDocuments({deleted: false, status: 'active'}),
-            inactive: await Category.countDocuments({deleted: false, status: 'inactive'})
+            total: await ProductCategory.countDocuments({deleted: false}),
+            active: await ProductCategory.countDocuments({deleted: false, status: 'active'}),
+            inactive: await ProductCategory.countDocuments({deleted: false, status: 'inactive'})
         },
         product: {
             total: await Product.countDocuments({deleted: false}),
@@ -99,7 +99,7 @@ module.exports.dashboard = async (req, res) => {
 }
 
 // [GET] /admin/dashboard/statistics
-module.exports.getStatistics = async (req, res) => {
+export async function getStatistics(req, res) {
     try {
         const { period } = req.query; // 'week', 'month', 'year'
         

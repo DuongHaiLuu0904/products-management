@@ -1,6 +1,7 @@
 {
     "name": "products-management",
     "version": "1.0.0",
+    "type": "module",
     "main": "index.js",
     "scripts": {
         "start": "nodemon --inspect index.js",

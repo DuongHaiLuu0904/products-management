@@ -1,7 +1,6 @@
-const e = require('express');
-const Cart = require('../../models/cart.model');
+import Cart from '../../models/cart.model.js';
 
-module.exports.cardId = async (req, res, next) => {
+export async function cardId(req, res, next) {
     if (!req.cookies.cartId) {
         const cart = new Cart({
             user_id: req.cookies.cartId,

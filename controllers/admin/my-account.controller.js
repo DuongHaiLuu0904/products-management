@@ -1,25 +1,22 @@
-const md5 = require('md5')
-const Account = require('../../models/account.model')
-const Role = require("../../models/role.model")
+import md5 from 'md5'
+import Account from '../../models/account.model.js'
+import cloudinaryHelper from '../../helpers/uploadToCloudinary.js'
 
-const systemConfix = require("../../config/system")
-
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     res.render('admin/pages/my-account/index', {
         title: 'Tài khoản'
     });
 }
 
-
 // [GET] /admin/my-account/edit
-module.exports.edit = async (req, res) => {
+export async function edit(req, res) {
     res.render('admin/pages/my-account/edit', {
         title: 'Cập nhật tài khoản'
     });
 }
 
 // [PATCH] /admin/my-account/edit
-module.exports.editPatch = async (req, res) => {
+export async function editPatch(req, res) {
     try {
         const id = res.locals.user.id
 
@@ -40,6 +37,12 @@ module.exports.editPatch = async (req, res) => {
             
             // Xử lý file avatar
             if (req.file && req.file.path) {
+                // Xóa ảnh cũ trên Cloudinary nếu có
+                const user = await Account.findById(id);
+                if (user.avatar) {
+                    const publicId = user.avatar.split('/').pop().split('.')[0];
+                    await cloudinaryHelper.deleteFromCloudinary(publicId);
+                }
                 req.body.avatar = req.file.path;
             }
             

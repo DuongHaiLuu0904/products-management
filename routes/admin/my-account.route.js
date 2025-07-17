@@ -1,16 +1,16 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const multer = require('multer')
+import multer from 'multer'
 const upload = multer()
 
-const controller = require('../../controllers/admin/my-account.controller')
-const uploadCloud = require('../../middlewares/admin/uploadCloud.middleware')
+import { index, edit, editPatch } from '../../controllers/admin/my-account.controller.js'
+import { upload as _upload } from '../../middlewares/admin/uploadCloud.middleware.js'
 
-router.get('/', controller.index)
+router.get('/', index)
 
-router.get('/edit', controller.edit)
+router.get('/edit', edit)
 
-router.patch('/edit', upload.single('avatar'), uploadCloud.upload, controller.editPatch)
+router.patch('/edit', upload.single('avatar'), _upload, editPatch)
 
-module.exports = router
+export default router

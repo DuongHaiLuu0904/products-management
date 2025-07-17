@@ -1,8 +1,8 @@
-const User = require('../../models/user.model');
-const { verifyRefreshToken, generateTokenPair, getRefreshTokenExpiry } = require('../../helpers/jwt');
+import User from '../../models/user.model.js';
+import { verifyRefreshToken, generateTokenPair, getRefreshTokenExpiry } from '../../helpers/jwt.js';
 
 // [POST] /token/refresh
-module.exports.refreshToken = async (req, res) => {
+export async function refreshToken(req, res) {
     try {
         const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
         
@@ -96,10 +96,10 @@ module.exports.refreshToken = async (req, res) => {
             message: 'Internal server error'
         });
     }
-};
+}
 
 // [GET] /token/status - Check authentication status
-module.exports.checkStatus = async (req, res) => {
+export async function checkStatus(req, res) {
     try {
         // This will be populated by the auth middleware
         const user = res.locals.user;
@@ -129,4 +129,4 @@ module.exports.checkStatus = async (req, res) => {
             message: 'Internal server error'
         });
     }
-};
+}

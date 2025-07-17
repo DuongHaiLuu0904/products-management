@@ -1,28 +1,35 @@
-const express = require('express')
-const path = require('path')
-const methodOverride = require('method-override')
-const bodyParser = require('body-parser')
-const flash = require('express-flash')
-const cookieParser = require('cookie-parser')
-const session = require('express-session')
-const moment = require('moment')
-const http = require('http')
-const { Server } = require("socket.io");
-const cors = require('cors')
+import express from 'express'
+import { join } from 'path'
+import methodOverride from 'method-override'
+import bodyParser from 'body-parser'
+import flash from 'express-flash'
+import cookieParser from 'cookie-parser'
+import session from 'express-session'
+import moment from 'moment'
+import { createServer } from 'http'
+import { Server } from "socket.io"
+import cors from 'cors'
+import { config } from 'dotenv'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const passport = require('./config/passport')
-const { cleanupExpiredTokens } = require('./helpers/tokenCleanup')
+import passport from 'passport';
+import './config/passport.js';
+const { session: _session } = passport;
+import { cleanupExpiredTokens } from './helpers/tokenCleanup.js'
 
-require("dotenv").config()
+config()
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-const database = require('./config/database')
-database.connect()  
+import { connect } from './config/database.js'
+connect()  
 
-const systemConfig = require('./config/system');
+import { prefixAdmin } from './config/system.js'
 
-const router = require('./routes/clients/index.route')
-const routerAdmin = require('./routes/admin/index.route')
+import router from './routes/clients/index.route.js'
+import routerAdmin from './routes/admin/index.route.js'
 
 const app = express()
 const port = process.env.PORT 
@@ -36,17 +43,16 @@ app.set('views', `${__dirname}/views`)
 app.set('view engine', 'pug')
 
 // Socket.io
-const server = http.createServer(app);
+const server = createServer(app);
 const io = new Server(server);
 global._io = io;
 
-
 // Flash
-app.use(cookieParser('IamHaiLuu')); // key ramdom
+app.use(cookieParser('IamHaiLuu')); 
 app.use(session({
-    secret: 'IamHaiLuu',       // Chuỗi bí mật để mã hóa session (nên đặt trong biến môi trường)
-    resave: false,             // Không lưu session nếu không có thay đổi
-    saveUninitialized: false,  // Không lưu session mới nếu chưa có dữ liệu
+    secret: 'IamHaiLuu',      
+    resave: false,                   
+    saveUninitialized: false,  
     cookie: { maxAge: 24 * 60 * 60 * 1000 }  // Thời gian sống của session (24 giờ)
 }))
 app.use(flash());
@@ -60,17 +66,16 @@ app.use(passport.session());
 app.use(cors());
 
 // TinyMCE
-app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')));
+app.use('/tinymce', express.static(join(__dirname, 'node_modules', 'tinymce')));
 
 app.use(express.static(`${__dirname}/public`))
 
 // app local variables
-app.locals.prefixAdmin = systemConfig.prefixAdmin
+app.locals.prefixAdmin = prefixAdmin
 app.locals.moment = moment
 app.locals.formatCurrency = function (num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' đ';
 };
-
 
 // router
 routerAdmin(app)

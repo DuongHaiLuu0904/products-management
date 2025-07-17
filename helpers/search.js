@@ -1,6 +1,6 @@
-const Fuse = require('fuse.js');
+import Fuse from 'fuse.js';
 
-module.exports = (query, data = null, options = {}) => {
+export default (query, data = null, options = {}) => {
     let objectSearch = {
         keyword: "",
         useFuzzy: false

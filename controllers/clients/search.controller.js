@@ -1,10 +1,10 @@
-const Product = require('../../models/product.model')
-const productHelper = require('../../helpers/product')
-const fuzzySearchHelper = require('../../helpers/fuzzySearch')
+import Product from '../../models/product.model.js'
+import { priceNew } from '../../helpers/product.js'
+import { searchProducts } from '../../helpers/fuzzySearch.js'
 
 
 // [GET] /
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     const keyword = req.query.keyword 
 
     let newProducts = []
@@ -19,10 +19,10 @@ module.exports.index = async (req, res) => {
         })
 
         // Sử dụng tìm kiếm mờ với Fuse.js
-        const fuzzyResult = fuzzySearchHelper.searchProducts(allProducts, keyword)
+        const fuzzyResult = searchProducts(allProducts, keyword)
         
         if (fuzzyResult.results.length > 0) {
-            newProducts = productHelper.priceNew(fuzzyResult.results)
+            newProducts = priceNew(fuzzyResult.results)
             searchType = 'fuzzy'
             totalFound = fuzzyResult.totalFound
         } else {
@@ -33,7 +33,7 @@ module.exports.index = async (req, res) => {
                 status: 'active',
                 title: keywordRegex
             })
-            newProducts = productHelper.priceNew(products)
+            newProducts = priceNew(products)
             searchType = 'regex'
             totalFound = products.length
         }

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const refreshTokenSchema = new mongoose.Schema({
+const refreshTokenSchema = new Schema({
     token: {
         type: String,
         required: true,
@@ -34,5 +34,5 @@ const refreshTokenSchema = new mongoose.Schema({
 // Index để tự động xóa token hết hạn
 refreshTokenSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });
 
-const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema, 'refresh-tokens');
-module.exports = RefreshToken;
+const RefreshToken = model('RefreshToken', refreshTokenSchema, 'refresh-tokens');
+export default RefreshToken;

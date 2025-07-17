@@ -1,14 +1,15 @@
-const ProductCategory = require('../../models/product-category.model');
+import ProductCategory from '../../models/product-category.model.js';
 
-const systemConfix = require("../../config/system")
-const filterStatusHelper = require("../../helpers/filterStatus")
-const searchHelper = require("../../helpers/search")
-const fuzzySearchHelper = require("../../helpers/fuzzySearch")
-const createTreeHelper = require("../../helpers/createTree")
-const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
+import { prefixAdmin } from "../../config/system.js";
+import filterStatusHelper from "../../helpers/filterStatus.js";
+import searchHelper from "../../helpers/search.js";
+import { searchCategories } from "../../helpers/fuzzySearch.js";
+import { createTree } from "../../helpers/createTree.js";
+import uploadCloudinary from "../../helpers/uploadToCloudinary.js";
+const { deleteFromCloudinary } = uploadCloudinary;
 
 // [GET] /admin/products-category
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     // Bộ lọc 
     const filterStatus = filterStatusHelper(req.query)
     let find = {
@@ -44,9 +45,9 @@ module.exports.index = async (req, res) => {
             ...(req.query.status && { status: req.query.status })
         }).sort(sort)
 
-        const fuzzyResult = fuzzySearchHelper.searchCategories(allCategories, objectSearch.keyword)
+        const fuzzyResult = searchCategories(allCategories, objectSearch.keyword)
         records = fuzzyResult.results
-        newRecords = createTreeHelper.createTree(records)
+        newRecords = createTree(records)
 
         res.render('admin/pages/products-category/index', {
             title: 'Danh mục sản phẩm',
@@ -63,7 +64,7 @@ module.exports.index = async (req, res) => {
         }
 
         records = await ProductCategory.find(find).sort(sort)
-        newRecords = createTreeHelper.createTree(records)
+        newRecords = createTree(records)
 
         res.render('admin/pages/products-category/index', {
             title: 'Danh mục sản phẩm',
@@ -75,14 +76,14 @@ module.exports.index = async (req, res) => {
 }
 
 // [GET] /admin/products-category/create
-module.exports.create = async (req, res) => {
+export async function create(req, res) {
     let find = {
         deleted: false
     }
 
     const records = await ProductCategory.find(find)
 
-    const newRecords = createTreeHelper.createTree(records)
+    const newRecords = createTree(records)
 
     res.render('admin/pages/products-category/create', {
         title: 'Tạo danh mục sản phẩm',
@@ -91,7 +92,7 @@ module.exports.create = async (req, res) => {
 }
 
 // [POST] /admin/products-category/create
-module.exports.createPost = async (req, res) => {
+export async function createPost(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("products-category_create")) {
         req.flash('error', 'Bạn không có quyền tạo danh mục sản phẩm!');
@@ -108,11 +109,11 @@ module.exports.createPost = async (req, res) => {
     const category = new ProductCategory(req.body)
     await category.save()
 
-    res.redirect(`${systemConfix.prefixAdmin}/products-category`);
+    res.redirect(`${prefixAdmin}/products-category`);
 }
 
 // [PATCH] /admin/products-category/change-status/:status/:id
-module.exports.changeStatus = async (req, res) => {
+export async function changeStatus(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("products-category_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật danh mục sản phẩm!');
@@ -131,7 +132,7 @@ module.exports.changeStatus = async (req, res) => {
 }
 
 // [PATCH] /admin/products-category/change-multi
-module.exports.changeMulti = async (req, res) => {
+export async function changeMulti(req, res) {
     const type = req.body.type
     const ids = req.body.ids.split(", ")
 
@@ -200,7 +201,7 @@ module.exports.changeMulti = async (req, res) => {
 }
 
 // [DELETE] /admin/products-category/dele/:id
-module.exports.deleteItem = async (req, res) => {
+export async function deleteItem(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("products-category_delete")) {
         req.flash('error', 'Bạn không có quyền xóa danh mục sản phẩm!');
@@ -227,7 +228,7 @@ module.exports.deleteItem = async (req, res) => {
 }
 
 // [GET] /admin/products-category/edit/:id
-module.exports.edit = async (req, res) => {
+export async function edit(req, res) {
     try {
         const find = {
             deleted: false,
@@ -236,7 +237,7 @@ module.exports.edit = async (req, res) => {
         const product = await ProductCategory.findOne(find)
         
         const records = await ProductCategory.find({ deleted : false })
-        const newRecords = createTreeHelper.createTree(records)
+        const newRecords = createTree(records)
 
         res.render('admin/pages/products-category/edit', {
             title: 'Trang sửa sản phẩm',
@@ -244,12 +245,12 @@ module.exports.edit = async (req, res) => {
             records: newRecords
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/products-category`);
+        res.redirect(`${prefixAdmin}/products-category`);
     }
 }
 
 // [PATCH] /admin/products-category/edit/:id
-module.exports.editPATCH = async (req, res) => {
+export async function editPATCH(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("products-category_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật danh mục sản phẩm!');
@@ -284,7 +285,7 @@ module.exports.editPATCH = async (req, res) => {
 }
 
 // [GET] /admin/products-category/detial/:id
-module.exports.detail = async (req, res) => {
+export async function detail(req, res) {
     try {
         const find = {
             deleted: false,
@@ -307,6 +308,6 @@ module.exports.detail = async (req, res) => {
         });
     } catch (error) {
         console.log(error)
-        res.redirect(`${systemConfix.prefixAdmin}/products-category`);
+        res.redirect(`${prefixAdmin}/products-category`);
     }
 }

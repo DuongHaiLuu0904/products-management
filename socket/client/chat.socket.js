@@ -1,7 +1,7 @@
-const Chat = require('../../models/chat.model')
-const { uploadToCloudinary } = require('../../helpers/uploadToCloudinary')
+import Chat from '../../models/chat.model.js'
+import { uploadToCloudinary } from '../../helpers/uploadToCloudinary.js'
 
-module.exports = async (res) => {
+export default async (res) => {
     const userId = res.locals.user.id
     const fullName = res.locals.user.fullName
 

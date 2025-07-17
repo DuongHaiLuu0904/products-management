@@ -1,28 +1,28 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const multer = require('multer')
+import multer from 'multer'
 const upload = multer()
 
-const controller = require('../../controllers/admin/user.controller.js')
-const validate = require('../../validates/admin/account.validate')
-const uploadCloud = require('../../middlewares/admin/uploadCloud.middleware')
+import { index, create, createPost, edit, editPatch, changeStatus, deleteItem, detail } from '../../controllers/admin/user.controller.js'
+import { createPost as _createPost, createPatch } from '../../validates/admin/account.validate.js'
+import { upload as _upload } from '../../middlewares/admin/uploadCloud.middleware.js'
 
 
-router.get('/', controller.index)
+router.get('/', index)
 
-router.get('/create', controller.create)
+router.get('/create', create)
 
-router.post('/create', upload.single('avatar'), uploadCloud.upload,validate.createPost, controller.createPost)
+router.post('/create', upload.single('avatar'), _upload,_createPost, createPost)
 
-router.get('/edit/:id', controller.edit)
+router.get('/edit/:id', edit)
 
-router.patch('/edit/:id', upload.single('avatar'), uploadCloud.upload, validate.createPatch, controller.editPatch)
+router.patch('/edit/:id', upload.single('avatar'), _upload, createPatch, editPatch)
 
-router.patch('/change-status/:status/:id', controller.changeStatus)
+router.patch('/change-status/:status/:id', changeStatus)
 
-router.delete("/delete/:id", controller.deleteItem)
+router.delete("/delete/:id", deleteItem)
 
-router.get('/detail/:id', controller.detail)
+router.get('/detail/:id', detail)
 
-module.exports = router
+export default router

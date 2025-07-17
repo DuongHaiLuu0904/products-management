@@ -1,6 +1,6 @@
-const SettingGeneral = require('../../models/setting-general.model')
+import SettingGeneral from '../../models/setting-general.model.js'
 
-module.exports.infoSetting = async (req, res, next) => {
+export async function infoSetting(req, res, next) {
     const setting = await SettingGeneral.findOne({})
 
     res.locals.setting = setting

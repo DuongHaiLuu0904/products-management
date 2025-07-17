@@ -1,13 +1,13 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const controller = require('../../controllers/clients/checkout.controller.js')
-const authMiddleware = require('../../middlewares/client/auth.middleware.js')
+import { index, orderPost, success } from '../../controllers/clients/checkout.controller.js'
+import { reuireAuth } from '../../middlewares/client/auth.middleware.js'
 
-router.get('/', authMiddleware.reuireAuth, controller.index)
+router.get('/', reuireAuth, index)
 
-router.post('/order', authMiddleware.reuireAuth, controller.orderPost)
+router.post('/order', reuireAuth, orderPost)
 
-router.get('/success/:id', authMiddleware.reuireAuth, controller.success)
+router.get('/success/:id', reuireAuth, success)
 
-module.exports = router
+export default router

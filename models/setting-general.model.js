@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+import { Schema, model } from 'mongoose';
 
-const settingGeneralSchema = new mongoose.Schema({
+const settingGeneralSchema = new Schema({
     webSiteName: String,
     logo: String,
     public_id: String,
@@ -12,5 +12,5 @@ const settingGeneralSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const settingGeneral = mongoose.model('settingGeneral', settingGeneralSchema, 'setting-general');
-module.exports = settingGeneral;
+const settingGeneral = model('settingGeneral', settingGeneralSchema, 'setting-general');
+export default settingGeneral;

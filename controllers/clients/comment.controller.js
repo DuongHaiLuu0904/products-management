@@ -1,8 +1,8 @@
-const Comment = require('../../models/comment.model');
-const Product = require('../../models/product.model');
+import Comment from '../../models/comment.model.js';
+import Product from '../../models/product.model.js';
 
 // [POST] /comments/create
-module.exports.createPost = async (req, res) => {
+export async function createPost(req, res) {
     try {
         if (!res.locals.user) {
             req.flash('error', 'Bạn cần đăng nhập để bình luận!');
@@ -62,10 +62,10 @@ module.exports.createPost = async (req, res) => {
         req.flash('error', 'Có lỗi xảy ra, vui lòng thử lại!');
         res.redirect('back');
     }
-};
+}
 
 // [PATCH] /comments/edit/:id
-module.exports.editPatch = async (req, res) => {
+export async function editPatch(req, res) {
     try {
         if (!res.locals.user) {
             req.flash('error', 'Bạn cần đăng nhập!');
@@ -123,10 +123,10 @@ module.exports.editPatch = async (req, res) => {
         req.flash('error', 'Có lỗi xảy ra, vui lòng thử lại!');
         res.redirect('back');
     }
-};
+}
 
 // [DELETE] /comments/delete/:id
-module.exports.deleteItem = async (req, res) => {
+export async function deleteItem(req, res) {
     try {
         if (!res.locals.user) {
             req.flash('error', 'Bạn cần đăng nhập!');
@@ -165,4 +165,4 @@ module.exports.deleteItem = async (req, res) => {
         req.flash('error', 'Có lỗi xảy ra, vui lòng thử lại!');
         res.redirect('back');
     }
-};
+}

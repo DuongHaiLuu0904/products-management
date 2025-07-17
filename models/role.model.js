@@ -1,8 +1,8 @@
-const mongoose = require('mongoose')
-const slug = require('mongoose-slug-updater')
-mongoose.plugin(slug)
+import { plugin, Schema, model } from 'mongoose';
+import slug from 'mongoose-slug-updater';
+plugin(slug)
 
-const roleSchema = new mongoose.Schema({
+const roleSchema = new Schema({
     title: String,
     description: String,
     permissions: {
@@ -23,5 +23,5 @@ const roleSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const Role = mongoose.model('Role', roleSchema, 'roles');
-module.exports = Role;
+const Role = model('Role', roleSchema, 'roles');
+export default Role;

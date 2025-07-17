@@ -1,6 +1,6 @@
-const User = require('../../models/user.model')
+import User from '../../models/user.model.js'
 
-module.exports = async (res) => {
+export default async (res) => {
     _io.once('connection', (socket) => {
         // chức năng gửi yêu cầu kết bạn
         socket.on('Client_Add_Friend', async (userId) => {
@@ -68,13 +68,13 @@ module.exports = async (res) => {
             }
 
             // Xóa user B trong danh sách yêu cầu kết bạn của user A
-            const exitUserBInA = await User.findOne({ 
+            const exitUserBInA = await findOne({ 
                 _id: myUserId,
                 requestFriend: userId 
             })
 
             if(exitUserBInA) {
-                await User.updateOne(
+                await updateOne(
                     { _id: myUserId },
                     { $pull: { requestFriend: userId } }
                 )
@@ -92,26 +92,26 @@ module.exports = async (res) => {
             const myUserId = res.locals.user.id
 
             // Xóa user A trong acceptFriend của user B
-            const exitUserAInB = await User.findOne({ 
+            const exitUserAInB = await findOne({ 
                 _id: myUserId,
                 acceptFriend: userId
             })
 
             if(exitUserAInB) {
-                await User.updateOne(
+                await updateOne(
                     { _id: myUserId },
                     { $pull: { acceptFriend: userId } }
                 )
             }
 
             // Xóa user B trong requestFriend của user A
-            const exitUserBInA = await User.findOne({ 
+            const exitUserBInA = await findOne({ 
                 _id: userId,
                 requestFriend: myUserId 
             })
 
             if(exitUserBInA) {
-                await User.updateOne(
+                await updateOne(
                     { _id: userId },
                     { $pull: { requestFriend: myUserId } }
                 )
@@ -124,13 +124,13 @@ module.exports = async (res) => {
 
             // thêm {user_id, room_chat_id} của A vào friendList của B 
             // Xóa user A trong acceptFriend của user B
-            const exitUserAInB = await User.findOne({ 
+            const exitUserAInB = await findOne({ 
                 _id: myUserId,
                 acceptFriend: userId
             })
 
             if(exitUserAInB) {
-                await User.updateOne(
+                await updateOne(
                     { _id: myUserId },
                     { 
                         $push: { 
@@ -143,13 +143,13 @@ module.exports = async (res) => {
 
             // thêm {user_id, room_chat_id} của B vào friendList của A
             // Xóa user B trong requestFriend của user A
-            const exitUserBInA = await User.findOne({ 
+            const exitUserBInA = await findOne({ 
                 _id: userId,
                 requestFriend: myUserId 
             })
 
             if(exitUserBInA) {
-                await User.updateOne(
+                await updateOne(
                     { _id: userId },
                     { 
                         $push: { 

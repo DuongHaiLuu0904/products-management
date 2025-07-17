@@ -1,10 +1,10 @@
-const Chat = require('../../models/chat.model')
-const User = require('../../models/user.model')
+import Chat from '../../models/chat.model.js'
+import User from '../../models/user.model.js'
 
-const chatSocket = require('../../socket/client/chat.socket')
+import chatSocket from '../../socket/client/chat.socket.js'
 
 // [GET] /chat
-exports.index = async (req, res) => {
+export async function index(req, res) {
     
     chatSocket(res)
 

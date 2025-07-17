@@ -1,6 +1,6 @@
-const { uploadToCloudinary } = require('../../helpers/uploadToCloudinary')
+import { uploadToCloudinary } from '../../helpers/uploadToCloudinary.js';
 
-module.exports.upload = async (req, res, next) => {
+export async function upload(req, res, next) {
     try {
         if (req.file) {
             const result = await uploadToCloudinary(req.file.buffer);

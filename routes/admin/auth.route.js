@@ -1,13 +1,13 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const controller = require('../../controllers/admin/auth.controller')
-const valiate = require('../../validates/admin/auth.validate')
+import { login, loginPost, logout } from '../../controllers/admin/auth.controller.js'
+import { loginPost as _loginPost } from '../../validates/admin/auth.validate.js'
 
-router.get('/login', controller.login)
+router.get('/login', login)
 
-router.post('/login',valiate.loginPost, controller.loginPost)
+router.post('/login',_loginPost, loginPost)
 
-router.get('/logout', controller.logout)
+router.get('/logout', logout)
 
-module.exports = router
+export default router

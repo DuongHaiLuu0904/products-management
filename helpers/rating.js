@@ -1,7 +1,7 @@
-const Comment = require('../models/comment.model');
+import Comment from '../models/comment.model.js';
 
 // Tính rating trung bình của sản phẩm
-module.exports.calculateAverageRating = async (productId) => {
+export async function calculateAverageRating(productId) {
     try {
         const comments = await Comment.find({
             product_id: productId,
@@ -31,10 +31,10 @@ module.exports.calculateAverageRating = async (productId) => {
             totalReviews: 0
         };
     }
-};
+}
 
 // Lấy phân bố rating (1 sao, 2 sao, ...)
-module.exports.getRatingDistribution = async (productId) => {
+export async function getRatingDistribution(productId) {
     try {
         const comments = await Comment.find({
             product_id: productId,
@@ -56,4 +56,4 @@ module.exports.getRatingDistribution = async (productId) => {
         console.log(error);
         return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     }
-};
+}

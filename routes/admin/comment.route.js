@@ -1,16 +1,16 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from "express";
+const router = Router();
 
-const controller = require("../../controllers/admin/comment.controller");
+import { index, changeStatus, changeMulti, deleteItem, detail } from "../../controllers/admin/comment.controller.js";
 
-router.get("/", controller.index);
+router.get("/", index);
 
-router.patch("/change-status/:status/:id", controller.changeStatus);
+router.patch("/change-status/:status/:id", changeStatus);
 
-router.patch("/change-multi", controller.changeMulti);
+router.patch("/change-multi", changeMulti);
 
-router.delete("/delete/:id", controller.deleteItem);
+router.delete("/delete/:id", deleteItem);
 
-router.get("/detail/:id", controller.detail);
+router.get("/detail/:id", detail);
 
-module.exports = router;
+export default router;

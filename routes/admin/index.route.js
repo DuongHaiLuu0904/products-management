@@ -1,49 +1,49 @@
-const systemconfig = require('../../config/system')
+import { prefixAdmin } from '../../config/system.js'
 
-const middleware = require('../../middlewares/admin/auth.middleware')
-const autoRefreshMiddleware = require('../../middlewares/admin/autoRefresh.middleware')
+import { reuireAuth } from '../../middlewares/admin/auth.middleware.js'
+import { autoRefreshToken } from '../../middlewares/admin/autoRefresh.middleware.js'
 
-const dashboardRoute = require('./dashboard.route')
-const productRoute = require('./product.route')
-const productCategoryRoute = require('./product-category.route')
-const roleRoute = require('./role.route')
-const accountRoute = require('./account.route')
-const authRoute = require('./auth.route')
-const my_accountRoute = require('./my-account.route')
-const settingRoute = require('./setting.route')
-const userRoute = require('./user.route')
-const commentRoute = require('./comment.route')
-const tokenRoute = require('./token.route')
+import dashboardRoute from './dashboard.route.js'
+import productRoute from './product.route.js'
+import productCategoryRoute from './product-category.route.js'
+import roleRoute from './role.route.js'
+import accountRoute from './account.route.js'
+import authRoute from './auth.route.js'
+import my_accountRoute from './my-account.route.js'
+import settingRoute from './setting.route.js'
+import userRoute from './user.route.js'
+import commentRoute from './comment.route.js'
+import tokenRoute from './token.route.js'
 
-const authController = require('../../controllers/admin/auth.controller')
+import { login } from '../../controllers/admin/auth.controller.js'
 
-module.exports = (app) => {
-    const PATH_ADMIN = systemconfig.prefixAdmin
+export default (app) => {
+    const PATH_ADMIN = prefixAdmin
 
-    app.get(PATH_ADMIN + '/', authController.login)
+    app.get(PATH_ADMIN + '/', login)
 
     // Apply auto refresh middleware to all admin routes
-    app.use(PATH_ADMIN, autoRefreshMiddleware.autoRefreshToken)
+    app.use(PATH_ADMIN, autoRefreshToken)
 
-    app.use(PATH_ADMIN + '/dashboard', middleware.reuireAuth, dashboardRoute)
+    app.use(PATH_ADMIN + '/dashboard', reuireAuth, dashboardRoute)
 
-    app.use(PATH_ADMIN + '/products', middleware.reuireAuth, productRoute)
+    app.use(PATH_ADMIN + '/products', reuireAuth, productRoute)
 
-    app.use(PATH_ADMIN + '/products-category', middleware.reuireAuth, productCategoryRoute)
+    app.use(PATH_ADMIN + '/products-category', reuireAuth, productCategoryRoute)
 
-    app.use(PATH_ADMIN + '/roles', middleware.reuireAuth, roleRoute)
+    app.use(PATH_ADMIN + '/roles', reuireAuth, roleRoute)
 
-    app.use(PATH_ADMIN + '/accounts', middleware.reuireAuth, accountRoute)
+    app.use(PATH_ADMIN + '/accounts', reuireAuth, accountRoute)
 
     app.use(PATH_ADMIN + '/auth', authRoute)
 
-    app.use(PATH_ADMIN + '/my-account', middleware.reuireAuth, my_accountRoute)
+    app.use(PATH_ADMIN + '/my-account', reuireAuth, my_accountRoute)
 
-    app.use(PATH_ADMIN + '/setting', middleware.reuireAuth, settingRoute)
+    app.use(PATH_ADMIN + '/setting', reuireAuth, settingRoute)
 
-    app.use(PATH_ADMIN + '/users', middleware.reuireAuth, userRoute)
+    app.use(PATH_ADMIN + '/users', reuireAuth, userRoute)
 
-    app.use(PATH_ADMIN + '/comments', middleware.reuireAuth, commentRoute)
+    app.use(PATH_ADMIN + '/comments', reuireAuth, commentRoute)
     
     app.use(PATH_ADMIN + '/token', tokenRoute)
 }

@@ -1,37 +1,40 @@
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+import pkg from 'jsonwebtoken';
+const { sign, verify, decode } = pkg;
+import { randomUUID } from 'crypto';
 
 // JWT Secret keys (nên đặt trong .env file)
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'your-access-token-secret-key';
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret-key';
 
 // Token expiration times
+
+// Token expiration times
 const ACCESS_TOKEN_EXPIRES = '15m'; // 15 phút
 const REFRESH_TOKEN_EXPIRES = '7d';  // 7 ngày
 
 // Tạo access token
-const generateAccessToken = (payload, userType = 'user') => {
+export const generateAccessToken = (payload, userType = 'user') => {
     const tokenPayload = {
         ...payload,
         userType,
         type: 'access'
     };
     
-    return jwt.sign(tokenPayload, ACCESS_TOKEN_SECRET, { 
+    return sign(tokenPayload, ACCESS_TOKEN_SECRET, { 
         expiresIn: ACCESS_TOKEN_EXPIRES 
     });
 };
 
 // Tạo refresh token
-const generateRefreshToken = (payload, userType = 'user') => {
+export const generateRefreshToken = (payload, userType = 'user') => {
     const tokenPayload = {
         ...payload,
         userType,
         type: 'refresh',
-        jti: crypto.randomUUID() // JWT ID để có thể revoke token
+        jti: randomUUID() // JWT ID để có thể revoke token
     };
     
-    return jwt.sign(tokenPayload, REFRESH_TOKEN_SECRET, { 
+    return sign(tokenPayload, REFRESH_TOKEN_SECRET, { 
         expiresIn: REFRESH_TOKEN_EXPIRES 
     });
 };
@@ -39,7 +42,7 @@ const generateRefreshToken = (payload, userType = 'user') => {
 // Xác thực access token
 const verifyAccessToken = (token) => {
     try {
-        const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
+        const decoded = verify(token, ACCESS_TOKEN_SECRET);
         if (decoded.type !== 'access') {
             return null;
         }
@@ -52,7 +55,7 @@ const verifyAccessToken = (token) => {
 // Xác thực refresh token
 const verifyRefreshToken = (token) => {
     try {
-        const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET);
+        const decoded = verify(token, REFRESH_TOKEN_SECRET);
         if (decoded.type !== 'refresh') {
             return null;
         }
@@ -63,7 +66,7 @@ const verifyRefreshToken = (token) => {
 };
 
 // Tạo cặp access token và refresh token
-const generateTokenPair = (user, userType = 'user') => {
+export const generateTokenPair = (user, userType = 'user') => {
     const payload = {
         id: user._id || user.id,
         email: user.email,
@@ -82,22 +85,18 @@ const generateTokenPair = (user, userType = 'user') => {
 };
 
 // Lấy thời gian hết hạn của refresh token
-const getRefreshTokenExpiry = (token) => {
+export const getRefreshTokenExpiry = (token) => {
     try {
-        const decoded = jwt.decode(token);
+        const decoded = decode(token);
         return new Date(decoded.exp * 1000);
     } catch (error) {
         return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 ngày từ bây giờ
     }
 };
 
-module.exports = {
-    generateAccessToken,
-    generateRefreshToken,
+export {
     verifyAccessToken,
     verifyRefreshToken,
-    generateTokenPair,
-    getRefreshTokenExpiry,
     ACCESS_TOKEN_EXPIRES,
     REFRESH_TOKEN_EXPIRES
 };

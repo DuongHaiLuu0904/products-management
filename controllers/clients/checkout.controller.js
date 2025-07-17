@@ -1,11 +1,11 @@
-const Order = require('../../models/order.model')
-const Cart = require('../../models/cart.model')
-const Product = require('../../models/product.model')
+import Order from '../../models/order.model.js'
+import Cart from '../../models/cart.model.js'
+import Product from '../../models/product.model.js'
 
-const productHelper = require('../../helpers/product')
+import { priceNewProduct } from '../../helpers/product.js'
 
 //[GET] /checkout
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     const cartId = req.cookies.cartId
 
     const cart = await Cart.findOne({
@@ -24,7 +24,7 @@ module.exports.index = async (req, res) => {
                 _id: item.product_id
             })
 
-            product.priceNew = productHelper.priceNewProduct(product)
+            product.priceNew = priceNewProduct(product)
 
             item.totalPrice = item.quantity * product.priceNew
 
@@ -40,7 +40,7 @@ module.exports.index = async (req, res) => {
 }
 
 //[POST] /checkout/order
-module.exports.orderPost = async (req, res) => {
+export async function orderPost(req, res) {
     const cartId = req.cookies.cartId
     const userInfo = req.body
 
@@ -127,7 +127,7 @@ module.exports.orderPost = async (req, res) => {
 }
 
 //[GET] /checkout/success/:id
-module.exports.success = async (req, res) => {
+export async function success(req, res) {
     
     const order = await Order.findOne({
         _id: req.params.id
@@ -140,7 +140,7 @@ module.exports.success = async (req, res) => {
 
         product.productInfo = productInfo
 
-        product.priceNew = productHelper.priceNewProduct(product)
+        product.priceNew = priceNewProduct(product)
         
         product.totalPrice = product.quantity * product.priceNew
     }

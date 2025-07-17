@@ -1,4 +1,4 @@
-module.exports = (objectPangination, query, countProducts) => {
+export default (objectPangination, query, countProducts) => {
     if(query.page) {
         objectPangination.currentPage = parseInt(query.page)
     }

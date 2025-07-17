@@ -1,13 +1,13 @@
-const md5 = require('md5')
-const Account = require('../../models/account.model')
-const systemconfig = require('../../config/system')
-const { generateTokenPair, getRefreshTokenExpiry } = require('../../helpers/jwt')
+import md5 from 'md5'
+import Account from '../../models/account.model.js'
+import { prefixAdmin } from '../../config/system.js'
+import { generateTokenPair, getRefreshTokenExpiry } from '../../helpers/jwt.js'
 
 
 // [GET] /auth/login
-module.exports.login = async (req, res) => {
+export async function login(req, res) {
     if(req.cookies.token) {
-        res.redirect(systemconfig.prefixAdmin + '/dashboard')
+        res.redirect(prefixAdmin + '/dashboard')
     } else {
         res.render('admin/pages/auth/login', {
             title: 'Login'
@@ -17,7 +17,7 @@ module.exports.login = async (req, res) => {
 }
 
 // [POST] /auth/login
-module.exports.loginPost = async (req, res) => {
+export async function loginPost(req, res) {
     const email = req.body.email
     const password = req.body.password
 
@@ -28,17 +28,17 @@ module.exports.loginPost = async (req, res) => {
 
     if(!user) {
         req.flash('error', 'Tài khoản không tồn tại')
-        return res.redirect(systemconfig.prefixAdmin + '/auth/login')
+        return res.redirect(prefixAdmin + '/auth/login')
     }
 
     if(md5(password) !== user.password) {
         req.flash('error', 'Mật khẩu không đúng')
-        return res.redirect(systemconfig.prefixAdmin + '/auth/login')
+        return res.redirect(prefixAdmin + '/auth/login')
     }
 
     if(user.status == 'inactive') {
         req.flash('error', 'Tài khoản bị khóa')
-        return res.redirect(systemconfig.prefixAdmin + '/auth/login')
+        return res.redirect(prefixAdmin + '/auth/login')
     }
 
     try {
@@ -81,16 +81,16 @@ module.exports.loginPost = async (req, res) => {
             });
         }
         
-        res.redirect(systemconfig.prefixAdmin + '/dashboard')
+        res.redirect(prefixAdmin + '/dashboard')
     } catch (error) {
         console.error('Admin login error:', error);
         req.flash('error', 'Có lỗi xảy ra khi đăng nhập');
-        return res.redirect(systemconfig.prefixAdmin + '/auth/login');
+        return res.redirect(prefixAdmin + '/auth/login');
     }
 }
 
 // [GET] /auth/logout
-module.exports.logout = async (req, res) => {
+export async function logout(req, res) {
     try {
         // Clear refresh token from database
         if (req.cookies.refreshToken || res.locals.user) {
@@ -121,9 +121,9 @@ module.exports.logout = async (req, res) => {
         }
         
         req.flash('success', 'Đăng xuất thành công');
-        res.redirect(systemconfig.prefixAdmin + '/auth/login');
+        res.redirect(prefixAdmin + '/auth/login');
     } catch (error) {
         console.error('Admin logout error:', error);
-        res.redirect(systemconfig.prefixAdmin + '/auth/login');
+        res.redirect(prefixAdmin + '/auth/login');
     }
 }

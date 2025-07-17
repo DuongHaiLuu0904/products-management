@@ -1,7 +1,7 @@
-const User = require('../models/user.model');
-const Account = require('../models/account.model');
+import User from '../models/user.model.js';
+import Account from '../models/account.model.js';
 
-const cleanupExpiredTokens = async () => {
+export const cleanupExpiredTokens = async () => {
     try {
         const now = new Date();
 
@@ -42,7 +42,7 @@ const cleanupExpiredTokens = async () => {
     }
 };
 
-const revokeUserTokens = async (userId, userType = 'user') => {
+export const revokeUserTokens = async (userId, userType = 'user') => {
     try {
         const Model = userType === 'user' ? User : Account;
         
@@ -63,7 +63,7 @@ const revokeUserTokens = async (userId, userType = 'user') => {
     }
 };
 
-const revokeAllTokens = async () => {
+export const revokeAllTokens = async () => {
     try {
         const userResult = await User.updateMany(
             { refreshToken: { $ne: null } },
@@ -93,10 +93,4 @@ const revokeAllTokens = async () => {
         console.error('Error revoking all tokens:', error);
         throw error;
     }
-};
-
-module.exports = {
-    cleanupExpiredTokens,
-    revokeUserTokens,
-    revokeAllTokens
 };

@@ -1,4 +1,4 @@
-module.exports.loginPost = async (req, res, next) => {
+export async function loginPost(req, res, next) {
     if(!req.body.email) {
         req.flash('error', 'Vui lòng nhập Email!');
         

@@ -1,28 +1,28 @@
-const productRoute = require('./products.route')
-const homeRoute = require('./home.route')
-const searchRoute = require('./search.route')
-const cartRoute = require('./cart.route')
-const checkoutRoute = require('./checkout.route')
-const userRoute = require('./user.route')
-const chatRoute = require('./chat.route')
-const usersRoute = require('./users.route')
-const commentRoute = require('./comment.route')
-const tokenRoute = require('./token.route')
+import productRoute from './products.route.js'
+import homeRoute from './home.route.js'
+import searchRoute from './search.route.js'
+import cartRoute from './cart.route.js'
+import checkoutRoute from './checkout.route.js'
+import userRoute from './user.route.js'
+import chatRoute from './chat.route.js'
+import usersRoute from './users.route.js'
+import commentRoute from './comment.route.js'
+import tokenRoute from './token.route.js'
 
-const categoryMiddleware = require('../../middlewares/client/category.middleware')
-const cartMiddleware = require('../../middlewares/client/cart.middleware')
-const userMiddleware = require('../../middlewares/client/user.middleware')
-const settingMiddleware = require('../../middlewares/client/setting.middleware')
-const autoRefreshMiddleware = require('../../middlewares/client/autoRefresh.middleware')
+import { caegory } from '../../middlewares/client/category.middleware.js'
+import { cardId } from '../../middlewares/client/cart.middleware.js'
+import { infoUser } from '../../middlewares/client/user.middleware.js'
+import { infoSetting } from '../../middlewares/client/setting.middleware.js'
+import { autoRefreshToken } from '../../middlewares/client/autoRefresh.middleware.js'
 
-const authMiddleware = require('../../middlewares/client/auth.middleware.js')
+import { reuireAuth } from '../../middlewares/client/auth.middleware.js'
 
-module.exports = (app) => {
-    app.use(autoRefreshMiddleware.autoRefreshToken)
-    app.use(categoryMiddleware.caegory)
-    app.use(cartMiddleware.cardId)
-    app.use(userMiddleware.infoUser)
-    app.use(settingMiddleware.infoSetting)
+export default (app) => {
+    app.use(autoRefreshToken)
+    app.use(caegory)
+    app.use(cardId)
+    app.use(infoUser)
+    app.use(infoSetting)
 
     app.use('/', homeRoute)
     
@@ -36,9 +36,9 @@ module.exports = (app) => {
 
     app.use('/user', userRoute)
 
-    app.use('/chat', authMiddleware.reuireAuth, chatRoute)
+    app.use('/chat', reuireAuth, chatRoute)
 
-    app.use('/users', authMiddleware.reuireAuth, usersRoute)
+    app.use('/users', reuireAuth, usersRoute)
 
     app.use('/comments', commentRoute)
     

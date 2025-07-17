@@ -1,14 +1,14 @@
-const Comment = require('../../models/comment.model');
-const Product = require('../../models/product.model');
-const User = require('../../models/user.model');
+import Comment from '../../models/comment.model.js';
+import Product from '../../models/product.model.js';
+import User from '../../models/user.model.js';
 
-const systemConfix = require("../../config/system");
-const filterStatusHelper = require("../../helpers/filterStatus");
-const searchHelper = require("../../helpers/search");
-const paginationHelper = require("../../helpers/pagination");
+import { prefixAdmin } from "../../config/system.js";
+import filterStatusHelper from "../../helpers/filterStatus.js";
+import searchHelper from "../../helpers/search.js";
+import paginationHelper from "../../helpers/pagination.js";
 
 // [GET] /admin/comments
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     // Bộ lọc trạng thái
     const filterStatus = filterStatusHelper(req.query);
     
@@ -89,14 +89,14 @@ module.exports.index = async (req, res) => {
         products: products,
         query: req.query
     });
-};
+}
 
 // [PATCH] /admin/comments/change-status/:status/:id
-module.exports.changeStatus = async (req, res) => {
+export async function changeStatus(req, res) {
     const permissions = res.locals.role.permissions;
     if (!permissions.includes("comments_edit")) {
         req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-        return res.redirect(`${systemConfix.prefixAdmin}/comments`);
+        return res.redirect(`${prefixAdmin}/comments`);
     }
     
     const status = req.params.status;
@@ -119,10 +119,10 @@ module.exports.changeStatus = async (req, res) => {
     
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);
-};
+}
 
 // [PATCH] /admin/comments/change-multi
-module.exports.changeMulti = async (req, res) => {
+export async function changeMulti(req, res) {
     const type = req.body.type;
     const ids = req.body.ids.split(", ");
     
@@ -136,7 +136,7 @@ module.exports.changeMulti = async (req, res) => {
             const permissions = res.locals.role.permissions;
             if (!permissions.includes("comments_edit")) {
                 req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-                return res.redirect(`${systemConfix.prefixAdmin}/comments`);
+                return res.redirect(`${prefixAdmin}/comments`);
             }
             
             await Comment.updateMany(
@@ -153,7 +153,7 @@ module.exports.changeMulti = async (req, res) => {
             const permissionsInactive = res.locals.role.permissions;
             if (!permissionsInactive.includes("comments_edit")) {
                 req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-                return res.redirect(`${systemConfix.prefixAdmin}/comments`);
+                return res.redirect(`${prefixAdmin}/comments`);
             }
             
             await Comment.updateMany(
@@ -170,7 +170,7 @@ module.exports.changeMulti = async (req, res) => {
             const permissionsDelete = res.locals.role.permissions;
             if (!permissionsDelete.includes("comments_delete")) {
                 req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-                return res.redirect(`${systemConfix.prefixAdmin}/comments`);
+                return res.redirect(`${prefixAdmin}/comments`);
             }
             
             await Comment.updateMany(
@@ -192,14 +192,14 @@ module.exports.changeMulti = async (req, res) => {
     
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);
-};
+}
 
 // [DELETE] /admin/comments/delete/:id
-module.exports.deleteItem = async (req, res) => {
+export async function deleteItem(req, res) {
     const permissions = res.locals.role.permissions;
     if (!permissions.includes("comments_delete")) {
         req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-        return res.redirect(`${systemConfix.prefixAdmin}/comments`);
+        return res.redirect(`${prefixAdmin}/comments`);
     }
     
     const id = req.params.id;
@@ -224,10 +224,10 @@ module.exports.deleteItem = async (req, res) => {
     
     const backURL = req.get("Referrer") || "/";
     res.redirect(backURL);
-};
+}
 
 // [GET] /admin/comments/detail/:id
-module.exports.detail = async (req, res) => {
+export async function detail(req, res) {
     try {
         const comment = await Comment.findOne({
             _id: req.params.id,
@@ -236,17 +236,17 @@ module.exports.detail = async (req, res) => {
         
         if (!comment) {
             req.flash('error', 'Bình luận không tồn tại!');
-            return res.redirect(`${systemConfix.prefixAdmin}/comments`);
+            return res.redirect(`${prefixAdmin}/comments`);
         }
         
         // Lấy thông tin user
-        const user = await User.findOne({ _id: comment.user_id });
+        const user = await __findOne({ _id: comment.user_id });
         if (user) {
             comment.userInfo = user;
         }
         
         // Lấy thông tin sản phẩm
-        const product = await Product.findOne({ _id: comment.product_id });
+        const product = await _findOne({ _id: comment.product_id });
         if (product) {
             comment.productInfo = product;
         }
@@ -283,6 +283,6 @@ module.exports.detail = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.redirect(`${systemConfix.prefixAdmin}/comments`);
+        res.redirect(`${prefixAdmin}/comments`);
     }
-};
+}

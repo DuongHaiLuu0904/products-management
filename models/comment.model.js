@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const commentSchema = new mongoose.Schema({
+const commentSchema = new Schema({
     content: String,
     user_id: String,
     product_id: String,
@@ -36,6 +36,6 @@ const commentSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const Comment = mongoose.model("Comment", commentSchema, "comments");
+const Comment = model("Comment", commentSchema, "comments");
 
-module.exports = Comment;
+export default Comment;

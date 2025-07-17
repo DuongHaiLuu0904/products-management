@@ -1,4 +1,4 @@
-module.exports.createPost = async (req, res, next) => {
+export async function createPost(req, res, next) {
     if(!req.body.fullName) {
         req.flash('error', 'Vui lòng nhập họ tên!');
         
@@ -26,7 +26,7 @@ module.exports.createPost = async (req, res, next) => {
     next()
 }
 
-module.exports.createPatch= async (req, res, next) => {
+export async function createPatch(req, res, next) {
     if(!req.body.fullName) {
         req.flash('error', 'Vui lòng nhập họ tên!');
         

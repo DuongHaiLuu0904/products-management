@@ -1,10 +1,10 @@
-const User = require("../../models/user.model")
-const md5 = require('md5')
+import User from "../../models/user.model.js"
+import md5 from 'md5'
 
-const systemConfix = require("../../config/system")
-const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
+import { prefixAdmin } from "../../config/system.js"
+import cloudinaryHelper from "../../helpers/uploadToCloudinary.js"
 
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     let find = {
         deleted: false
     }
@@ -18,7 +18,7 @@ module.exports.index = async (req, res) => {
 }
 
 // [GET] /admin/users/create
-module.exports.create = async (req, res) => {
+export async function create(req, res) {
     
     res.render('admin/pages/user/create', {
         title: 'Thêm tài khoản',
@@ -26,7 +26,7 @@ module.exports.create = async (req, res) => {
 }
 
 // [POST] /admin/users/createPost
-module.exports.createPost = async (req, res) => {
+export async function createPost(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("users_create")) {
         req.flash('error', 'Bạn không có quyền tạo tài khoản!');
@@ -49,12 +49,12 @@ module.exports.createPost = async (req, res) => {
         record.save()
 
         req.flash('success', 'Thêm mới thành công!');
-        res.redirect(`${systemConfix.prefixAdmin}/users`);
+        res.redirect(`${prefixAdmin}/users`);
     }
 }
 
 // [GET] /admin/users/edit/:id
-module.exports.edit = async (req, res) => {
+export async function edit(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("users_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -74,12 +74,12 @@ module.exports.edit = async (req, res) => {
             data: data
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/users`);
+        res.redirect(`${prefixAdmin}/users`);
     }
 }
 
 // [PATCH] /admin/users/edit/:id
-module.exports.editPatch = async (req, res) => {
+export async function editPatch(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("users_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -105,7 +105,7 @@ module.exports.editPatch = async (req, res) => {
 
             // If a new avatar is being uploaded and there's an existing public_id, delete the old image
             if (req.body.public_id && currentUser.public_id) {
-                await deleteFromCloudinary(currentUser.public_id);
+                await cloudinaryHelper.deleteFromCloudinary(currentUser.public_id);
             }
             
             if(req.body.password) {
@@ -116,17 +116,17 @@ module.exports.editPatch = async (req, res) => {
 
             await User.updateOne({ _id: id }, req.body)
             req.flash('success', 'Cập nhật thành công!');
-            res.redirect(`${systemConfix.prefixAdmin}/users`);
+            res.redirect(`${prefixAdmin}/users`);
         }
     } catch (error) {
         console.log(error)
         req.flash('error', 'Cập nhật thất bại!');
-        res.redirect(`${systemConfix.prefixAdmin}/users`);
+        res.redirect(`${prefixAdmin}/users`);
     }
 }
 
 // [PATCH] /admin/users/change-status/:status/:id
-module.exports.changeStatus = async (req, res) => {
+export async function changeStatus(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("users_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -144,7 +144,7 @@ module.exports.changeStatus = async (req, res) => {
 }
 
 // [DELETE] /admin/users/delete/:id
-module.exports.deleteItem = async (req, res) => {
+export async function deleteItem(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("users_delete")) {
         req.flash('error', 'Bạn không có quyền cập nhật tài khoản!');
@@ -159,7 +159,7 @@ module.exports.deleteItem = async (req, res) => {
 
         // Delete the avatar from Cloudinary if public_id exists
         if (user.public_id) {
-            await deleteFromCloudinary(user.public_id);
+            await cloudinaryHelper.deleteFromCloudinary(user.public_id);
         }
         
         await User.updateOne({ _id: id }, {
@@ -177,7 +177,7 @@ module.exports.deleteItem = async (req, res) => {
 }
 
 // [GET] /admin/users/detail/:id
-module.exports.detail = async (req, res) => {
+export async function detail(req, res) {
     try {
         const find = {
             deleted: false,
@@ -224,6 +224,6 @@ module.exports.detail = async (req, res) => {
         });
     } catch (error) {
         console.log(error)
-        res.redirect(`${systemConfix.prefixAdmin}/users`);
+        res.redirect(`${prefixAdmin}/users`);
     }
 }

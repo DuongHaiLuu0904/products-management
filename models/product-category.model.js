@@ -1,8 +1,8 @@
-const mongoose = require('mongoose')
-const slug = require('mongoose-slug-updater')
-mongoose.plugin(slug)
+import { plugin, Schema, model } from 'mongoose';
+import slug from 'mongoose-slug-updater';
+plugin(slug)
 
-const productCategorySchema = new mongoose.Schema({
+const productCategorySchema = new Schema({
     title: String,
     parent_id: {
         type: String,
@@ -27,5 +27,5 @@ const productCategorySchema = new mongoose.Schema({
     timestamps: true
 });
 
-const ProductCategory = mongoose.model('ProductCategory', productCategorySchema, 'products-category');
-module.exports = ProductCategory;
+const ProductCategory = model('ProductCategory', productCategorySchema, 'products-category');
+export default ProductCategory;

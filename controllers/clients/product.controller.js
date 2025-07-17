@@ -1,17 +1,17 @@
-const Product = require('../../models/product.model');
-const ProductCategory = require('../../models/product-category.model');
-const User = require('../../models/user.model');
-const Comment = require('../../models/comment.model');
+import Product from '../../models/product.model.js';
+import ProductCategory from '../../models/product-category.model.js';
+import User from '../../models/user.model.js';
+import Comment from '../../models/comment.model.js';
 
-const productHelper = require('../../helpers/product')
-const productCategoryHelper = require('../../helpers/products-category')
-const paginationHelper = require("../../helpers/pagination")
-const ratingHelper = require("../../helpers/rating")
+import { priceNew, priceNewProduct } from '../../helpers/product.js';
+import { getSubCategory } from '../../helpers/products-category.js';
+import paginationHelper from "../../helpers/pagination.js";
+import { calculateAverageRating, getRatingDistribution } from "../../helpers/rating.js";
 
 // [GET] /products
 const cache = {}
 
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
 
     const find = {
         status: 'active',
@@ -32,7 +32,7 @@ module.exports.index = async (req, res) => {
 
     const products = await Product.find(find).limit(objectPangination.limitItems).skip(objectPangination.skip).sort({ position: "desc" })
 
-    const newProducts = productHelper.priceNew(products)
+    const newProducts = priceNew(products)
 
     res.render('client/pages/products/index', {
         title: 'Trang sản phẩm',
@@ -42,7 +42,7 @@ module.exports.index = async (req, res) => {
 }
 
 // [GET] /products/:slug
-module.exports.detail = async (req, res) => {
+export async function detail(req, res) {
     try {
         const find = {
             deleted: false,
@@ -60,7 +60,7 @@ module.exports.detail = async (req, res) => {
             product.category = category
         }
 
-        product.priceNew = productHelper.priceNewProduct(product)
+        product.priceNew = priceNewProduct(product)
 
         // Lấy tất cả comments cho sản phẩm này
         const comments = await Comment.find({
@@ -104,8 +104,8 @@ module.exports.detail = async (req, res) => {
         }
 
         // Tính rating trung bình cho sản phẩm
-        const ratingInfo = await ratingHelper.calculateAverageRating(product._id);
-        const ratingDistribution = await ratingHelper.getRatingDistribution(product._id);
+        const ratingInfo = await calculateAverageRating(product._id);
+        const ratingDistribution = await getRatingDistribution(product._id);
         
         product.averageRating = ratingInfo.averageRating;
         product.totalReviews = ratingInfo.totalReviews;
@@ -122,14 +122,14 @@ module.exports.detail = async (req, res) => {
 }
 
 // [GET] /products/:slugCategory
-module.exports.category = async (req, res) => {
+export async function category(req, res) {
     const category = await ProductCategory.findOne({
         deleted: false,
         slug: req.params.slugCategory,
         status: 'active'
     })
 
-    const listCategorie = await productCategoryHelper.getSubCategory(category.id)
+    const listCategorie = await getSubCategory(category.id)
 
     const listCategorieId = listCategorie.map(item => item.id)
 
@@ -139,7 +139,7 @@ module.exports.category = async (req, res) => {
         product_category_id: { $in: [category.id, ...listCategorieId] }
     }).sort({ position: "desc" })
 
-    const newProducts = productHelper.priceNew(products)
+    const newProducts = priceNew(products)
     res.render('client/pages/products/index', {
         title: category.title,
         products: newProducts
@@ -147,7 +147,7 @@ module.exports.category = async (req, res) => {
 }
 
 // [POST] /products/comment/add
-module.exports.addComment = async (req, res) => {
+export async function addComment(req, res) {
     try {
         if (!res.locals.user) {
             req.flash('error', 'Bạn cần đăng nhập để bình luận!');
@@ -201,7 +201,7 @@ module.exports.addComment = async (req, res) => {
 }
 
 // [PATCH] /products/comment/edit/:commentId
-module.exports.editComment = async (req, res) => {
+export async function editComment(req, res) {
     try {
         if (!res.locals.user) {
             req.flash('error', 'Bạn cần đăng nhập!');
@@ -254,7 +254,7 @@ module.exports.editComment = async (req, res) => {
 }
 
 // [DELETE] /products/comment/delete/:commentId
-module.exports.deleteComment = async (req, res) => {
+export async function deleteComment(req, res) {
     try {
         if (!res.locals.user) {
             req.flash('error', 'Bạn cần đăng nhập!');

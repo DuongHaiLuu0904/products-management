@@ -1,7 +1,8 @@
-const express = require('express')
+import express from 'express'
+import * as controller from '../../controllers/clients/product.controller.js'
+import * as authMiddleware from '../../middlewares/client/auth.middleware.js'
+
 const router = express.Router()
-const controller = require('../../controllers/clients/product.controller')
-const authMiddleware = require('../../middlewares/client/auth.middleware')
 
 router.get('/', controller.index)
 
@@ -16,4 +17,4 @@ router.delete('/comment/delete/:commentId', authMiddleware.reuireAuth, controlle
 
 router.get('/:slugCategory', controller.category)
 
-module.exports = router
+export default router

@@ -1,11 +1,11 @@
-const ProductCategory = require('../../models/product-category.model');
-const createTreeHelper = require("../../helpers/createTree")
+import ProductCategory from '../../models/product-category.model.js';
+import { createTree } from "../../helpers/createTree.js";
 
-module.exports.caegory = async (req, res, next) => {
+export async function caegory(req, res, next) {
     
     const records = await ProductCategory.find({ deleted: false })
 
-    const newRecords = createTreeHelper.createTree(records)
+    const newRecords = createTree(records)
     res.locals.layoutProductCategory = newRecords
     next()
 }

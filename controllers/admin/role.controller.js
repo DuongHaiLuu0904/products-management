@@ -1,8 +1,8 @@
-const Role = require("../../models/role.model")
-const systemConfix = require("../../config/system")
+import Role from "../../models/role.model.js"
+import { prefixAdmin } from "../../config/system.js"
 
 // [GET] /admin/roles
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     let find = {
         deleted: false
     }
@@ -16,14 +16,14 @@ module.exports.index = async (req, res) => {
 }
 
 // [GET] /admin/roles/create
-module.exports.create = async (req, res) => {
+export async function create(req, res) {
     res.render('admin/pages/roles/create', {
         title: 'Thêm nhóm quyền'
     });
 }
 
 // [POST] /admin/roles/create
-module.exports.createPost = async (req, res) => {
+export async function createPost(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("roles_create")) {
         req.flash('error', 'Bạn không có quyền tạo nhóm quyền!');
@@ -35,7 +35,7 @@ module.exports.createPost = async (req, res) => {
         record.save()
 
         req.flash('success', 'Thêm mới thành công!');
-        res.redirect(`${systemConfix.prefixAdmin}/roles`);
+        res.redirect(`${prefixAdmin}/roles`);
     } catch (error) {
         req.flash('error', 'Thêm mới thất bại!');
         const backURL = req.get("Referrer") || "/";
@@ -44,7 +44,7 @@ module.exports.createPost = async (req, res) => {
 }
 
 // [GET] /admin/roles/edit
-module.exports.edit = async (req, res) => {
+export async function edit(req, res) {
     try {
         let find = {
             _id: req.params.id,
@@ -58,12 +58,12 @@ module.exports.edit = async (req, res) => {
             record: record
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/roles`)
+        res.redirect(`${prefixAdmin}/roles`)
     }
 }
 
 // [PATCH] /admin/roles/edit
-module.exports.editPatch = async (req, res) => {
+export async function editPatch(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("roles_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật nhóm quyền!');
@@ -85,7 +85,7 @@ module.exports.editPatch = async (req, res) => {
 }
 
 // [GET] /admin/roles/detail
-module.exports.detail = async (req, res) => {
+export async function detail(req, res) {
     try {
         const find = {
             deleted: false,
@@ -98,12 +98,12 @@ module.exports.detail = async (req, res) => {
             record: record
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/roles`);
+        res.redirect(`${prefixAdmin}/roles`);
     }
 }
 
 // [DELETE] /admin/products/change-status/:status/:id
-module.exports.deleteItem = async (req, res) => {
+export async function deleteItem(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("roles_delete")) {
         req.flash('error', 'Bạn không có quyền xóa nhóm quyền!');
@@ -126,7 +126,7 @@ module.exports.deleteItem = async (req, res) => {
 }
 
 // [GET] /admin/roles/permissions
-module.exports.permissions = async (req, res) => {
+export async function permissions(req, res) {
     let find = {
         deleted: false
     }
@@ -140,7 +140,7 @@ module.exports.permissions = async (req, res) => {
 }
 
 // [PATCH] /admin/roles/permissions
-module.exports.permissionsPatch = async (req, res) => {
+export async function permissionsPatch(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("roles_permissions")) {
         req.flash('error', 'Bạn không có quyền cập nhật phân quyền!');

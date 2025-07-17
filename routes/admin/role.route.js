@@ -1,24 +1,24 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const controller = require('../../controllers/admin/role.controller')
+import { index, create, createPost, edit, editPatch, detail, deleteItem, permissions, permissionsPatch } from '../../controllers/admin/role.controller.js'
 
-router.get('/', controller.index)
+router.get('/', index)
 
-router.get('/create', controller.create)
+router.get('/create', create)
 
-router.post('/create', controller.createPost)
+router.post('/create', createPost)
 
-router.get('/edit/:id', controller.edit)
+router.get('/edit/:id', edit)
 
-router.patch('/edit/:id', controller.editPatch)
+router.patch('/edit/:id', editPatch)
 
-router.get('/detail/:id', controller.detail)
+router.get('/detail/:id', detail)
 
-router.delete("/delete/:id", controller.deleteItem)
+router.delete("/delete/:id", deleteItem)
 
-router.get('/permissions', controller.permissions)
+router.get('/permissions', permissions)
 
-router.patch('/permissions', controller.permissionsPatch)
+router.patch('/permissions', permissionsPatch)
 
-module.exports = router
+export default router

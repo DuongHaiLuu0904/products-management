@@ -1,13 +1,13 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from "express";
+const router = Router();
 
-const controller = require("../../controllers/clients/comment.controller");
-const authMiddleware = require("../../middlewares/client/auth.middleware");
+import { createPost, editPatch, deleteItem } from "../../controllers/clients/comment.controller.js";
+import { reuireAuth } from "../../middlewares/client/auth.middleware.js";
 
-router.post("/create", authMiddleware.reuireAuth, controller.createPost);
+router.post("/create", reuireAuth, createPost);
 
-router.patch("/edit/:id", authMiddleware.reuireAuth, controller.editPatch);
+router.patch("/edit/:id", reuireAuth, editPatch);
 
-router.delete("/delete/:id", authMiddleware.reuireAuth, controller.deleteItem);
+router.delete("/delete/:id", reuireAuth, deleteItem);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
-const User = require("../../models/user.model")
-const { verifyAccessToken } = require("../../helpers/jwt")
+import User from "../../models/user.model.js";
+import { verifyAccessToken } from "../../helpers/jwt.js";
 
-module.exports.reuireAuth = async (req, res, next) => {
+export async function reuireAuth(req, res, next) {
     let user = null;
     
     // Check for passport session first

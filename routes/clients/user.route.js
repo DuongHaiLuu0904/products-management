@@ -1,54 +1,54 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const multer = require('multer')
+import multer from 'multer'
 const upload = multer()
 
-const controller = require('../../controllers/clients/user.controller.js')
-const validate = require('../../validates/client/user.validate.js')
-const authMiddleware = require('../../middlewares/client/auth.middleware.js')
-const uploadCloud = require('../../middlewares/client/uploadCloud.middleware')
+import { register, registerPost, login, loginPost, logout, googleAuth, googleCallback, githubAuth, githubCallback, forgotPassword, forgotPasswordPost, otpPassword, otpPasswordPost, resetPassword, resetPasswordPost, info, edit, editPost, changePassword, changePasswordPost } from '../../controllers/clients/user.controller.js'
+import { registerPost as _registerPost, loginPost as _loginPost, resetPasswordPost as _resetPasswordPost, editPost as _editPost, changePasswordPost as _changePasswordPost } from '../../validates/client/user.validate.js'
+import { reuireAuth } from '../../middlewares/client/auth.middleware.js'
+import { upload as _upload } from '../../middlewares/client/uploadCloud.middleware.js'
 
-router.get('/register', controller.register)
+router.get('/register', register)
 
-router.post('/register', validate.registerPost, controller.registerPost)
+router.post('/register', _registerPost, registerPost)
 
-router.get('/login', controller.login)
+router.get('/login', login)
 
-router.post('/login', validate.loginPost, controller.loginPost)
+router.post('/login', _loginPost, loginPost)
 
-router.get('/logout', controller.logout)
+router.get('/logout', logout)
 
 // Google OAuth
-router.get('/auth/google', controller.googleAuth)
+router.get('/auth/google', googleAuth)
 
-router.get('/auth/google/callback', controller.googleCallback)
+router.get('/auth/google/callback', googleCallback)
 
 // GitHub OAuth
-router.get('/auth/github', controller.githubAuth)
+router.get('/auth/github', githubAuth)
 
-router.get('/auth/github/callback', controller.githubCallback)
+router.get('/auth/github/callback', githubCallback)
 
-router.get('/password/forgot', controller.forgotPassword)
+router.get('/password/forgot', forgotPassword)
 
-router.post('/password/forgot', controller.forgotPasswordPost)
+router.post('/password/forgot', forgotPasswordPost)
 
-router.get('/password/otp', controller.otpPassword)
+router.get('/password/otp', otpPassword)
 
-router.post('/password/otp', controller.otpPasswordPost)
+router.post('/password/otp', otpPasswordPost)
 
-router.get('/password/reset', controller.resetPassword)
+router.get('/password/reset', resetPassword)
 
-router.post('/password/reset', validate.resetPasswordPost, controller.resetPasswordPost)
+router.post('/password/reset', _resetPasswordPost, resetPasswordPost)
 
-router.get('/info', authMiddleware.reuireAuth, controller.info)
+router.get('/info', reuireAuth, info)
 
-router.get('/edit', authMiddleware.reuireAuth, controller.edit)
+router.get('/edit', reuireAuth, edit)
 
-router.post('/edit', authMiddleware.reuireAuth, upload.single('avatar'), uploadCloud.upload, validate.editPost, controller.editPost)
+router.post('/edit', reuireAuth, upload.single('avatar'), _upload, _editPost, editPost)
 
-router.get('/change-password', authMiddleware.reuireAuth, controller.changePassword)
+router.get('/change-password', reuireAuth, changePassword)
 
-router.post('/change-password', authMiddleware.reuireAuth, validate.changePasswordPost, controller.changePasswordPost)
+router.post('/change-password', reuireAuth, _changePasswordPost, changePasswordPost)
 
-module.exports = router
+export default router

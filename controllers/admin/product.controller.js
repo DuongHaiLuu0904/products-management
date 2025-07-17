@@ -1,20 +1,21 @@
-const Product = require('../../models/product.model');
-const ProductCategory = require('../../models/product-category.model');
-const Account = require('../../models/account.model')
-const Comment = require('../../models/comment.model')
-const User = require('../../models/user.model')
+import Product from '../../models/product.model.js';
+import ProductCategory from '../../models/product-category.model.js';
+import Account from '../../models/account.model.js';
+import Comment from '../../models/comment.model.js';
+import User from '../../models/user.model.js';
 
-const systemConfix = require("../../config/system")
+import { prefixAdmin } from "../../config/system.js";
 
-const filterStatusHelper = require("../../helpers/filterStatus")
-const searchHelper = require("../../helpers/search")
-const fuzzySearchHelper = require("../../helpers/fuzzySearch")
-const paginationHelper = require("../../helpers/pagination")
-const createTreeHelper = require("../../helpers/createTree")
-const { deleteFromCloudinary } = require("../../helpers/uploadToCloudinary")
+import filterStatusHelper from "../../helpers/filterStatus.js";
+import searchHelper from "../../helpers/search.js";
+import { searchProducts } from "../../helpers/fuzzySearch.js";
+import paginationHelper from "../../helpers/pagination.js";
+import { createTree } from "../../helpers/createTree.js";
+import cloudinaryHelper from "../../helpers/uploadToCloudinary.js";
+const { deleteFromCloudinary } = cloudinaryHelper;
 
 // [GET] /admin/products
-module.exports.index = async (req, res) => {
+export async function index(req, res) {
     // Bộ lọc 
     const filterStatus = filterStatusHelper(req.query)
 
@@ -50,7 +51,7 @@ module.exports.index = async (req, res) => {
             ...(req.query.status && { status: req.query.status })
         }).sort(sort)
 
-        const fuzzyResult = fuzzySearchHelper.searchProducts(allProducts, objectSearch.keyword)
+        const fuzzyResult = searchProducts(allProducts, objectSearch.keyword)
         products = fuzzyResult.results
 
         // Cập nhật pagination cho kết quả tìm kiếm mờ
@@ -143,11 +144,11 @@ module.exports.index = async (req, res) => {
 }
 
 // [PATCH] /admin/products/change-status/:status/:id
-module.exports.changeStatus = async (req, res) => {
+export async function changeStatus(req, res) {
     const permissions = res.locals.role.permissions
     if(!permissions.includes("products_edit")) {
         req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-        return res.redirect(`${systemConfix.prefixAdmin}/products`);
+        return res.redirect(`${prefixAdmin}/products`);
     }
 
     const update = {
@@ -168,7 +169,7 @@ module.exports.changeStatus = async (req, res) => {
 }
 
 // [PATCH] /admin/products/change-multi
-module.exports.changeMulti = async (req, res) => {
+export async function changeMulti(req, res) {
     const type = req.body.type
     const ids = req.body.ids.split(", ")
 
@@ -182,7 +183,7 @@ module.exports.changeMulti = async (req, res) => {
             const permissions = res.locals.role.permissions
             if (!permissions.includes("products_edit")) {
                 req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+                return res.redirect(`${prefixAdmin}/products`);
             }
 
             await Product.updateMany({ _id: { $in: ids } }, {
@@ -196,7 +197,7 @@ module.exports.changeMulti = async (req, res) => {
             const permissionsInactive = res.locals.role.permissions
             if (!permissionsInactive.includes("products_edit")) {
                 req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+                return res.redirect(`${prefixAdmin}/products`);
             }
 
             await Product.updateMany({ _id: { $in: ids } }, {
@@ -210,7 +211,7 @@ module.exports.changeMulti = async (req, res) => {
             const permissionsDelete = res.locals.role.permissions
             if (!permissionsDelete.includes("products_delete")) {
                 req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+                return res.redirect(`${prefixAdmin}/products`);
             }
 
             await Product.updateMany(
@@ -230,14 +231,14 @@ module.exports.changeMulti = async (req, res) => {
             const permissionsPosition = res.locals.role.permissions
             if (!permissionsPosition.includes("products_edit")) {
                 req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
-                return res.redirect(`${systemConfix.prefixAdmin}/products`);
+                return res.redirect(`${prefixAdmin}/products`);
             }
 
             for (const item of ids) {
                 let [id, position] = item.split("-")
                 position = parseInt(position)
 
-                await Product.updateOne({ _id: id }, {
+                await updateOne({ _id: id }, {
                     position: position,
                     $push: { updatedBy: update }
                 })
@@ -255,7 +256,7 @@ module.exports.changeMulti = async (req, res) => {
 }
 
 // [DELETE] /admin/products/change-status/:status/:id
-module.exports.deleteItem = async (req, res) => {
+export async function deleteItem(req, res) {
     const permissions = res.locals.role.permissions
     if (!permissions.includes("products_delete")) {
         req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
@@ -265,7 +266,7 @@ module.exports.deleteItem = async (req, res) => {
     const id = req.params.id
 
     try {
-        await Product.updateOne(
+        await updateOne(
             { _id: id },
             {
                 deleted: true,
@@ -287,14 +288,14 @@ module.exports.deleteItem = async (req, res) => {
 }
 
 // [GET] /admin/products/create
-module.exports.create = async (req, res) => {
+export async function create(req, res) {
 
     let find = {
         deleted: false
     }
 
     const category = await ProductCategory.find(find)
-    const newCategory = createTreeHelper.createTree(category)
+    const newCategory = createTree(category)
 
     res.render('admin/pages/product/create', {
         title: 'Trang tạo sản phẩm',
@@ -303,7 +304,7 @@ module.exports.create = async (req, res) => {
 }
 
 // [POST] /admin/products/create
-module.exports.createPost = async (req, res) => {
+export async function createPost(req, res) {
     const permissions = res.locals.role.permissions
     if (!permissions.includes("products_create")) {
         req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
@@ -328,11 +329,11 @@ module.exports.createPost = async (req, res) => {
     const product = new Product(req.body)
     await product.save()
 
-    res.redirect(`${systemConfix.prefixAdmin}/products`);
+    res.redirect(`${prefixAdmin}/products`);
 }
 
 // [GET] /admin/products/edit/:id
-module.exports.edit = async (req, res) => {
+export async function edit(req, res) {
     try {
         const find = {
             deleted: false,
@@ -345,7 +346,7 @@ module.exports.edit = async (req, res) => {
             deleted: false
         }
         const category = await ProductCategory.find(findCategory)
-        const newCategory = createTreeHelper.createTree(category)
+        const newCategory = createTree(category)
 
         res.render('admin/pages/product/edit', {
             title: 'Trang sửa sản phẩm',
@@ -353,12 +354,12 @@ module.exports.edit = async (req, res) => {
             category: newCategory
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/products`);
+        res.redirect(`${prefixAdmin}/products`);
     }
 }
 
 // [PATCH] /admin/products/edit/:id
-module.exports.editPATCH = async (req, res) => {
+export async function editPATCH(req, res) {
     const permissions = res.locals.role.permissions
     if (!permissions.includes("products_edit")) {
         req.flash('error', 'Bạn không có quyền thực hiện chức năng này!');
@@ -401,10 +402,10 @@ module.exports.editPATCH = async (req, res) => {
         req.flash('error', 'Cập nhật thất bại!');
     }
 
-    res.redirect(`${systemConfix.prefixAdmin}/products`)
+    res.redirect(`${prefixAdmin}/products`)
 }
 
-module.exports.detail = async (req, res) => {
+export async function detail(req, res) {
     try {
         const find = {
             deleted: false,
@@ -432,6 +433,6 @@ module.exports.detail = async (req, res) => {
             comments: comments
         });
     } catch (error) {
-        res.redirect(`${systemConfix.prefixAdmin}/products`);
+        res.redirect(`${prefixAdmin}/products`);
     }
 }

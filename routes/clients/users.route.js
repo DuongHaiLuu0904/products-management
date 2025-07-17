@@ -1,12 +1,12 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const controller = require('../../controllers/clients/users.controller.js')
+import { notFriend, request, accept } from '../../controllers/clients/users.controller.js'
 
-router.get('/not-friend', controller.notFriend)
+router.get('/not-friend', notFriend)
 
-router.get('/request', controller.request)
+router.get('/request', request)
 
-router.get('/accept', controller.accept)
+router.get('/accept', accept)
 
-module.exports = router
+export default router

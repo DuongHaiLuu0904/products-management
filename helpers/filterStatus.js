@@ -1,5 +1,4 @@
-
-module.exports = (query) => {
+export default (query) => {
     let filterStatus = [
         {
             name: "Tất cả",

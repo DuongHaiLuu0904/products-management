@@ -1,13 +1,13 @@
-const mongoose = require('mongoose');
-const generate = require('../helpers/generate')
+import { Schema, model } from 'mongoose';
+import { generateRamdomString } from '../helpers/generate.js';
 
-const accountSchema = new mongoose.Schema({
+const accountSchema = new Schema({
     fullName: String,
     email: String,
     password: String,
     token: {
         type: String,
-        default: () => generate.generateRamdomString(32) 
+        default: () => generateRamdomString(32) 
     },
     refreshToken: {
         type: String,
@@ -31,5 +31,5 @@ const accountSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const Account = mongoose.model('Account', accountSchema, 'accounts');
-module.exports = Account;
+const Account = model('Account', accountSchema, 'accounts');
+export default Account;

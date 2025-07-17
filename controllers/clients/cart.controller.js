@@ -1,11 +1,10 @@
-const Cart = require('../../models/cart.model')
-const Product = require('../../models/product.model')
-const User = require('../../models/user.model')
+import Cart from '../../models/cart.model.js'
+import Product from '../../models/product.model.js'
 
-const productHelper = require('../../helpers/product')
+import * as productHelper from '../../helpers/product.js'
 
 // [GET] /cart
-exports.index = async (req, res) => {
+export const index = async (req, res) => {
     const cartId = req.cookies.cartId
     
     const cart = await Cart.findOne({
@@ -39,7 +38,7 @@ exports.index = async (req, res) => {
 }
 
 // [POST] /cart/add/:id
-exports.addPost = async (req, res) => {
+export const addPost = async (req, res) => {
     const cartId = req.cookies.cartId
     const productId = req.params.productId
     const quantity = parseInt(req.body.quantity)
@@ -85,7 +84,7 @@ exports.addPost = async (req, res) => {
 }
 
 // [GET] /cart/delete/:id
-exports.delete = async (req, res) => {
+export const deleteProduct = async (req, res) => {
     const cartId = req.cookies.cartId
     const productId = req.params.id
 
@@ -104,7 +103,7 @@ exports.delete = async (req, res) => {
 }
 
 // [GET] /cart/update/:id/:quantity
-exports.update = async (req, res) => {
+export const update = async (req, res) => {
     const cartId = req.cookies.cartId
     const productId = req.params.id
     const quantity = parseInt(req.params.quantity)
