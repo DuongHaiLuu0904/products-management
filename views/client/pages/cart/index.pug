@@ -35,14 +35,30 @@ block main
                                             a(href=`/products/detail/${item.productInfo.slug}`) #{item.productInfo.title}
                                         td #{formatCurrency(item.productInfo.priceNew)}
                                         td 
-                                            input(
-                                                type="number"
-                                                name="quantity"
-                                                value=item.quantity
-                                                min="1"
-                                                product-id=item.product_id
-                                                style="width: 50px"
-                                            )
+                                            div(class="quantity-control mb-3")
+                                                button(
+                                                    type="button"
+                                                    class="quantity-btn quantity-decrease"
+                                                    onclick="decreaseQuantity()"
+                                                ) -
+                                                input(
+                                                    class="form-control quantity-input"
+                                                    type="number"
+                                                    id="quantity-input"
+                                                    name="quantity"
+                                                    value=item.quantity
+                                                    min="1"
+                                                    max=item.productInfo.stock
+                                                    product-id=item.product_id
+                                                    style="width: 50px"
+                                                    readonly
+                                                )
+                                                button(
+                                                    type="button"
+                                                    class="quantity-btn quantity-increase"
+                                                    onclick="increaseQuantity()"
+                                                ) +
+                                        td #{item.productInfo.stock}
                                         td #{formatCurrency(item.totalPrice)} 
                                         td 
                                             a(

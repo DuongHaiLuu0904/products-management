@@ -9,8 +9,8 @@ import usersRoute from './users.route.js'
 import commentRoute from './comment.route.js'
 import tokenRoute from './token.route.js'
 
-import { caegory } from '../../middlewares/client/category.middleware.js'
-import { cardId } from '../../middlewares/client/cart.middleware.js'
+import { category } from '../../middlewares/client/category.middleware.js'
+import { cartId } from '../../middlewares/client/cart.middleware.js'
 import { infoUser } from '../../middlewares/client/user.middleware.js'
 import { infoSetting } from '../../middlewares/client/setting.middleware.js'
 import { autoRefreshToken } from '../../middlewares/client/autoRefresh.middleware.js'
@@ -19,9 +19,9 @@ import { reuireAuth } from '../../middlewares/client/auth.middleware.js'
 
 export default (app) => {
     app.use(autoRefreshToken)
-    app.use(caegory)
-    app.use(cardId)
+    app.use(category)
     app.use(infoUser)
+    app.use(cartId)
     app.use(infoSetting)
 
     app.use('/', homeRoute)
