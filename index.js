@@ -23,8 +23,8 @@ config()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-import { connect } from './config/database.js'
-connect()  
+import { mongooseConnect } from './config/database.js'
+mongooseConnect()  
 
 import { prefixAdmin } from './config/system.js'
 

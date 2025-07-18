@@ -1,5 +1,9 @@
-import User from "../../models/user.model.js"
 import md5 from 'md5'
+
+import User from "../../models/user.model.js"
+import Cart from "../../models/cart.model.js"
+import Order from "../../models/order.model.js"
+import Product from "../../models/product.model.js"
 
 import { prefixAdmin } from "../../config/system.js"
 import cloudinaryHelper from "../../helpers/uploadToCloudinary.js"
@@ -19,7 +23,7 @@ export async function index(req, res) {
 
 // [GET] /admin/users/create
 export async function create(req, res) {
-    
+
     res.render('admin/pages/user/create', {
         title: 'Thêm tài khoản',
     });
@@ -35,13 +39,13 @@ export async function createPost(req, res) {
 
     const emmailExist = await User.findOne({
         email: req.body.email,
-        deleted: false 
+        deleted: false
     })
 
     if (emmailExist) {
         req.flash('error', 'Email đã tồn tại!');
         res.redirect(req.headers.referer)
-        
+
     } else {
         req.body.password = md5(req.body.password)
 
@@ -68,7 +72,7 @@ export async function edit(req, res) {
         }
 
         const data = await User.findOne(find)
-    
+
         res.render('admin/pages/user/edit', {
             title: 'Chỉnh sửa tài khoản',
             data: data
@@ -92,12 +96,12 @@ export async function editPatch(req, res) {
         const emailExist = await User.findOne({
             _id: { $ne: id },
             email: req.body.email,
-            deleted: false 
+            deleted: false
         })
-    
+
         if (emailExist) {
             req.flash('error', 'Email đã tồn tại!');
-    
+
             res.redirect(req.headers.referer)
         } else {
             // Get the current user to access the public_id
@@ -107,8 +111,8 @@ export async function editPatch(req, res) {
             if (req.body.public_id && currentUser.public_id) {
                 await cloudinaryHelper.deleteFromCloudinary(currentUser.public_id);
             }
-            
-            if(req.body.password) {
+
+            if (req.body.password) {
                 req.body.password = md5(req.body.password)
             } else {
                 delete req.body.password
@@ -152,7 +156,7 @@ export async function deleteItem(req, res) {
     }
 
     const id = req.params.id
-    
+
     try {
         // Get the user to access the public_id
         const user = await User.findOne({ _id: id });
@@ -161,7 +165,7 @@ export async function deleteItem(req, res) {
         if (user.public_id) {
             await cloudinaryHelper.deleteFromCloudinary(user.public_id);
         }
-        
+
         await User.updateOne({ _id: id }, {
             deleted: true,
             deleteAt: new Date()
@@ -186,17 +190,14 @@ export async function detail(req, res) {
         const record = await User.findOne(find).select('-password -token')
 
         // Lấy lịch sử mua hàng của user
-        const Cart = require("../../models/cart.model")
-        const Order = require("../../models/order.model")
-        const Product = require("../../models/product.model")
 
         // Tìm tất cả cart của user này
         const userCarts = await Cart.find({ user_id: req.params.id })
         const cartIds = userCarts.map(cart => cart._id.toString())
 
         // Tìm tất cả order dựa vào cart_id
-        const orders = await Order.find({ 
-            cart_id: { $in: cartIds } 
+        const orders = await Order.find({
+            cart_id: { $in: cartIds }
         }).sort({ createdAt: -1 })
 
         // Lấy thông tin chi tiết sản phẩm cho từng order
@@ -205,7 +206,7 @@ export async function detail(req, res) {
                 const product = await Product.findOne({
                     _id: item.product_id
                 }).select('title thumbnail')
-                
+
                 if (product) {
                     item.productInfo = product
                     // Tính giá sau khi giảm

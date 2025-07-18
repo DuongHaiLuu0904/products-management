@@ -240,13 +240,13 @@ export async function detail(req, res) {
         }
         
         // Lấy thông tin user
-        const user = await __findOne({ _id: comment.user_id });
+            const user = await User.findOne({ _id: comment.user_id });
         if (user) {
             comment.userInfo = user;
         }
         
         // Lấy thông tin sản phẩm
-        const product = await _findOne({ _id: comment.product_id });
+        const product = await Product.findOne({ _id: comment.product_id });
         if (product) {
             comment.productInfo = product;
         }

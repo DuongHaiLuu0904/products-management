@@ -1,8 +1,8 @@
-import { connect as mongooseConnect } from 'mongoose';
+import { connect } from 'mongoose';
 
-export async function connect() {
+export async function mongooseConnect() {
     try {
-        await mongooseConnect(process.env.MONGGO_URL);
+        await connect(process.env.MONGGO_URL);
         console.log('Connected to database');
     } catch (error) {
         console.log('Error connecting to database');
