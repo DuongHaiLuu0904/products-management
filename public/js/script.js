@@ -81,3 +81,80 @@ if(uploadImage) {
     }
 }
 // End Upload Image
+
+// Thêm vào layout chính của client
+(function() {
+    let refreshTimer;
+    
+    // Tự động refresh token trước khi hết hạn
+    function scheduleTokenRefresh() {
+        // Refresh token sau 12 phút (3 phút trước khi access token hết hạn)
+        refreshTimer = setTimeout(async () => {
+            try {
+                const response = await fetch('/user/refresh-token', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Token refreshed automatically');
+                    
+                    // Lên lịch refresh tiếp theo
+                    scheduleTokenRefresh();
+                } else {
+                    console.log('Token refresh failed, redirecting to login');
+                    window.location.href = '/user/login';
+                }
+            } catch (error) {
+                console.error('Token refresh error:', error);
+                window.location.href = '/user/login';
+            }
+        }, 12 * 60 * 1000); // 12 phút
+    }
+    
+    // Intercept các request AJAX để xử lý token hết hạn
+    function interceptAjaxRequests() {
+        const originalFetch = window.fetch;
+        
+        window.fetch = async function(url, options = {}) {
+            const response = await originalFetch(url, options);
+            
+            // Kiểm tra nếu có header X-New-Access-Token (token đã được refresh)
+            const newToken = response.headers.get('X-New-Access-Token');
+            if (newToken) {
+                console.log('Token was refreshed during request');
+                // Reset timer
+                clearTimeout(refreshTimer);
+                scheduleTokenRefresh();
+            }
+            
+            // Nếu unauthorized, redirect về login
+            if (response.status === 401) {
+                const data = await response.json();
+                if (data.needsLogin) {
+                    window.location.href = '/user/login';
+                }
+            }
+            
+            return response;
+        };
+    }
+    
+    // Khởi tạo khi trang load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Chỉ chạy nếu user đã đăng nhập
+        if (document.cookie.includes('accessToken')) {
+            scheduleTokenRefresh();
+            interceptAjaxRequests();
+        }
+    });
+    
+    // Dọn dẹp timer khi user logout
+    window.addEventListener('beforeunload', function() {
+        clearTimeout(refreshTimer);
+    });
+})();

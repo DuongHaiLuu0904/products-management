@@ -7,10 +7,13 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'your-access-toke
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret-key';
 
 // Token expiration times
-
-// Token expiration times
 const ACCESS_TOKEN_EXPIRES = '15m'; // 15 phút
 const REFRESH_TOKEN_EXPIRES = '7d';  // 7 ngày
+
+export {
+    ACCESS_TOKEN_EXPIRES,
+    REFRESH_TOKEN_EXPIRES
+};
 
 // Tạo access token
 export const generateAccessToken = (payload, userType = 'user') => {
@@ -39,8 +42,8 @@ export const generateRefreshToken = (payload, userType = 'user') => {
     });
 };
 
-// Xác thực access token
-const verifyAccessToken = (token) => {
+// Xác thực access token với xử lý lỗi chi tiết
+export const verifyAccessToken = (token) => {
     try {
         const decoded = verify(token, ACCESS_TOKEN_SECRET);
         if (decoded.type !== 'access') {
@@ -48,12 +51,21 @@ const verifyAccessToken = (token) => {
         }
         return decoded;
     } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            console.log('Access token expired');
+            return null;
+        }
+        if (error.name === 'JsonWebTokenError') {
+            console.log('Invalid access token');
+            return null;
+        }
+        console.error('Access token verification error:', error);
         return null;
     }
 };
 
-// Xác thực refresh token
-const verifyRefreshToken = (token) => {
+// Xác thực refresh token với xử lý lỗi chi tiết
+export const verifyRefreshToken = (token) => {
     try {
         const decoded = verify(token, REFRESH_TOKEN_SECRET);
         if (decoded.type !== 'refresh') {
@@ -61,7 +73,31 @@ const verifyRefreshToken = (token) => {
         }
         return decoded;
     } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            console.log('Refresh token expired');
+            return null;
+        }
+        if (error.name === 'JsonWebTokenError') {
+            console.log('Invalid refresh token');
+            return null;
+        }
+        console.error('Refresh token verification error:', error);
         return null;
+    }
+};
+
+// Kiểm tra token có sắp hết hạn không (trong 5 phút tới)
+export const isTokenExpiringSoon = (token) => {
+    try {
+        const decoded = decode(token);
+        const expirationTime = decoded.exp * 1000;
+        const currentTime = Date.now();
+        const timeUntilExpiry = expirationTime - currentTime;
+        
+        // Nếu token hết hạn trong 5 phút tới
+        return timeUntilExpiry < 5 * 60 * 1000;
+    } catch (error) {
+        return true;
     }
 };
 
@@ -92,11 +128,4 @@ export const getRefreshTokenExpiry = (token) => {
     } catch (error) {
         return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 ngày từ bây giờ
     }
-};
-
-export {
-    verifyAccessToken,
-    verifyRefreshToken,
-    ACCESS_TOKEN_EXPIRES,
-    REFRESH_TOKEN_EXPIRES
 };

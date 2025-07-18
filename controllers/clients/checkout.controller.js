@@ -6,31 +6,35 @@ import { priceNewProduct } from '../../helpers/product.js'
 
 //[GET] /checkout
 export async function index(req, res) {
-    const cartId = req.cookies.cartId
+    const userId = res.locals.user?._id
+
+    if (!userId) {
+        req.flash('error', 'Bạn cần đăng nhập để thanh toán!')
+        return res.redirect('/login')
+    }
 
     const cart = await Cart.findOne({
-        _id: cartId
+        user_id: userId
     }) 
     
-    // Kiểm tra nếu giỏ hàng trống thì không cho phép thanh toán
-    if(!cart.products || cart.products.length === 0) {
+    if (!cart || !cart.products || cart.products.length === 0) {
         req.flash('error', 'Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi thanh toán.')
         return res.redirect('/cart')
     }
     
-    if(cart.products.length > 0) {
-        for(const item of cart.products) {
-            const product = await Product.findOne({
-                _id: item.product_id
-            })
+    for (const item of cart.products) {
+        const product = await Product.findById(item.product_id)
 
-            product.priceNew = priceNewProduct(product)
-
-            item.totalPrice = item.quantity * product.priceNew
-
-            item.productInfo = product
+        if (!product) {
+            req.flash('error', 'Có sản phẩm trong giỏ hàng không tồn tại!')
+            return res.redirect('/cart')
         }
+
+        product.priceNew = priceNewProduct(product)
+        item.totalPrice = item.quantity * product.priceNew
+        item.productInfo = product
     }
+    
     cart.totalPrice = cart.products.reduce((sum, item) => sum + item.totalPrice, 0)
 
     res.render('client/pages/checkout/index', {
@@ -41,62 +45,65 @@ export async function index(req, res) {
 
 //[POST] /checkout/order
 export async function orderPost(req, res) {
-    const cartId = req.cookies.cartId
+    const userId = res.locals.user?._id
     const userInfo = req.body
 
+    if (!userId) {
+        req.flash('error', 'Bạn cần đăng nhập để đặt hàng!')
+        return res.redirect('/login')
+    }
+
     const cart = await Cart.findOne({
-        _id: cartId
+        user_id: userId
     })
 
-    // Kiểm tra nếu giỏ hàng trống thì không cho phép đặt hàng
-    if(!cart.products || cart.products.length === 0) {
+    if (!cart || !cart.products || cart.products.length === 0) {
         req.flash('error', 'Giỏ hàng của bạn đang trống. Không thể thực hiện đặt hàng.')
         return res.redirect('/cart')
     }
 
-    // Kiểm tra số lượng tồn kho trước khi đặt hàng
-    for(const product of cart.products) {
-        const productInfo = await Product.findOne({
-            _id: product.product_id
-        })
+    for (const cartProduct of cart.products) {
+        const productInfo = await Product.findById(cartProduct.product_id)
         
-        // Kiểm tra số lượng sản phẩm phải lớn hơn 0
-        if(product.quantity <= 0) {
+        if (!productInfo) {
+            req.flash('error', 'Có sản phẩm trong giỏ hàng không tồn tại!')
+            return res.redirect('/cart')
+        }
+        
+        if (cartProduct.quantity <= 0) {
             req.flash('error', `Số lượng sản phẩm "${productInfo.title}" không hợp lệ. Vui lòng kiểm tra lại.`)
             return res.redirect('/checkout')
         }
-        if(product.stock <= 0) {
+
+        if (productInfo.stock <= 0) {
             req.flash('error', `Sản phẩm "${productInfo.title}" đã hết hàng, không thể đặt hàng.`)
             return res.redirect('/checkout')
         }
 
-        if(productInfo.stock < product.quantity) {
-            req.flash('error', `Sản phẩm "${productInfo.title}" chỉ còn ${productInfo.stock} sản phẩm trong kho, không đủ số lượng bạn yêu cầu (${product.quantity}).`)
+        if (productInfo.stock < cartProduct.quantity) {
+            req.flash('error', `Sản phẩm "${productInfo.title}" chỉ còn ${productInfo.stock} sản phẩm trong kho, không đủ số lượng bạn yêu cầu (${cartProduct.quantity}).`)
             return res.redirect('/checkout')
         }
     }
 
     let products = []
 
-    for(const product of cart.products) {
+    for (const cartProduct of cart.products) {
+        const productInfo = await Product.findById(cartProduct.product_id)
+        
         const objectProduct = {
-            product_id: product.product_id,
-            price: 0,
-            discountPercentage: 0,
-            quantity: product.quantity
+            product_id: cartProduct.product_id,
+            price: productInfo.price,
+            discountPercentage: productInfo.discountPercentage,
+            quantity: cartProduct.quantity
         }
-
-        const productInfo = await Product.findOne({
-            _id: product.product_id
-        })
-        objectProduct.price = productInfo.price
-        objectProduct.discountPercentage = productInfo.discountPercentage
 
         products.push(objectProduct)
     }
 
     const objectOrder = {
-        cart_id: cartId,
+        user_id: userId, 
+        cart_id: cart._id,
         userInfo: userInfo,
         products: products
     }
@@ -104,19 +111,18 @@ export async function orderPost(req, res) {
     const order = new Order(objectOrder)
     await order.save()
 
-    // Cập nhật số lượng tồn kho của các sản phẩm sau khi đặt hàng thành công
-    for(const product of cart.products) {
+    for (const cartProduct of cart.products) {
         await Product.updateOne({
-            _id: product.product_id
+            _id: cartProduct.product_id
         }, {
             $inc: {
-                stock: -product.quantity
+                stock: -cartProduct.quantity
             }
         })
     }
 
     await Cart.updateOne({
-        _id: cartId
+        user_id: userId
     }, {
         $set: {
             products: []
@@ -128,21 +134,27 @@ export async function orderPost(req, res) {
 
 //[GET] /checkout/success/:id
 export async function success(req, res) {
+    const userId = res.locals.user?._id
+    const orderId = req.params.id
+
+    if (!userId) {
+        req.flash('error', 'Bạn cần đăng nhập để xem đơn hàng!')
+        return res.redirect('/login')
+    }
     
     const order = await Order.findOne({
-        _id: req.params.id
+        _id: orderId
     })
 
-    for(const product of order.products) {
-        const productInfo = await Product.findOne({
-            _id: product.product_id
-        }).select('title thumbnail')
+    for (const product of order.products) {
+        const productInfo = await Product.findById(product.product_id)
+            .select('title thumbnail')
 
-        product.productInfo = productInfo
-
-        product.priceNew = priceNewProduct(product)
-        
-        product.totalPrice = product.quantity * product.priceNew
+        if (productInfo) {
+            product.productInfo = productInfo
+            product.priceNew = priceNewProduct(product)
+            product.totalPrice = product.quantity * product.priceNew
+        }
     }
 
     order.totalPrice = order.products.reduce((sum, item) => sum + item.totalPrice, 0)

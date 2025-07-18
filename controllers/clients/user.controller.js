@@ -120,7 +120,7 @@ export async function loginPost(req, res, next) {
                 
                 // Lưu userId và collection cart 
                 if (req.cookies.cartId) {
-                    await _updateOne(
+                    await Cart.updateOne(
                         {
                             _id: req.cookies.cartId
                         },
@@ -200,14 +200,12 @@ export async function logout(req, res) {
 }
 
 //[GET] /password/forgot
-const _forgotPassword = async (req, res) => {
+export const forgotPassword = async (req, res) => {
 
     res.render('client/pages/user/forgot-password', {
         title: 'Quên mật khẩu'
     })
 }
-
-export { _forgotPassword as forgotPassword }
 
 //[POST] /password/forgot
 export async function forgotPasswordPost(req, res) {

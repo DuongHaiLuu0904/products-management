@@ -4,16 +4,15 @@ import { verifyRefreshToken, generateTokenPair, getRefreshTokenExpiry } from '..
 // [POST] /token/refresh
 export async function refreshToken(req, res) {
     try {
-        const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
+        const { refreshToken } = req.cookies;
         
         if (!refreshToken) {
             return res.status(401).json({
                 success: false,
-                message: 'Refresh token is required'
+                message: 'Refresh token not provided'
             });
         }
-
-        // Verify refresh token
+        
         const decoded = verifyRefreshToken(refreshToken);
         
         if (!decoded || decoded.userType !== 'user') {
@@ -22,41 +21,26 @@ export async function refreshToken(req, res) {
                 message: 'Invalid refresh token'
             });
         }
-
+        
+        // Tìm user và kiểm tra refresh token trong database
         const user = await User.findOne({
             _id: decoded.id,
             refreshToken: refreshToken,
+            refreshTokenExpires: { $gt: new Date() },
             deleted: false
-        });
-
+        }).select("-password");
+        
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'Refresh token not found or user does not exist'
+                message: 'Invalid or expired refresh token'
             });
         }
-
-        // Check if refresh token is expired
-        if (user.refreshTokenExpires && new Date() > user.refreshTokenExpires) {
-            // Clear expired refresh token
-            await User.updateOne(
-                { _id: user._id },
-                {
-                    refreshToken: null,
-                    refreshTokenExpires: null
-                }
-            );
-            
-            return res.status(401).json({
-                success: false,
-                message: 'Refresh token expired'
-            });
-        }
-
-        // Generate new token pair
+        
+        // Tạo token mới
         const { accessToken, refreshToken: newRefreshToken } = generateTokenPair(user, 'user');
         
-        // Update refresh token in database
+        // Cập nhật refresh token trong database
         await User.updateOne(
             { _id: user._id },
             {
@@ -64,8 +48,8 @@ export async function refreshToken(req, res) {
                 refreshTokenExpires: getRefreshTokenExpiry(newRefreshToken)
             }
         );
-
-        // Set new cookies
+        
+        // Set cookies mới
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -79,8 +63,8 @@ export async function refreshToken(req, res) {
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
         });
-
-        return res.json({
+        
+        res.json({
             success: true,
             message: 'Token refreshed successfully',
             tokens: {
@@ -88,10 +72,10 @@ export async function refreshToken(req, res) {
                 expiresIn: 15 * 60
             }
         });
-
+        
     } catch (error) {
-        console.error('Token refresh error:', error);
-        return res.status(500).json({
+        console.error('Refresh token error:', error);
+        res.status(500).json({
             success: false,
             message: 'Internal server error'
         });
