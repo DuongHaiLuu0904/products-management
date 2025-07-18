@@ -1,20 +1,24 @@
 import express from 'express'
-import * as controller from '../../controllers/clients/product.controller.js'
-import * as authMiddleware from '../../middlewares/client/auth.middleware.js'
-
 const router = express.Router()
 
-router.get('/', controller.index)
+import * as controller from '../../controllers/clients/product.controller.js'
+import { requireAuth } from '../../middlewares/client/auth.middleware.js'
+import * as productValidate from '../../validates/client/product.validate.js'
 
-router.get('/detail/:slugProduct', controller.detail)
+// Apply security headers to all routes
+router.use(productValidate.setSecurityHeaders)
+
+router.get('/', productValidate.validateQueryParams, controller.index)
+
+router.get('/detail/:slugProduct', productValidate.validateProductSlug, controller.detail)
 
 // Comment routes
-router.post('/comment/add', authMiddleware.reuireAuth, controller.addComment)
+router.post('/comment/add', requireAuth, productValidate.validateCommentRateLimit, productValidate.validateAddComment, controller.addComment)
 
-router.patch('/comment/edit/:commentId', authMiddleware.reuireAuth, controller.editComment)
+router.patch('/comment/edit/:commentId', requireAuth, productValidate.validateEditComment, controller.editComment)
 
-router.delete('/comment/delete/:commentId', authMiddleware.reuireAuth, controller.deleteComment)
+router.delete('/comment/delete/:commentId', requireAuth, productValidate.validateDeleteComment, controller.deleteComment)
 
-router.get('/:slugCategory', controller.category)
+router.get('/:slugCategory', productValidate.validateCategorySlug, productValidate.validateQueryParams, controller.category)
 
 export default router

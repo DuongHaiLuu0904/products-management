@@ -1,16 +1,17 @@
 import { Router } from "express";
 const router = Router();
 
-import { index, changeStatus, changeMulti, deleteItem, detail } from "../../controllers/admin/comment.controller.js";
+import * as controller from "../../controllers/admin/comment.controller.js";
+import * as validate from "../../validates/admin/comment.validate.js";
 
-router.get("/", index);
+router.get("/", validate.index, controller.index);
 
-router.patch("/change-status/:status/:id", changeStatus);
+router.patch("/change-status/:status/:id", validate.changeStatus, controller.changeStatus);
 
-router.patch("/change-multi", changeMulti);
+router.patch("/change-multi", validate.changeMulti, controller.changeMulti);
 
-router.delete("/delete/:id", deleteItem);
+router.delete("/delete/:id", validate.deleteItem, controller.deleteItem);
 
-router.get("/detail/:id", detail);
+router.get("/detail/:id", validate.detail, controller.detail);
 
 export default router;

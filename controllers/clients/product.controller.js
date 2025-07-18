@@ -62,14 +62,12 @@ export async function detail(req, res) {
 
         product.priceNew = priceNewProduct(product)
 
-        // Lấy tất cả comments cho sản phẩm này
         const comments = await Comment.find({
             product_id: product._id,
             deleted: false,
             status: 'active'
         }).sort({ createdAt: -1 });
 
-        // Lấy thông tin user cho mỗi comment và tổ chức comment theo cấu trúc cha-con
         const commentTree = [];
         const commentMap = new Map();
 
@@ -86,13 +84,11 @@ export async function detail(req, res) {
             commentMap.set(comment._id.toString(), comment);
             
             if (!comment.parent_id) {
-                // Comment gốc
                 comment.replies = [];
                 commentTree.push(comment);
             }
         }
 
-        // Thêm các reply vào comment cha
         for (const comment of comments) {
             if (comment.parent_id && commentMap.has(comment.parent_id)) {
                 const parentComment = commentMap.get(comment.parent_id);
@@ -103,7 +99,6 @@ export async function detail(req, res) {
             }
         }
 
-        // Tính rating trung bình cho sản phẩm
         const ratingInfo = await calculateAverageRating(product._id);
         const ratingDistribution = await getRatingDistribution(product._id);
         
@@ -161,13 +156,11 @@ export async function addComment(req, res) {
             return res.redirect('back');
         }
 
-        // Validate rating if provided
         if (rating && (rating < 1 || rating > 5)) {
             req.flash('error', 'Đánh giá phải từ 1 đến 5 sao!');
             return res.redirect('back');
         }
 
-        // Kiểm tra sản phẩm có tồn tại
         const product = await Product.findOne({
             _id: product_id,
             deleted: false,
@@ -216,13 +209,11 @@ export async function editComment(req, res) {
             return res.redirect('back');
         }
 
-        // Validate rating if provided
         if (rating && (rating < 1 || rating > 5)) {
             req.flash('error', 'Đánh giá phải từ 1 đến 5 sao!');
             return res.redirect('back');
         }
 
-        // Kiểm tra comment có tồn tại và thuộc về user hiện tại
         const comment = await Comment.findOne({
             _id: commentId,
             user_id: res.locals.user.id,
@@ -263,7 +254,6 @@ export async function deleteComment(req, res) {
 
         const { commentId } = req.params;
 
-        // Kiểm tra comment có tồn tại và thuộc về user hiện tại
         const comment = await Comment.findOne({
             _id: commentId,
             user_id: res.locals.user.id,

@@ -9,16 +9,15 @@ import moment from 'moment'
 import { createServer } from 'http'
 import { Server } from "socket.io"
 import cors from 'cors'
-import { config } from 'dotenv'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
-
 import passport from 'passport';
-import './config/passport.js';
-const { session: _session } = passport;
-import { cleanupExpiredTokens } from './helpers/tokenCleanup.js'
-
+import { config } from 'dotenv'
 config()
+
+// Dynamically import passport config after env vars are loaded
+await import('./config/passport.js');
+import { cleanupExpiredTokens } from './helpers/tokenCleanup.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -53,7 +52,7 @@ app.use(session({
     secret: 'IamHaiLuu',      
     resave: false,                   
     saveUninitialized: false,  
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }  // Thời gian sống của session (24 giờ)
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }  // (24 giờ)
 }))
 app.use(flash());
 

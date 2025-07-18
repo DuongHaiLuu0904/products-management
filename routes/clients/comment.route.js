@@ -1,13 +1,17 @@
 import { Router } from "express";
 const router = Router();
 
-import { createPost, editPatch, deleteItem } from "../../controllers/clients/comment.controller.js";
-import { reuireAuth } from "../../middlewares/client/auth.middleware.js";
+import * as controller from "../../controllers/clients/comment.controller.js";
+import { requireAuth } from "../../middlewares/client/auth.middleware.js";
+import * as commentValidate from "../../validates/client/comment.validate.js";
 
-router.post("/create", reuireAuth, createPost);
+// Áp dụng security headers cho tất cả routes
+router.use(commentValidate.securityHeaders);
 
-router.patch("/edit/:id", reuireAuth, editPatch);
+router.post("/create", requireAuth, commentValidate.validateCreate, controller.createPost);
 
-router.delete("/delete/:id", reuireAuth, deleteItem);
+router.patch("/edit/:id", requireAuth, commentValidate.validateEdit, controller.editPatch);
+
+router.delete("/delete/:id", requireAuth, commentValidate.validateDelete, controller.deleteItem);
 
 export default router;

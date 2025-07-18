@@ -1,10 +1,10 @@
 import { Router } from 'express'
 const router = Router()
 
-import { dashboard, getStatistics } from '../../controllers/admin/dashboard.controller.js'
+import * as controller from '../../controllers/admin/dashboard.controller.js'
 
-router.get('/', dashboard)
+router.get('/', controller.dashboard)
 
-router.get('/statistics', getStatistics)
+router.get('/statistics', controller.getStatistics)
 
 export default router

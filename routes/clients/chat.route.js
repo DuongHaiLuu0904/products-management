@@ -1,8 +1,8 @@
 import { Router } from 'express'
 const router = Router()
 
-import { index } from '../../controllers/clients/chat.controller.js'
+import * as controller from '../../controllers/clients/chat.controller.js'
 
-router.get('/', index)
+router.get('/', controller.index)
 
 export default router

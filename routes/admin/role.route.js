@@ -1,24 +1,25 @@
 import { Router } from 'express'
 const router = Router()
 
-import { index, create, createPost, edit, editPatch, detail, deleteItem, permissions, permissionsPatch } from '../../controllers/admin/role.controller.js'
+import * as controller from '../../controllers/admin/role.controller.js'
+import * as roleValidate from '../../validates/admin/role.validate.js'
 
-router.get('/', index)
+router.get('/', controller.index)
 
-router.get('/create', create)
+router.get('/create', controller.create)
 
-router.post('/create', createPost)
+router.post('/create', roleValidate.validateCreatePost, controller.createPost)
 
-router.get('/edit/:id', edit)
+router.get('/edit/:id', roleValidate.validateEditGet, controller.edit)
 
-router.patch('/edit/:id', editPatch)
+router.patch('/edit/:id', roleValidate.validateEditPatch, controller.editPatch)
 
-router.get('/detail/:id', detail)
+router.get('/detail/:id', roleValidate.validateDetailGet, controller.detail)
 
-router.delete("/delete/:id", deleteItem)
+router.delete("/delete/:id", roleValidate.validateDelete, controller.deleteItem)
 
-router.get('/permissions', permissions)
+router.get('/permissions', controller.permissions)
 
-router.patch('/permissions', permissionsPatch)
+router.patch('/permissions', roleValidate.validatePermissionsPatch, controller.permissionsPatch)
 
 export default router

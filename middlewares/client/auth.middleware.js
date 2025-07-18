@@ -1,7 +1,7 @@
 import User from "../../models/user.model.js";
 import { verifyAccessToken, verifyRefreshToken, generateTokenPair, getRefreshTokenExpiry } from "../../helpers/jwt.js";
 
-export async function reuireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
     let user = null;
     let needsTokenRefresh = false;
     

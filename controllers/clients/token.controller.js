@@ -22,7 +22,6 @@ export async function refreshToken(req, res) {
             });
         }
         
-        // Tìm user và kiểm tra refresh token trong database
         const user = await User.findOne({
             _id: decoded.id,
             refreshToken: refreshToken,
@@ -37,10 +36,8 @@ export async function refreshToken(req, res) {
             });
         }
         
-        // Tạo token mới
         const { accessToken, refreshToken: newRefreshToken } = generateTokenPair(user, 'user');
         
-        // Cập nhật refresh token trong database
         await User.updateOne(
             { _id: user._id },
             {
@@ -49,7 +46,6 @@ export async function refreshToken(req, res) {
             }
         );
         
-        // Set cookies mới
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

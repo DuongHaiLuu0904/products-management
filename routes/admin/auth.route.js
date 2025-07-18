@@ -1,13 +1,15 @@
 import { Router } from 'express'
 const router = Router()
 
-import { login, loginPost, logout } from '../../controllers/admin/auth.controller.js'
-import { loginPost as _loginPost } from '../../validates/admin/auth.validate.js'
+import * as controller from '../../controllers/admin/auth.controller.js'
+import * as authValidate from '../../validates/admin/auth.validate.js'
 
-router.get('/login', login)
+router.use(authValidate.validateRequest)
+    
+router.get('/login', controller.login)
 
-router.post('/login',_loginPost, loginPost)
+router.post('/login', authValidate.loginPost, controller.loginPost)
 
-router.get('/logout', logout)
+router.get('/logout', controller.logout)
 
 export default router

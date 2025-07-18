@@ -4,51 +4,54 @@ const router = Router()
 import multer from 'multer'
 const upload = multer()
 
-import { register, registerPost, login, loginPost, logout, googleAuth, googleCallback, githubAuth, githubCallback, forgotPassword, forgotPasswordPost, otpPassword, otpPasswordPost, resetPassword, resetPasswordPost, info, edit, editPost, changePassword, changePasswordPost } from '../../controllers/clients/user.controller.js'
-import { registerPost as _registerPost, loginPost as _loginPost, resetPasswordPost as _resetPasswordPost, editPost as _editPost, changePasswordPost as _changePasswordPost } from '../../validates/client/user.validate.js'
-import { reuireAuth } from '../../middlewares/client/auth.middleware.js'
+import * as controller from '../../controllers/clients/user.controller.js'
+import * as userValidate from '../../validates/client/user.validate.js'
+import { requireAuth } from '../../middlewares/client/auth.middleware.js'
 import { upload as _upload } from '../../middlewares/client/uploadCloud.middleware.js'
+import { commonValidationMiddleware } from '../../validates/client/common.validate.js'
 
-router.get('/register', register)
+router.get('/register', controller.register)
 
-router.post('/register', _registerPost, registerPost)
+router.post('/register', commonValidationMiddleware, userValidate.registerPost, controller.registerPost)
 
-router.get('/login', login)
+router.get('/login', controller.login)
 
-router.post('/login', _loginPost, loginPost)
+router.post('/login', commonValidationMiddleware, userValidate.loginPost, controller.loginPost)
 
-router.get('/logout', logout)
+router.get('/logout', controller.logout)
 
 // Google OAuth
-router.get('/auth/google', googleAuth)
+router.get('/auth/google', controller.googleAuth)
 
-router.get('/auth/google/callback', googleCallback)
+router.get('/auth/google/callback', controller.googleCallback)
 
 // GitHub OAuth
-router.get('/auth/github', githubAuth)
+router.get('/auth/github', controller.githubAuth)
 
-router.get('/auth/github/callback', githubCallback)
+router.get('/auth/github/callback', controller.githubCallback)
 
-router.get('/password/forgot', forgotPassword)
+router.get('/password/forgot', controller.forgotPassword)
 
-router.post('/password/forgot', forgotPasswordPost)
+router.post('/password/forgot', commonValidationMiddleware, userValidate.forgotPasswordPost, controller.forgotPasswordPost)
 
-router.get('/password/otp', otpPassword)
+router.get('/password/otp', userValidate.otpPassword, controller.otpPassword)
 
-router.post('/password/otp', otpPasswordPost)
+router.post('/password/otp', commonValidationMiddleware, userValidate.otpPasswordPost, controller.otpPasswordPost)
 
-router.get('/password/reset', resetPassword)
+router.get('/password/reset', userValidate.resetPassword, controller.resetPassword)
 
-router.post('/password/reset', _resetPasswordPost, resetPasswordPost)
+router.post('/password/reset', commonValidationMiddleware, userValidate.resetPasswordPost, controller.resetPasswordPost)
 
-router.get('/info', reuireAuth, info)
+router.get('/info', requireAuth, controller.info)
 
-router.get('/edit', reuireAuth, edit)
+router.get('/edit', requireAuth, controller.edit)
 
-router.post('/edit', reuireAuth, upload.single('avatar'), _upload, _editPost, editPost)
+router.post('/edit', requireAuth, commonValidationMiddleware, upload.single('avatar'), userValidate.validateAvatarUpload, userValidate.editPost, _upload, controller.editPost)
 
-router.get('/change-password', reuireAuth, changePassword)
+router.get('/change-password', requireAuth, controller.changePassword)
 
-router.post('/change-password', reuireAuth, _changePasswordPost, changePasswordPost)
+router.post('/change-password', requireAuth, commonValidationMiddleware, userValidate.changePasswordPost, controller.changePasswordPost)
+
+router.post('/change-password', requireAuth, userValidate._changePasswordPost, controller.changePasswordPost)
 
 export default router

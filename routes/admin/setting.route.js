@@ -4,11 +4,20 @@ const router = Router()
 import multer from 'multer'
 const upload = multer()
 
-import { general, generalPatch } from '../../controllers/admin/setting.controller.js'
-import { upload as _upload } from '../../middlewares/admin/uploadCloud.middleware.js'
+import * as controller from '../../controllers/admin/setting.controller.js'
+import { upload as uploadCloud } from '../../middlewares/admin/uploadCloud.middleware.js'
+import * as settingValidate from '../../validates/admin/setting.validate.js'
+import { commonValidationMiddleware } from '../../validates/admin/common.validate.js'
 
-router.get('/general', general)
+router.get('/general', commonValidationMiddleware, controller.general)
 
-router.patch('/general', upload.single('logo'), _upload, generalPatch)
+router.patch('/general', 
+    commonValidationMiddleware,
+    upload.single('logo'), 
+    settingValidate.validateLogoUpload,
+    settingValidate.validateGeneralSettings,
+    uploadCloud,
+    controller.generalPatch
+)
 
 export default router

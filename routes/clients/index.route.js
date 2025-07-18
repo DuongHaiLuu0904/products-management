@@ -15,7 +15,7 @@ import { infoUser } from '../../middlewares/client/user.middleware.js'
 import { infoSetting } from '../../middlewares/client/setting.middleware.js'
 import { autoRefreshToken } from '../../middlewares/client/autoRefresh.middleware.js'
 
-import { reuireAuth } from '../../middlewares/client/auth.middleware.js'
+import { requireAuth } from '../../middlewares/client/auth.middleware.js'
 
 export default (app) => {
     app.use(autoRefreshToken)
@@ -36,9 +36,9 @@ export default (app) => {
 
     app.use('/user', userRoute)
 
-    app.use('/chat', reuireAuth, chatRoute)
+    app.use('/chat', requireAuth, chatRoute)
 
-    app.use('/users', reuireAuth, usersRoute)
+    app.use('/users', requireAuth, usersRoute)
 
     app.use('/comments', commentRoute)
     

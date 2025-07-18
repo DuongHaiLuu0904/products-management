@@ -12,13 +12,11 @@ export async function index(req, res) {
     let totalFound = 0
     
     if (keyword) {
-        // Lấy tất cả sản phẩm active
         const allProducts = await Product.find({
             deleted: false,
             status: 'active'
         })
 
-        // Sử dụng tìm kiếm mờ với Fuse.js
         const fuzzyResult = searchProducts(allProducts, keyword)
         
         if (fuzzyResult.results.length > 0) {
@@ -26,7 +24,6 @@ export async function index(req, res) {
             searchType = 'fuzzy'
             totalFound = fuzzyResult.totalFound
         } else {
-            // Fallback về tìm kiếm regex nếu không tìm thấy kết quả mờ
             const keywordRegex = new RegExp(keyword, 'i')
             const products = await Product.find({
                 deleted: false,

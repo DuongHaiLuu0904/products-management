@@ -27,16 +27,18 @@ export async function createPost(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("roles_create")) {
         req.flash('error', 'Bạn không có quyền tạo nhóm quyền!');
-        return
+        return res.redirect('back');
     }
 
     try {
+        // Dữ liệu đã được validate trong middleware
         const record = new Role(req.body)
-        record.save()
+        await record.save()
 
         req.flash('success', 'Thêm mới thành công!');
         res.redirect(`${prefixAdmin}/roles`);
     } catch (error) {
+        console.error('Create role error:', error);
         req.flash('error', 'Thêm mới thất bại!');
         const backURL = req.get("Referrer") || "/";
         res.redirect(backURL);
@@ -46,18 +48,15 @@ export async function createPost(req, res) {
 // [GET] /admin/roles/edit
 export async function edit(req, res) {
     try {
-        let find = {
-            _id: req.params.id,
-            deleted: false
-        }
-
-        const record = await Role.findOne(find)
+        // Role đã được validate trong middleware
+        const record = req.validatedRole;
 
         res.render('admin/pages/roles/edit', {
             title: 'Sửa nhóm quyền',
             record: record
         });
     } catch (error) {
+        console.error('Edit role get error:', error);
         res.redirect(`${prefixAdmin}/roles`)
     }
 }
@@ -67,16 +66,17 @@ export async function editPatch(req, res) {
     const permission = res.locals.role.permissions
     if (!permission.includes("roles_edit")) {
         req.flash('error', 'Bạn không có quyền cập nhật nhóm quyền!');
-        return
+        return res.redirect('back');
     }
 
     const id = req.params.id
 
     try {
+        // Dữ liệu đã được validate trong middleware
         await Role.updateOne({ _id: id }, req.body)
         req.flash('success', 'Cập nhật thành công!');
     } catch (error) {
-        console.log(error)
+        console.log('Edit role error:', error)
         req.flash('error', 'Cập nhật thất bại!');
     }
 

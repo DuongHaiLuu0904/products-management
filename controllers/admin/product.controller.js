@@ -238,7 +238,7 @@ export async function changeMulti(req, res) {
                 let [id, position] = item.split("-")
                 position = parseInt(position)
 
-                await updateOne({ _id: id }, {
+                await Product.updateOne({ _id: id }, {
                     position: position,
                     $push: { updatedBy: update }
                 })
@@ -266,7 +266,7 @@ export async function deleteItem(req, res) {
     const id = req.params.id
 
     try {
-        await updateOne(
+        await Product.updateOne(
             { _id: id },
             {
                 deleted: true,

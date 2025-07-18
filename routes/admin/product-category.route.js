@@ -4,27 +4,27 @@ const router = Router()
 import multer from 'multer'
 const upload = multer()
 
-import { createPost } from '../../validates/admin/product-category.validate.js'
-import { upload as _upload } from '../../middlewares/admin/uploadCloud.middleware.js'
-import { index, changeStatus, changeMulti, deleteItem, create, createPost as _createPost, edit, editPATCH, detail } from '../../controllers/admin/product-category.controller.js'
+import * as categoryValidate from '../../validates/admin/product-category.validate.js'
+import { upload as uploadCloud } from '../../middlewares/admin/uploadCloud.middleware.js'
+import * as controller from '../../controllers/admin/product-category.controller.js'
 
 
-router.get('/', index)
+router.get('/', controller.index)
 
-router.patch("/change-status/:status/:id", changeStatus)
+router.patch("/change-status/:status/:id", categoryValidate.validateChangeStatus, controller.changeStatus)
 
-router.patch("/change-multi", changeMulti)
+router.patch("/change-multi", categoryValidate.validateChangeMulti, controller.changeMulti)
 
-router.delete("/delete/:id", deleteItem)
+router.delete("/delete/:id", categoryValidate.validateDelete, controller.deleteItem)
 
-router.get('/create', create)
+router.get('/create', controller.create)
 
-router.post('/create', upload.single('thumbnail'), _upload, createPost, _createPost)
+router.post('/create', upload.single('thumbnail'), uploadCloud, categoryValidate.createPost, controller.createPost)
 
-router.get('/edit/:id', edit)
+router.get('/edit/:id', controller.edit)
 
-router.patch('/edit/:id', upload.single('thumbnail'), _upload, createPost, editPATCH)
+router.patch('/edit/:id', upload.single('thumbnail'), uploadCloud, categoryValidate.editPATCH, controller.editPATCH)
 
-router.get('/detail/:id', detail)
+router.get('/detail/:id', controller.detail)
 
 export default router

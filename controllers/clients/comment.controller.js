@@ -11,28 +11,9 @@ export async function createPost(req, res) {
 
         const { content, product_id, parent_id, rating } = req.body;
 
+        // Dữ liệu đã được validate và sanitize ở middleware
+        // Chỉ cần validate business logic
 
-        if (!content || !product_id) {
-            req.flash('error', 'Vui lòng nhập đầy đủ thông tin!');
-            return res.redirect('back');
-        }
-        // Giới hạn số ký tự và kích thước dữ liệu
-        if (content.length > 500) {
-            req.flash('error', 'Nội dung bình luận không được vượt quá 500 ký tự!');
-            return res.redirect('back');
-        }
-        if (Buffer.byteLength(content, 'utf8') > 5 * 1024) {
-            req.flash('error', 'Nội dung bình luận không được vượt quá 5KB dữ liệu!');
-            return res.redirect('back');
-        }
-
-        // Validate rating if provided
-        if (rating && (rating < 1 || rating > 5)) {
-            req.flash('error', 'Đánh giá phải từ 1 đến 5 sao!');
-            return res.redirect('back');
-        }
-
-        // Kiểm tra sản phẩm có tồn tại
         const product = await Product.findOne({
             _id: product_id,
             deleted: false,
@@ -44,12 +25,26 @@ export async function createPost(req, res) {
             return res.redirect('back');
         }
 
+        // Nếu có parent_id, kiểm tra comment cha có tồn tại
+        if (parent_id) {
+            const parentComment = await Comment.findOne({
+                _id: parent_id,
+                deleted: false,
+                status: "active"
+            });
+
+            if (!parentComment) {
+                req.flash('error', 'Bình luận cha không tồn tại!');
+                return res.redirect('back');
+            }
+        }
+
         const comment = new Comment({
             content: content,
             user_id: res.locals.user.id,
             product_id: product_id,
             parent_id: parent_id || "",
-            rating: rating ? parseInt(rating) : null,
+            rating: rating,
             status: "active"
         });
 
@@ -75,28 +70,8 @@ export async function editPatch(req, res) {
         const { content, rating } = req.body;
         const commentId = req.params.id;
 
-
-        if (!content) {
-            req.flash('error', 'Vui lòng nhập nội dung bình luận!');
-            return res.redirect('back');
-        }
-        // Giới hạn số ký tự và kích thước dữ liệu
-        if (content.length > 500) {
-            req.flash('error', 'Nội dung bình luận không được vượt quá 500 ký tự!');
-            return res.redirect('back');
-        }
-        if (Buffer.byteLength(content, 'utf8') > 1024) {
-            req.flash('error', 'Nội dung bình luận không được vượt quá 1KB dữ liệu!');
-            return res.redirect('back');
-        }
-
-        // Validate rating if provided
-        if (rating && (rating < 1 || rating > 5)) {
-            req.flash('error', 'Đánh giá phải từ 1 đến 5 sao!');
-            return res.redirect('back');
-        }
-
-        // Kiểm tra comment có tồn tại và thuộc về user hiện tại
+        // Dữ liệu đã được validate và sanitize ở middleware
+        
         const comment = await Comment.findOne({
             _id: commentId,
             user_id: res.locals.user.id,
@@ -108,11 +83,28 @@ export async function editPatch(req, res) {
             return res.redirect('back');
         }
 
+        // Kiểm tra thời gian tạo comment (chỉ cho phép sửa trong 24h)
+        const createdTime = new Date(comment.createdAt);
+        const currentTime = new Date();
+        const timeDiff = currentTime - createdTime;
+        const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+        if (hoursDiff > 24) {
+            req.flash('error', 'Chỉ có thể sửa bình luận trong vòng 24 giờ!');
+            return res.redirect('back');
+        }
+
         await Comment.updateOne(
             { _id: commentId },
             { 
                 content: content,
-                rating: rating ? parseInt(rating) : null
+                rating: rating,
+                $push: {
+                    updatedBy: {
+                        account_id: res.locals.user.id,
+                        updateAt: new Date()
+                    }
+                }
             }
         );
 
@@ -135,7 +127,8 @@ export async function deleteItem(req, res) {
 
         const commentId = req.params.id;
 
-        // Kiểm tra comment có tồn tại và thuộc về user hiện tại
+        // ID đã được validate ở middleware
+
         const comment = await Comment.findOne({
             _id: commentId,
             user_id: res.locals.user.id,
@@ -144,6 +137,17 @@ export async function deleteItem(req, res) {
 
         if (!comment) {
             req.flash('error', 'Bình luận không tồn tại hoặc bạn không có quyền xóa!');
+            return res.redirect('back');
+        }
+
+        // Kiểm tra xem có comment con không
+        const hasReplies = await Comment.findOne({
+            parent_id: commentId,
+            deleted: false
+        });
+
+        if (hasReplies) {
+            req.flash('error', 'Không thể xóa bình luận đã có phản hồi!');
             return res.redirect('back');
         }
 

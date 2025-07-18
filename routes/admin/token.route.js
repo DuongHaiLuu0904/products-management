@@ -1,10 +1,10 @@
 import { Router } from 'express';
 const router = Router();
 
-import { refreshToken, checkStatus } from '../../controllers/admin/token.controller.js';
+import * as controller from '../../controllers/admin/token.controller.js';
 
-router.post('/refresh', refreshToken);
+router.post('/refresh', controller.refreshToken);
 
-router.get('/status', checkStatus);
+router.get('/status', controller.checkStatus);
 
 export default router;
