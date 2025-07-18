@@ -54,6 +54,16 @@ block main
                         name="phone"
                         value=data.phone
                     )
+                
+                div(class="form-group")
+                    label(for="address") Địa chỉ
+                    textarea(
+                        class="form-control"
+                        id="address"
+                        name="address"
+                        rows="3"
+                        placeholder="Nhập địa chỉ"
+                    )= data.address
 
                 div(
                     class="form-group avatar-section"

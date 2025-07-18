@@ -5,6 +5,7 @@ export const cleanupExpiredTokens = async () => {
     try {
         const now = new Date();
 
+        // Clean expired refresh tokens from User collection với timeout
         const userResult = await User.updateMany(
             {
                 refreshTokenExpires: { $lt: now },
@@ -16,9 +17,9 @@ export const cleanupExpiredTokens = async () => {
                     refreshTokenExpires: 1
                 }
             }
-        );
+        ).maxTimeMS(10000); // 10 second timeout
         
-        // Clean expired refresh tokens from Account collection
+        // Clean expired refresh tokens from Account collection với timeout
         const accountResult = await Account.updateMany(
             {
                 refreshTokenExpires: { $lt: now },
@@ -30,14 +31,17 @@ export const cleanupExpiredTokens = async () => {
                     refreshTokenExpires: 1
                 }
             }
-        );
+        ).maxTimeMS(10000); // 10 second timeout
         
         return {
             userTokensCleared: userResult.modifiedCount,
             accountTokensCleared: accountResult.modifiedCount
         };
     } catch (error) {
-        console.error('Error cleaning up expired tokens:', error);
+        // Chỉ log lỗi nghiêm trọng, bỏ qua network errors
+        if (error.code !== 'ECONNRESET' && error.errno !== -4077) {
+            console.error('Error cleaning up expired tokens:', error.message);
+        }
         throw error;
     }
 };

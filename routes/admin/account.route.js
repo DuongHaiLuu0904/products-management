@@ -16,7 +16,7 @@ router.post('/create', upload.single('avatar'), accountValidate.validateFileUplo
 
 router.get('/edit/:id', accountValidate.validateEdit, controller.edit)
 
-router.patch('/edit/:id', upload.single('thumbnail'), accountValidate.validateFileUpload, uploadCloud, accountValidate.validateEditPatch, controller.editPatch)
+router.patch('/edit/:id', upload.single('avatar'), accountValidate.validateFileUpload, uploadCloud, accountValidate.validateEditPatch, controller.editPatch)
 
 router.delete("/delete/:id", accountValidate.validateDelete, controller.deleteItem)
 

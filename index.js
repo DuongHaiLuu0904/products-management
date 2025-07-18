@@ -12,10 +12,10 @@ import cors from 'cors'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import passport from 'passport';
+
 import { config } from 'dotenv'
 config()
 
-// Dynamically import passport config after env vars are loaded
 await import('./config/passport.js');
 import { cleanupExpiredTokens } from './helpers/tokenCleanup.js'
 
@@ -23,12 +23,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 import { mongooseConnect } from './config/database.js'
-mongooseConnect()  
+await mongooseConnect();
 
-import { prefixAdmin } from './config/system.js'
+const { prefixAdmin } = await import('./config/system.js');
 
-import router from './routes/clients/index.route.js'
-import routerAdmin from './routes/admin/index.route.js'
+const router = (await import('./routes/clients/index.route.js')).default;
+const routerAdmin = (await import('./routes/admin/index.route.js')).default;
 
 const app = express()
 const port = process.env.PORT 
@@ -52,7 +52,7 @@ app.use(session({
     secret: 'IamHaiLuu',      
     resave: false,                   
     saveUninitialized: false,  
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }  // (24 giờ)
+    cookie: { maxAge: 15 * 60 * 1000 }  // (15 phút)
 }))
 app.use(flash());
 
@@ -80,6 +80,17 @@ app.locals.formatCurrency = function (num) {
 routerAdmin(app)
 router(app)
 
+// Global error handler
+app.use((err, req, res, next) => {
+    // Bỏ qua ECONNRESET errors
+    if (err.code === 'ECONNRESET' || err.errno === -4077) {
+        return res.status(500).json({ error: 'Connection reset. Please try again.' });
+    }
+    
+    console.error('Unhandled error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
+
 app.get('*', (req, res) => {
     res.render('client/pages/error/404', {
         title: 'Trang lỗi'
@@ -89,19 +100,22 @@ app.get('*', (req, res) => {
 server.listen(port, () => {
     console.log(`App listening on port ${port}`)
     
+    // Cleanup expired tokens mỗi 24 giờ
     setInterval(async () => {
         try {
             await cleanupExpiredTokens();
         } catch (error) {
-            console.error('Token cleanup job failed:', error);
+            console.error('Token cleanup job failed:', error.message);
         }
     }, 24 * 60 * 60 * 1000); // 24 hours
     
+    // Cleanup ban đầu sau 10 giây để đảm bảo database đã kết nối
     setTimeout(async () => {
         try {
-            await cleanupExpiredTokens();
+            const result = await cleanupExpiredTokens();
+            console.log('Initial token cleanup completed:', result);
         } catch (error) {
-            console.error('Initial token cleanup failed:', error);
+            console.error('Initial token cleanup failed:', error.message);
         }
-    }, 5000); // Wait 5 seconds after startup
+    }, 10000); // Wait 10 seconds after startup
 })

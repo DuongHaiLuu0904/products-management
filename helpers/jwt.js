@@ -52,11 +52,11 @@ export const verifyAccessToken = (token) => {
         return decoded;
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
-            console.log('Access token expired');
+            // Không log token expired vì đây là flow bình thường
             return null;
         }
         if (error.name === 'JsonWebTokenError') {
-            console.log('Invalid access token');
+            // Không log invalid token vì có thể do user chưa đăng nhập
             return null;
         }
         console.error('Access token verification error:', error);
@@ -74,11 +74,11 @@ export const verifyRefreshToken = (token) => {
         return decoded;
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
-            console.log('Refresh token expired');
+            // Không log token expired vì đây là flow bình thường
             return null;
         }
         if (error.name === 'JsonWebTokenError') {
-            console.log('Invalid refresh token');
+            // Không log invalid token vì có thể do user chưa đăng nhập  
             return null;
         }
         console.error('Refresh token verification error:', error);

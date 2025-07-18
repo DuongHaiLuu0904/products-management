@@ -85,7 +85,6 @@ block main
                             th
                                 input(type="checkbox" name="checkall")
                             th STT
-                            th Nội dung
                             th Đánh giá
                             th Người dùng
                             th Sản phẩm
@@ -104,11 +103,6 @@ block main
                                             value=comment._id
                                         )
                                     td #{pagination.limitItems * (pagination.currentPage - 1) + (index + 1)}
-                                    td 
-                                        div(class="comment-content" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;")= comment.content
-                                        if comment.parentComment
-                                            div(class="small text-muted") 
-                                                | Trả lời: #{comment.parentComment.content.substring(0, 30)}...
                                     td
                                         if comment.rating
                                             - var stars = Array.from({length: 5}, (_, i) => i < comment.rating)
@@ -188,6 +182,7 @@ block main
         data-path=`${prefixAdmin}/comments/delete`
     )
 
+    script(src="/admin/js/script.js")
     script(src="/admin/js/comment.js")
 
     script.

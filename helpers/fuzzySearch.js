@@ -86,7 +86,7 @@ export function searchProducts(products, keyword) {
         ]
     };
 
-    return this.fuzzySearch(products, keyword, options);
+    return fuzzySearch(products, keyword, options);
 }
 
 
@@ -101,7 +101,7 @@ export function searchCategories(categories, keyword) {
         ]
     };
 
-    return this.fuzzySearch(categories, keyword, options);
+    return fuzzySearch(categories, keyword, options);
 }
 
 
@@ -116,5 +116,5 @@ export function searchUsers(users, keyword) {
         ]
     };
 
-    return this.fuzzySearch(users, keyword, options);
+    return fuzzySearch(users, keyword, options);
 }

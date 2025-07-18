@@ -36,9 +36,13 @@ block main
 
         if(record.phone)
             p(class="mb-4") Số điện thoại: <b>#{record.phone}</b>
+        else 
+            p(class="mb-4") Số điện thoại: <b>Chưa cập nhật</b>
 
         if(record.address)
             p(class="mb-4") Địa chỉ: <b>#{record.address}</b>
+        else 
+            p(class="mb-4") Địa chỉ: <b>Chưa cập nhật</b>
 
         if(record.avatar)
             div(class="avatar-section mb-4")

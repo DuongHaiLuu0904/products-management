@@ -7,7 +7,15 @@ const xssOptions = {
     stripIgnoreTag: true,
     stripIgnoreTagBody: ['script', 'style', 'iframe', 'object', 'embed'],
     allowCommentTag: false,
-    escapeHtml: true
+    escapeHtml: function(html) {
+        return html
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;')
+            .replace(/\//g, '&#x2F;');
+    }
 };
 
 // Danh sách các pattern nguy hiểm cần kiểm tra
@@ -321,8 +329,7 @@ export const validateRequestBody = (body, allowedFields = [], maxFields = 20) =>
     // Kiểm tra và làm sạch từng field
     for (const key of bodyKeys) {
         if (allowedFields.length > 0 && !allowedFields.includes(key)) {
-            // Log nhưng không fail request
-            console.warn('Unexpected field detected:', key);
+            // Skip unexpected fields
             continue;
         }
         
@@ -385,7 +392,6 @@ export const commonValidationMiddleware = (req, res, next) => {
         // Validate request metadata
         const metaValidation = validateRequestMeta(req);
         if (!metaValidation.isValid) {
-            console.warn('Request meta validation failed:', metaValidation.errors, 'IP:', req.ip);
             return res.status(400).json({ error: 'Invalid request' });
         }
         
@@ -397,7 +403,6 @@ export const commonValidationMiddleware = (req, res, next) => {
         
         next();
     } catch (error) {
-        console.error('Common validation error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 };

@@ -1,4 +1,3 @@
-
 const buttonsChangeStatus = document.querySelectorAll("[button-change-status]")
 if(buttonsChangeStatus.length > 0) {
     const formChangeStatus = document.querySelector("#form-change-status")

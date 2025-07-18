@@ -31,7 +31,8 @@ export async function loginPost(req, res) {
         return res.redirect(prefixAdmin + '/auth/login')
     }
 
-    if(md5(password) !== user.password) {
+    const hashedPassword = md5(password)
+    if(hashedPassword !== user.password) {
         req.flash('error', 'Mật khẩu không đúng')
         return res.redirect(prefixAdmin + '/auth/login')
     }

@@ -463,7 +463,7 @@ export async function validateEditPatch(req, res, next) {
         }
 
         // Check for only allowed fields for account update
-        const allowedFields = ['fullName', 'email', 'password', 'phone', 'role_id']
+        const allowedFields = ['fullName', 'email', 'password', 'phone', 'role_id', 'avatar', 'status']
         const bodyKeys = Object.keys(req.body)
         const unexpectedFields = bodyKeys.filter(key => !allowedFields.includes(key))
         
@@ -473,7 +473,7 @@ export async function validateEditPatch(req, res, next) {
 
         if (errors.length > 0) {
             req.flash('error', errors.join('. '))
-            return res.status(400).redirect(`/admin/account/edit/${req.params.id}`)
+            return res.status(400).redirect(`/admin/accounts/edit/${req.params.id}`)
         }
 
         console.log(`Account update validation passed for IP: ${clientIp}, ID: ${req.params.id}`)
@@ -481,7 +481,7 @@ export async function validateEditPatch(req, res, next) {
     } catch (error) {
         console.error('Edit patch validation error:', error)
         req.flash('error', 'Có lỗi xảy ra trong quá trình xác thực dữ liệu')
-        return res.status(500).redirect(`/admin/account/edit/${req.params.id}`)
+        return res.status(500).redirect(`/admin/accounts/edit/${req.params.id}`)
     }
 }
 

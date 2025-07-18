@@ -46,7 +46,6 @@ if(buttonDelete.length > 0) {
 const checkboxes = document.querySelectorAll('input[name="id"]')
 const checkAllBox = document.querySelector('input[name="checkall"]')
 const countChecked = document.querySelector('#count-checked')
-
 if (checkAllBox && checkboxes.length > 0) {
     // Check all functionality
     checkAllBox.addEventListener('change', function() {

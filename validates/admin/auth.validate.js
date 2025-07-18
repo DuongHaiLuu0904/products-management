@@ -125,13 +125,6 @@ export async function loginPost(req, res, next) {
             return res.redirect(backURL);
         }
         
-        // Log successful validation (không log sensitive data)
-        console.log('Login validation passed:', {
-            ip: clientIP,
-            email: req.body.email.substring(0, 3) + '***',
-            timestamp: new Date().toISOString()
-        });
-        
         next();
         
     } catch (error) {

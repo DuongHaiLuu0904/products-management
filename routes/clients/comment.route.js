@@ -5,7 +5,6 @@ import * as controller from "../../controllers/clients/comment.controller.js";
 import { requireAuth } from "../../middlewares/client/auth.middleware.js";
 import * as commentValidate from "../../validates/client/comment.validate.js";
 
-// Áp dụng security headers cho tất cả routes
 router.use(commentValidate.securityHeaders);
 
 router.post("/create", requireAuth, commentValidate.validateCreate, controller.createPost);
