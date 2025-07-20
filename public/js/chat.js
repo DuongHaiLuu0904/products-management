@@ -1,8 +1,10 @@
 import * as Popper from 'https://cdn.jsdelivr.net/npm/@popperjs/core@^2/dist/esm/index.js'
 
-// Lấy roomChatId từ DOM
+// Lấy roomChatId và user info từ DOM
 const chatContainer = document.querySelector('.chat-container')
 const roomChatId = chatContainer ? chatContainer.getAttribute('room-chat-id') : null
+const myUserId = chatContainer ? chatContainer.getAttribute('my-id') : null
+const myUserName = chatContainer ? chatContainer.getAttribute('data-user-name') : ''
 
 // Join room khi vào trang
 if(roomChatId) {
@@ -80,7 +82,9 @@ if(formSendData) {
             socket.emit('Client_Send_Message', {
                 content: content,
                 images: images,
-                roomChatId: roomChatId
+                roomChatId: roomChatId,
+                userId: myUserId,
+                fullName: myUserName
             })
             
             // Xóa nội dung input và reset file upload
@@ -95,7 +99,9 @@ if(formSendData) {
             // Reset trạng thái typing
             socket.emit('Client_Send_Typing', {
                 type: 'hidden',
-                roomChatId: roomChatId
+                roomChatId: roomChatId,
+                userId: myUserId,
+                fullName: myUserName
             })
             clearTimeout(timeOut)
             
@@ -162,7 +168,9 @@ const showTyping = () => {
     if(input && input.value.trim() && roomChatId) {
         socket.emit('Client_Send_Typing', {
             type: 'show',
-            roomChatId: roomChatId
+            roomChatId: roomChatId,
+            userId: myUserId,
+            fullName: myUserName
         })
 
         clearTimeout(timeOut)
@@ -170,7 +178,9 @@ const showTyping = () => {
         timeOut = setTimeout(() => {
             socket.emit('Client_Send_Typing', {
                 type: 'hidden',
-                roomChatId: roomChatId
+                roomChatId: roomChatId,
+                userId: myUserId,
+                fullName: myUserName
             })
         }, 3000)
     }

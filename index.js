@@ -46,6 +46,13 @@ const server = createServer(app);
 const io = new Server(server);
 global._io = io;
 
+// Increase max listeners to prevent warning
+io.setMaxListeners(0); // 0 means unlimited
+
+// Initialize socket handlers once
+const chatSocket = await import('./socket/client/chat.socket.js');
+chatSocket.default();
+
 // Flash
 app.use(cookieParser('IamHaiLuu')); 
 app.use(session({

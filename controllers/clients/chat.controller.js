@@ -2,53 +2,81 @@ import Chat from '../../models/chat.model.js'
 import User from '../../models/user.model.js'
 import RoomChat from '../../models/room-chat.model.js'
 
-import chatSocket from '../../socket/client/chat.socket.js'
-
-// [GET] /chat
-export async function index(req, res) {
-    
-    chatSocket(res)
-
-    const userId = res.locals.user.id
-    const user = await User.findById(userId)
-    
+/**
+ * Helper function to get unique rooms and cleanup duplicates
+ */
+async function getUniqueRoomsForUser(userId) {
     // Lấy danh sách phòng chat của user
-    const rooms = await RoomChat.find({
+    let rooms = await RoomChat.find({
         "users.user_id": userId,
         typeRoom: "friend",
         deleted: false
-    })
+    }).sort({ createdAt: -1 }) // Sắp xếp theo thời gian tạo (mới nhất trước)
 
-    // Lấy thông tin bạn bè cho mỗi room
+    // Loại bỏ duplicate rooms (rooms có cùng friend)
+    const uniqueRooms = []
+    const seenFriends = new Set()
+    const duplicateRoomIds = []
+
     for(const room of rooms) {
         const friendInfo = room.users.find(user => user.user_id != userId)
-        if(friendInfo) {
+        if(friendInfo && !seenFriends.has(friendInfo.user_id)) {
+            seenFriends.add(friendInfo.user_id)
             const friend = await User.findById(friendInfo.user_id).select('fullName avatar')
             room.friend = friend
+            uniqueRooms.push(room)
+        } else if(friendInfo && seenFriends.has(friendInfo.user_id)) {
+            // Đánh dấu room trùng lặp để xóa (giữ lại room mới nhất)
+            duplicateRoomIds.push(room._id)
         }
     }
 
+    // Xóa các room trùng lặp trong background
+    if(duplicateRoomIds.length > 0) {
+        RoomChat.updateMany(
+            { _id: { $in: duplicateRoomIds } },
+            { 
+                deleted: true,
+                deletedAt: new Date()
+            }
+        ).catch(err => {
+            console.error('Error deleting duplicate rooms:', err)
+        })
+        
+        console.log(`🧹 Đã xóa ${duplicateRoomIds.length} room trùng lặp cho user ${userId}`)
+    }
+
+    return uniqueRooms
+}
+
+// [GET] /chat
+export async function index(req, res) {
+    const userId = res.locals.user.id
+    
+    // Sử dụng helper function để lấy unique rooms và cleanup duplicates
+    const uniqueRooms = await getUniqueRoomsForUser(userId)
+
     res.render('client/pages/chat/index', {
         title: 'Chat',
-        rooms: rooms
+        rooms: uniqueRooms
     })
 }
 
 // [GET] /users/not-friend
 export async function notFriend(req, res) {
-    chatSocket(res)
-
     const userId = res.locals.user.id
     const myUser = await User.findOne({ _id: userId })
 
     const requestFriend = myUser.requestFriend
     const acceptFriend = myUser.acceptFriend
+    const friendList = myUser.friendList.map(item => item.user_id)
 
     const users = await User.find({
         $and: [
             { _id: { $ne: userId } },
             { _id: { $nin: requestFriend } },
-            { _id: { $nin: acceptFriend } }
+            { _id: { $nin: acceptFriend } },
+            { _id: { $nin: friendList } }
         ],
         status: 'active',
         deleted: false
@@ -62,8 +90,6 @@ export async function notFriend(req, res) {
 
 // [GET] /users/request
 export async function request(req, res) {
-    chatSocket(res)
-
     const userId = res.locals.user.id
     const myUser = await User.findOne({ _id: userId })
 
@@ -84,8 +110,6 @@ export async function request(req, res) {
 // [GET] /users/accept
 export async function accept(req, res) {
     try {
-        chatSocket(res)
-
         const userId = res.locals.user.id
         const myUser = await User.findOne({ _id: userId })
 
@@ -115,8 +139,6 @@ export async function accept(req, res) {
 
 // [GET] /users/friends
 export async function friends(req, res) {
-    chatSocket(res)
-
     const userId = res.locals.user.id
     const myUser = await User.findOne({ _id: userId })
 
@@ -138,8 +160,6 @@ export async function friends(req, res) {
 // [GET] /chat/:roomChatId
 export async function chatDetail(req, res) {
     try {
-        chatSocket(res)
-
         const userId = res.locals.user.id
         const roomChatId = req.params.roomChatId
 
@@ -168,6 +188,18 @@ export async function chatDetail(req, res) {
         for(const chat of chats) {
             const user = await User.findById(chat.user_id).select('fullName avatar')
             chat.user = user
+            
+            // Xử lý dữ liệu images - đảm bảo chỉ là URL string
+            if(chat.images && chat.images.length > 0) {
+                chat.images = chat.images.map(image => {
+                    // Nếu image là object (dữ liệu cũ), lấy URL
+                    if(typeof image === 'object' && image.url) {
+                        return image.url
+                    }
+                    // Nếu đã là string URL thì giữ nguyên
+                    return image
+                })
+            }
         }
 
         res.render('client/pages/chat/detail', {

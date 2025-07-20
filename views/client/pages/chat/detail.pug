@@ -15,7 +15,7 @@ block main
         
         .row 
             .col-12 
-                .chat.chat-container(my-id=user.id, room-chat-id=roomChatId)
+                .chat.chat-container(my-id=user.id, room-chat-id=roomChatId, data-user-name=user.fullName)
                     .inner-head
                         .inner-info.d-flex.align-items-center
                             if friend.avatar

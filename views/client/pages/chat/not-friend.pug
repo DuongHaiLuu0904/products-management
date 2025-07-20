@@ -9,7 +9,7 @@ block main
             .col-12 
                 +box-head(title)
 
-        .row(data-users-not-friend=user.id)
+        .row(data-users-not-friend=user.id, data-user-name=user.fullName)
             each user in users
                 
                 .col-6(user-id=user.id)

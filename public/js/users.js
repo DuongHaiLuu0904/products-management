@@ -2,6 +2,7 @@
 const dataUsersNotFriend = document.querySelector('[data-users-not-friend]')
 if(dataUsersNotFriend) {
     const userId = dataUsersNotFriend.getAttribute('data-users-not-friend')
+    const userName = dataUsersNotFriend.getAttribute('data-user-name')
     
     const listBtnAddFriend = dataUsersNotFriend.querySelectorAll('[button-add-friend]')
     if(listBtnAddFriend.length > 0) {
@@ -10,7 +11,13 @@ if(dataUsersNotFriend) {
                 const userBId = button.getAttribute('button-add-friend')
                 
                 // Emit Socket.io event only
-                socket.emit('CLIENT_ADD_FRIEND', { userBId: userBId })
+                socket.emit('CLIENT_ADD_FRIEND', { 
+                    userBId: userBId, 
+                    userId: userId, 
+                    fullName: userName 
+                })
+                
+                console.log('Đã gửi lời mời kết bạn tới:', userBId)
                 
                 // Update UI immediately for better UX
                 button.innerHTML = '<i class="fa-solid fa-clock"></i> Đã gửi'
@@ -26,6 +33,7 @@ if(dataUsersNotFriend) {
 const dataUsersRequest = document.querySelector('[data-users-request]')
 if(dataUsersRequest) {
     const userId = dataUsersRequest.getAttribute('data-users-request')
+    const userName = dataUsersRequest.getAttribute('data-user-name')
     
     const listBtnCancelFriend = dataUsersRequest.querySelectorAll('[button-cancel-friend]')
     if(listBtnCancelFriend.length > 0) {
@@ -34,7 +42,11 @@ if(dataUsersRequest) {
                 const userBId = button.getAttribute('button-cancel-friend')
                 
                 // Emit Socket.io event only
-                socket.emit('CLIENT_CANCEL_FRIEND', { userBId: userBId })
+                socket.emit('CLIENT_CANCEL_FRIEND', { 
+                    userBId: userBId, 
+                    userId: userId, 
+                    fullName: userName 
+                })
                 
                 // Update UI immediately
                 button.closest('.col-6').remove()
@@ -47,6 +59,7 @@ if(dataUsersRequest) {
 const dataUsersAccept = document.querySelector('[data-users-accept]')
 if(dataUsersAccept) {
     const userId = dataUsersAccept.getAttribute('data-users-accept')
+    const userName = dataUsersAccept.getAttribute('data-user-name')
     
     const listBtnAcceptFriend = dataUsersAccept.querySelectorAll('[button-accept-friend]')
     if(listBtnAcceptFriend.length > 0) {
@@ -55,7 +68,11 @@ if(dataUsersAccept) {
                 const userBId = button.getAttribute('button-accept-friend')
                 
                 // Emit Socket.io event only
-                socket.emit('CLIENT_ACCEPT_FRIEND', { userBId: userBId })
+                socket.emit('CLIENT_ACCEPT_FRIEND', { 
+                    userBId: userBId, 
+                    userId: userId, 
+                    fullName: userName 
+                })
                 
                 // Update UI immediately
                 button.closest('.col-6').remove()
@@ -77,7 +94,11 @@ if(dataUsersAccept) {
                 const userBId = button.getAttribute('button-refuse-friend')
                 
                 // Emit Socket.io event only
-                socket.emit('CLIENT_REFUSE_FRIEND', { userBId: userBId })
+                socket.emit('CLIENT_REFUSE_FRIEND', { 
+                    userBId: userBId, 
+                    userId: userId, 
+                    fullName: userName 
+                })
                 
                 // Update UI immediately
                 button.closest('.col-6').remove()
@@ -97,6 +118,7 @@ if(dataUsersAccept) {
 const dataUsersFriends = document.querySelector('[data-users-friends]')
 if(dataUsersFriends) {
     const userId = dataUsersFriends.getAttribute('data-users-friends')
+    const userName = dataUsersFriends.getAttribute('data-user-name')
     
     const listBtnDeleteFriend = dataUsersFriends.querySelectorAll('[button-delete-friend]')
     if(listBtnDeleteFriend.length > 0) {
@@ -106,7 +128,11 @@ if(dataUsersFriends) {
                 
                 if(confirm('Bạn có chắc chắn muốn xóa bạn bè này?')) {
                     // Emit Socket.io event only
-                    socket.emit('CLIENT_DELETE_FRIEND', { userBId: userBId })
+                    socket.emit('CLIENT_DELETE_FRIEND', { 
+                        userBId: userBId, 
+                        userId: userId, 
+                        fullName: userName 
+                    })
                     
                     // Update UI immediately
                     button.closest('.col-6').remove()
@@ -203,6 +229,57 @@ socket.on('SERVER_FRIEND_ACCEPTED', (data) => {
         new Notification('Kết bạn thành công', {
             body: `${data.userAName} đã chấp nhận lời mời kết bạn của bạn`,
             icon: '/images/avatar.jpg'
+        })
+    }
+})
+
+// Listen for friend accepted - remove from not-friend list
+socket.on('Server_Return_Friend_Accepted', (data) => {
+    console.log(`${data.infoUserB.fullName} đã chấp nhận lời mời kết bạn của bạn`)
+    
+    // Xóa user khỏi danh sách not-friend nếu đang ở trang đó
+    const usersNotFriend = document.querySelector('[data-users-not-friend]')
+    if(usersNotFriend) {
+        const userId = usersNotFriend.getAttribute('data-users-not-friend')
+        if(userId === data.userId) {
+            const boxUser = usersNotFriend.querySelector(`[user-id="${data.userIdB}"]`)
+            if(boxUser) {
+                // Tạo hiệu ứng fade out trước khi xóa
+                boxUser.style.transition = 'opacity 0.3s ease, transform 0.3s ease'
+                boxUser.style.opacity = '0'
+                boxUser.style.transform = 'translateX(-20px)'
+                
+                setTimeout(() => {
+                    usersNotFriend.removeChild(boxUser)
+                }, 300)
+            }
+        }
+    }
+
+    // Xóa user khỏi danh sách request nếu đang ở trang đó
+    const usersRequest = document.querySelector('[data-users-request]')
+    if(usersRequest) {
+        const userId = usersRequest.getAttribute('data-users-request')
+        if(userId === data.userId) {
+            const boxUser = usersRequest.querySelector(`[user-id="${data.userIdB}"]`)
+            if(boxUser) {
+                // Tạo hiệu ứng fade out trước khi xóa
+                boxUser.style.transition = 'opacity 0.3s ease, transform 0.3s ease'
+                boxUser.style.opacity = '0'
+                boxUser.style.transform = 'translateX(-20px)'
+                
+                setTimeout(() => {
+                    usersRequest.removeChild(boxUser)
+                }, 300)
+            }
+        }
+    }
+    
+    // Show notification
+    if(window.Notification && Notification.permission === 'granted') {
+        new Notification('Kết bạn thành công', {
+            body: `${data.infoUserB.fullName} đã chấp nhận lời mời kết bạn của bạn`,
+            icon: data.infoUserB.avatar || '/images/avatar.jpg'
         })
     }
 })

@@ -3,11 +3,18 @@ import RoomChat from '../../models/room-chat.model.js'
 import User from '../../models/user.model.js'
 import { uploadToCloudinary } from '../../helpers/uploadToCloudinary.js'
 
-export default async (res) => {
-    const userId = res.locals.user.id
-    const fullName = res.locals.user.fullName
+// Track if socket handlers are already set up
+let socketHandlersInitialized = false
 
-    _io.once('connection', (socket) => {
+export default async () => {
+    // Only initialize socket handlers once
+    if (socketHandlersInitialized) {
+        return
+    }
+    
+    socketHandlersInitialized = true
+
+    _io.on('connection', (socket) => {
         
         // Join room khi user vào chat detail
         socket.on('CLIENT_JOIN_ROOM', (roomChatId) => {
@@ -21,6 +28,13 @@ export default async (res) => {
 
         socket.on('Client_Send_Message', async (data) => {
             const roomChatId = data.roomChatId
+            const userId = data.userId
+            const fullName = data.fullName
+            
+            if (!userId || !fullName) {
+                socket.emit('error', { message: 'User information missing' })
+                return
+            }
             
             // Kiểm tra quyền gửi tin nhắn trong room
             const room = await RoomChat.findOne({
@@ -36,7 +50,7 @@ export default async (res) => {
             let images = []
             for(const image of data.images) {
                 const link = await uploadToCloudinary(image)
-                images.push(link)
+                images.push(link.url)  // Chỉ lưu URL thay vì toàn bộ object
             }
             
             const chat = new Chat({
@@ -57,6 +71,12 @@ export default async (res) => {
 
         socket.on('Client_Send_Typing', (data) => {
             const roomChatId = data.roomChatId
+            const userId = data.userId
+            const fullName = data.fullName
+            
+            if (!userId || !fullName) {
+                return
+            }
             
             socket.to(roomChatId).emit('Server_Return_Typing', {
                 userId: userId,
@@ -71,6 +91,16 @@ export default async (res) => {
         socket.on('CLIENT_ADD_FRIEND', async (data) => {
             try {
                 const userBId = data.userBId
+                const userId = data.userId
+                const fullName = data.fullName
+                
+                if (!userId || !fullName) {
+                    socket.emit('SERVER_ADD_FRIEND_ERROR', {
+                        code: 400,
+                        message: 'User information missing!'
+                    })
+                    return
+                }
 
                 const existUserB = await User.findOne({
                     _id: userBId,
@@ -135,6 +165,16 @@ export default async (res) => {
         socket.on('CLIENT_ACCEPT_FRIEND', async (data) => {
             try {
                 const userBId = data.userBId
+                const userId = data.userId
+                const fullName = data.fullName
+                
+                if (!userId || !fullName) {
+                    socket.emit('SERVER_ACCEPT_FRIEND_ERROR', {
+                        code: 400,
+                        message: 'User information missing!'
+                    })
+                    return
+                }
 
                 const existUserB = await User.findOne({
                     _id: userBId,
@@ -143,62 +183,103 @@ export default async (res) => {
                 })
 
                 if(existUserB) {
-                    // Tạo room chat mới cho 2 người
-                    const roomChat = new RoomChat({
+                    // Kiểm tra xem đã có room chat giữa 2 người này chưa
+                    let existingRoom = await RoomChat.findOne({
                         typeRoom: "friend",
-                        users: [
-                            {
-                                user_id: userId,
-                                role: "superAdmin"
-                            },
-                            {
-                                user_id: userBId,
-                                role: "superAdmin"
-                            }
-                        ]
+                        "users.user_id": { $all: [userId, userBId] },
+                        deleted: false
                     })
 
-                    await roomChat.save()
+                    let roomChatId;
 
-                    // Cập nhật friendList cho cả 2 user
-                    await User.updateOne(
-                        { _id: userId },
-                        {
-                            $push: {
-                                friendList: {
-                                    user_id: userBId,
-                                    room_chat_id: roomChat.id
-                                }
-                            },
-                            $pull: { acceptFriend: userBId }
-                        }
-                    )
-
-                    await User.updateOne(
-                        { _id: userBId },
-                        {
-                            $push: {
-                                friendList: {
+                    if(existingRoom) {
+                        // Nếu đã có room chat, sử dụng room đó
+                        roomChatId = existingRoom._id
+                        console.log('Sử dụng room chat đã tồn tại:', roomChatId)
+                    } else {
+                        // Nếu chưa có, tạo room chat mới
+                        const roomChat = new RoomChat({
+                            typeRoom: "friend",
+                            users: [
+                                {
                                     user_id: userId,
-                                    room_chat_id: roomChat.id
+                                    role: "superAdmin"
+                                },
+                                {
+                                    user_id: userBId,
+                                    role: "superAdmin"
                                 }
-                            },
-                            $pull: { requestFriend: userId }
-                        }
-                    )
+                            ]
+                        })
+
+                        await roomChat.save()
+                        roomChatId = roomChat._id
+                        console.log('Tạo room chat mới:', roomChatId)
+                    }
+
+                    // Kiểm tra xem người dùng đã có trong friendList chưa
+                    const userA = await User.findById(userId)
+                    const userB = await User.findById(userBId)
+
+                    const friendExistInA = userA.friendList.some(friend => friend.user_id === userBId)
+                    const friendExistInB = userB.friendList.some(friend => friend.user_id === userId)
+
+                    // Cập nhật friendList cho user A nếu chưa có
+                    if(!friendExistInA) {
+                        await User.updateOne(
+                            { _id: userId },
+                            {
+                                $push: {
+                                    friendList: {
+                                        user_id: userBId,
+                                        room_chat_id: roomChatId
+                                    }
+                                },
+                                $pull: { acceptFriend: userBId }
+                            }
+                        )
+                    } else {
+                        // Chỉ xóa khỏi acceptFriend nếu đã có trong friendList
+                        await User.updateOne(
+                            { _id: userId },
+                            { $pull: { acceptFriend: userBId } }
+                        )
+                    }
+
+                    // Cập nhật friendList cho user B nếu chưa có
+                    if(!friendExistInB) {
+                        await User.updateOne(
+                            { _id: userBId },
+                            {
+                                $push: {
+                                    friendList: {
+                                        user_id: userId,
+                                        room_chat_id: roomChatId
+                                    }
+                                },
+                                $pull: { requestFriend: userId }
+                            }
+                        )
+                    } else {
+                        // Chỉ xóa khỏi requestFriend nếu đã có trong friendList
+                        await User.updateOne(
+                            { _id: userBId },
+                            { $pull: { requestFriend: userId } }
+                        )
+                    }
 
                     // Emit to both users
                     socket.emit('SERVER_ACCEPT_FRIEND_SUCCESS', {
                         code: 200,
                         message: 'Chấp nhận kết bạn thành công!',
                         userBId: userBId,
-                        roomChatId: roomChat.id
+                        roomChatId: roomChatId
                     })
 
                     socket.broadcast.emit('SERVER_FRIEND_ACCEPTED', {
                         userAId: userId,
                         userAName: fullName,
-                        roomChatId: roomChat.id
+                        roomChatId: roomChatId
                     })
 
                 } else {
@@ -219,6 +300,16 @@ export default async (res) => {
         socket.on('CLIENT_REFUSE_FRIEND', async (data) => {
             try {
                 const userBId = data.userBId
+                const userId = data.userId
+                const fullName = data.fullName
+                
+                if (!userId || !fullName) {
+                    socket.emit('SERVER_REFUSE_FRIEND_ERROR', {
+                        code: 400,
+                        message: 'User information missing!'
+                    })
+                    return
+                }
 
                 const existUserB = await User.findOne({
                     _id: userBId,
@@ -270,6 +361,16 @@ export default async (res) => {
         socket.on('CLIENT_CANCEL_FRIEND', async (data) => {
             try {
                 const userBId = data.userBId
+                const userId = data.userId
+                const fullName = data.fullName
+                
+                if (!userId || !fullName) {
+                    socket.emit('SERVER_CANCEL_FRIEND_ERROR', {
+                        code: 400,
+                        message: 'User information missing!'
+                    })
+                    return
+                }
 
                 const existUserB = await User.findOne({
                     _id: userBId,
@@ -321,6 +422,16 @@ export default async (res) => {
         socket.on('CLIENT_DELETE_FRIEND', async (data) => {
             try {
                 const userBId = data.userBId
+                const userId = data.userId
+                const fullName = data.fullName
+                
+                if (!userId || !fullName) {
+                    socket.emit('SERVER_DELETE_FRIEND_ERROR', {
+                        code: 400,
+                        message: 'User information missing!'
+                    })
+                    return
+                }
 
                 const existUserB = await User.findOne({
                     _id: userBId,
