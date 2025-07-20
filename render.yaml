@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: products-management
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGGO_URL
+        fromDatabase:
+          name: products-management-db
+          property: connectionString
+      - key: CLOUD_NAME
+        sync: false
+      - key: CLOUD_KEY
+        sync: false
+      - key: CLOUD_SECRET
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+    domains:
+      - products-management.onrender.com
+
+databases:
+  - name: products-management-db
+    databaseName: products_management
+    user: admin
