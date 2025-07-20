@@ -128,16 +128,33 @@ export async function category(req, res) {
 
     const listCategorieId = listCategorie.map(item => item.id)
 
-    const products = await Product.find({
+    const find = {
         deleted: false,
         status: 'active',
         product_category_id: { $in: [category.id, ...listCategorieId] }
-    }).sort({ position: "desc" })
+    }
+
+    // Phân trang 
+    const countProducts = await Product.countDocuments(find)
+
+    let objectPangination = paginationHelper(
+        {
+            currentPage: 1,
+            limitItems: 8
+        },
+        req.query,
+        countProducts
+    )
+    //
+
+    const products = await Product.find(find).limit(objectPangination.limitItems).skip(objectPangination.skip).sort({ position: "desc" })
 
     const newProducts = priceNew(products)
+
     res.render('client/pages/products/index', {
         title: category.title,
-        products: newProducts
+        products: newProducts,
+        pagination: objectPangination
     })
 }
 

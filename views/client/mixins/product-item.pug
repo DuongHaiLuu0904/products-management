@@ -1,12 +1,11 @@
 mixin product-item(item)
-    .product-item 
+    a.product-item(href=`/products/detail/${item.slug}`)
         .inner-image 
             img(src=item.thumbnail, alt=item.title)
             if(item.featured == "1")
                 .inner-featured Nổi bật 
         .inner-content
-            h3.inner-title 
-                a(href=`/products/detail/${item.slug}`) #{item.title}
+            h3.inner-title #{item.title}
             p.inner-price-new #{formatCurrency(item.priceNew)}
             .inner-price-old #{formatCurrency(item.price)}
             .inner-discount #{item.discountPercentage}% OFF
