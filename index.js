@@ -112,10 +112,9 @@ server.listen(port, () => {
     // Cleanup ban đầu sau 10 giây để đảm bảo database đã kết nối
     setTimeout(async () => {
         try {
-            const result = await cleanupExpiredTokens();
-            console.log('Initial token cleanup completed:', result);
+            await cleanupExpiredTokens();
         } catch (error) {
             console.error('Initial token cleanup failed:', error.message);
         }
-    }, 10000); // Wait 10 seconds after startup
+    }, 10000); 
 })

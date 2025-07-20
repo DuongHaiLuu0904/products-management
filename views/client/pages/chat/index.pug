@@ -1,7 +1,5 @@
 extends  ../../layouts/default.pug
 include ../../mixins/box-head.pug
-include ../../mixins/product-layout.pug
-include ../../mixins/pagination.pug
 
 block main 
     .container.my-3 
@@ -13,51 +11,37 @@ block main
         
         .row 
             .col-12 
-                .chat.chat-container(my-id=user.id)
-                    .inner-head
-                        .inner-info
-                            .inner-status Trò chuyện trực tuyến
-                        .inner-actions
-                            button.btn-settings
-                                i.fa-solid.fa-sliders
-                    .inner-body 
-                        each chat in chats
-                            div(class=(chat.user.id === user.id ? 'inner-outgoing' : 'inner-incoming'))
-                                if(chat.user.id != user.id)
-                                    .inner-name  #{chat.user.fullName}
-                                if(chat.content)
-                                    .inner-content 
-                                        | #{chat.content}
-                                if(chat.images && chat.images.length > 0)
-                                    .inner-images
-                                        each image in chat.images
-                                            img(src=image, alt="Chat image" onclick=`openImagePreview('${image}')`)
-
-                        div(class="inner-list-typing")
-                            
-                    .inner-preview-images
-                        .custom-file-container(data-upload-id="upload-image")
-                            
-                    .inner-foot
-                       
-                        form(
-                            class="inner-form"
-                            action=""
-                        ) 
-                            input(type="text", name="content", placeholder="Nhập tin nhắn ....")
-                            
-                            span(class="button-icon") 
-                                i.fa-regular.fa-face-smile
-                            
-                            span(class="button-add-images")
-                                i.fa-solid.fa-image
-                                input(type="file" id="upload-image__upload-image" accept="image/*" multiple)
-                            
-                            button(type="submit")
-                                i.fa-solid.fa-paper-plane
-    
-    div(class="tooltip" role="tooltip")
-        emoji-picker
+                .chat-rooms
+                    if rooms && rooms.length > 0
+                        each room in rooms
+                            .room-item.border.rounded.p-3.mb-3
+                                .d-flex.align-items-center
+                                    .room-avatar.me-3
+                                        if room.friend && room.friend.avatar
+                                            img(src=room.friend.avatar, alt=room.friend.fullName, style="width:50px;height:50px;object-fit:cover;" class="rounded-circle")
+                                        else
+                                            .default-avatar.rounded-circle.d-flex.align-items-center.justify-content-center(style="width:50px;height:50px;background-color:#6c757d;color:white;")
+                                                i.fa-solid.fa-user
+                                    .room-info.flex-grow-1
+                                        .room-title.fw-bold
+                                            if room.friend
+                                                | #{room.friend.fullName}
+                                            else 
+                                                | Người dùng không xác định
+                                        .room-subtitle.text-muted.small
+                                            | Trò chuyện riêng
+                                    .room-actions
+                                        a.btn.btn-primary.btn-sm(href=`/chat/${room._id}`)
+                                            i.fa-solid.fa-comments.me-1
+                                            | Trò chuyện
+                    else 
+                        .text-center.py-5
+                            i.fa-solid.fa-comments.fa-3x.text-muted.mb-3
+                            h5.text-muted Chưa có cuộc trò chuyện nào
+                            p.text-muted Hãy kết bạn để bắt đầu trò chuyện!
+                            a.btn.btn-primary(href="/chat/not-friend")
+                                i.fa-solid.fa-user-plus.me-1
+                                | Tìm bạn bè
 
 block script
-    script(type="module", src="/js/chat.js")
+    script(type="module", src="/js/users.js")

@@ -1044,3 +1044,88 @@
         transform: scale(1);
     }
 }
+
+/* Back Button Styles */
+.chat-back-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 12px !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    color: #495057 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    margin-bottom: 15px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.chat-back-button:hover {
+    background-color: #e9ecef !important;
+    border-color: #adb5bd !important;
+    color: #212529 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    text-decoration: none !important;
+}
+
+.chat-back-button:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.chat-back-button i {
+    margin-right: 6px !important;
+    font-size: 13px !important;
+    transition: transform 0.3s ease !important;
+}
+
+.chat-back-button:hover i {
+    transform: translateX(-2px) !important;
+}
+
+/* Add ripple effect */
+.chat-back-button::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 0 !important;
+    height: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.1) !important;
+    transform: translate(-50%, -50%) !important;
+    transition: width 0.3s ease, height 0.3s ease !important;
+}
+
+.chat-back-button:active::before {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+/* Responsive design for back button */
+@media (max-width: 768px) {
+    .chat-back-button {
+        padding: 6px 10px !important;
+        font-size: 13px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .chat-back-button i {
+        font-size: 12px !important;
+        margin-right: 4px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-back-button {
+        padding: 5px 8px !important;
+        font-size: 12px !important;
+        border-radius: 6px !important;
+    }
+}

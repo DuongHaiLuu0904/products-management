@@ -9,11 +9,10 @@ block main
             .col-12 
                 +box-head(title)
 
-        .row 
-            .col-6 
-                
-                each user in users
-                    div(class='box-user add')
+        .row(data-users-accept=user.id)
+            each user in users
+                .col-6(user-id=user.id)
+                    div(class='box-user')
                         div(class='inner-avatar')
                             img(
                                 src=(user.avatar ? user.avatar : '/images/avatar.jpg')
@@ -24,16 +23,16 @@ block main
                             div(class='inner-buttons') 
                                 button(
                                     class='btn btn-primary btn-sm m-1'
-                                    button-add-friend=user.id
+                                    button-accept-friend=user.id
                                 )
-                                    i.fa-solid.fa-user-plus
-                                    | Kết bạn
+                                    i.fa-solid.fa-user-check
+                                    | Chấp nhận
                                 button(
                                     class='btn btn-secondary btn-sm m-1'
-                                    button-cancel-friend=user.id
+                                    button-refuse-friend=user.id
                                 )
                                     i.fa-solid.fa-xmark
-                                    | Hủy 
+                                    | Từ chối
 
 block script
-    script(src="/js/users.js")
+    script(type="module", src="/js/users.js")

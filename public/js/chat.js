@@ -1,5 +1,21 @@
 import * as Popper from 'https://cdn.jsdelivr.net/npm/@popperjs/core@^2/dist/esm/index.js'
 
+// Lấy roomChatId từ DOM
+const chatContainer = document.querySelector('.chat-container')
+const roomChatId = chatContainer ? chatContainer.getAttribute('room-chat-id') : null
+
+// Join room khi vào trang
+if(roomChatId) {
+    socket.emit('CLIENT_JOIN_ROOM', roomChatId)
+}
+
+// Leave room khi rời trang
+window.addEventListener('beforeunload', () => {
+    if(roomChatId) {
+        socket.emit('CLIENT_LEAVE_ROOM', roomChatId)
+    }
+})
+
 // Khởi tạo FileUploadWithPreview với các tùy chọn cải tiến
 const upload = new FileUploadWithPreview.FileUploadWithPreview('upload-image', {
     multiple: true,
@@ -63,7 +79,8 @@ if(formSendData) {
             // Gửi tin nhắn và ảnh lên server 
             socket.emit('Client_Send_Message', {
                 content: content,
-                images: images
+                images: images,
+                roomChatId: roomChatId
             })
             
             // Xóa nội dung input và reset file upload
@@ -76,7 +93,10 @@ if(formSendData) {
             }
             
             // Reset trạng thái typing
-            socket.emit('Client_Send_Typing', 'hidden')
+            socket.emit('Client_Send_Typing', {
+                type: 'hidden',
+                roomChatId: roomChatId
+            })
             clearTimeout(timeOut)
             
             scrollToBottom()
@@ -139,13 +159,19 @@ var timeOut
 const showTyping = () => {
     const input = document.querySelector('.chat-container .inner-form input[name="content"]')
     // Chỉ hiển thị đang gõ khi có nội dung
-    if(input && input.value.trim()) {
-        socket.emit('Client_Send_Typing', 'show')
+    if(input && input.value.trim() && roomChatId) {
+        socket.emit('Client_Send_Typing', {
+            type: 'show',
+            roomChatId: roomChatId
+        })
 
         clearTimeout(timeOut)
 
         timeOut = setTimeout(() => {
-            socket.emit('Client_Send_Typing', 'hidden')
+            socket.emit('Client_Send_Typing', {
+                type: 'hidden',
+                roomChatId: roomChatId
+            })
         }, 3000)
     }
 }

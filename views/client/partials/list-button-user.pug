@@ -1,29 +1,35 @@
 .row 
     .col-12 
         a(
-            href="/users/not-friend"
+            href="/chat"
+            class="btn btn-success m-1"
+        )
+            i.fa-solid.fa-comments
+            |  Trò chuyện
+        a(
+            href="/chat/not-friend"
             class="btn btn-primary m-1"
         )
             i.fa-solid.fa-user-plus
-            | Danh sách người dùng 
+            |  Danh sách người dùng 
         a(
-            href="/users/friend"
+            href="/chat/friends"
             class="btn btn-primary m-1"
         )
             i.fa-solid.fa-user-friends
-            | Danh sách bạn bè
+            |  Danh sách bạn bè
         a(
-            href="/users/request"
+            href="/chat/request"
             class="btn btn-primary m-1"
         )
             i.fa-solid.fa-user-clock
-            | Lời mời đã gửi
+            |  Lời mời đã gửi
         a(
-            href="/users/accept"
+            href="/chat/accept"
             class="btn btn-primary m-1"
         )
             i.fa-solid.fa-user-check
-            | Lời mời kết bạn
+            |  Lời mời kết bạn
             span(
                 class="badge badge-light m-1"
                 badge-users-accept=user.id

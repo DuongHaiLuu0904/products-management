@@ -1,58 +1,245 @@
-// chức năng gửi yêu cầu kết bạn
-const listBtnAddFriend = document.querySelectorAll('[button-add-friend]')
-if (listBtnAddFriend.length > 0) {
-    listBtnAddFriend.forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('.box-user').classList.add('add')
-
-            const userId = btn.getAttribute('button-add-friend')
-
-            socket.emit('Client_Add_Friend', userId)
+// Kết bạn
+const dataUsersNotFriend = document.querySelector('[data-users-not-friend]')
+if(dataUsersNotFriend) {
+    const userId = dataUsersNotFriend.getAttribute('data-users-not-friend')
+    
+    const listBtnAddFriend = dataUsersNotFriend.querySelectorAll('[button-add-friend]')
+    if(listBtnAddFriend.length > 0) {
+        listBtnAddFriend.forEach(button => {
+            button.addEventListener('click', () => {
+                const userBId = button.getAttribute('button-add-friend')
+                
+                // Emit Socket.io event only
+                socket.emit('CLIENT_ADD_FRIEND', { userBId: userBId })
+                
+                // Update UI immediately for better UX
+                button.innerHTML = '<i class="fa-solid fa-clock"></i> Đã gửi'
+                button.disabled = true
+                button.classList.remove('btn-primary')
+                button.classList.add('btn-warning')
+            })
         })
-    })
+    }
 }
 
-// chức năng hủy yêu cầu kết bạn
-const listBtnCancelFriend = document.querySelectorAll('[button-cancel-friend]')
-if (listBtnCancelFriend.length > 0) {
-    listBtnCancelFriend.forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('.box-user').classList.remove('add')
-
-            const userId = btn.getAttribute('button-cancel-friend')
-            console.log(userId)
-
-            socket.emit('Client_Cancel_Friend', userId)
+// Hủy lời mời kết bạn
+const dataUsersRequest = document.querySelector('[data-users-request]')
+if(dataUsersRequest) {
+    const userId = dataUsersRequest.getAttribute('data-users-request')
+    
+    const listBtnCancelFriend = dataUsersRequest.querySelectorAll('[button-cancel-friend]')
+    if(listBtnCancelFriend.length > 0) {
+        listBtnCancelFriend.forEach(button => {
+            button.addEventListener('click', () => {
+                const userBId = button.getAttribute('button-cancel-friend')
+                
+                // Emit Socket.io event only
+                socket.emit('CLIENT_CANCEL_FRIEND', { userBId: userBId })
+                
+                // Update UI immediately
+                button.closest('.col-6').remove()
+            })
         })
-    })
+    }
 }
 
-// chức năng chấp nhận yêu cầu kết bạn
-const listBtnAcceptFriend = document.querySelectorAll('[button-accept-friend]')
-if (listBtnAcceptFriend.length > 0) {
-    listBtnAcceptFriend.forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('.box-user').classList.add('accepted')
-
-            const userId = btn.getAttribute('button-accept-friend')
-
-            socket.emit('Client_Accept_Friend', userId)
+// Chấp nhận kết bạn
+const dataUsersAccept = document.querySelector('[data-users-accept]')
+if(dataUsersAccept) {
+    const userId = dataUsersAccept.getAttribute('data-users-accept')
+    
+    const listBtnAcceptFriend = dataUsersAccept.querySelectorAll('[button-accept-friend]')
+    if(listBtnAcceptFriend.length > 0) {
+        listBtnAcceptFriend.forEach(button => {
+            button.addEventListener('click', () => {
+                const userBId = button.getAttribute('button-accept-friend')
+                
+                // Emit Socket.io event only
+                socket.emit('CLIENT_ACCEPT_FRIEND', { userBId: userBId })
+                
+                // Update UI immediately
+                button.closest('.col-6').remove()
+                
+                // Cập nhật badge số lượng lời mời
+                const badgeUsersAccept = document.querySelector('[badge-users-accept]')
+                if(badgeUsersAccept) {
+                    const currentCount = parseInt(badgeUsersAccept.innerText) || 0
+                    badgeUsersAccept.innerText = Math.max(0, currentCount - 1)
+                }
+            })
         })
-    })
+    }
+
+    const listBtnRefuseFriend = dataUsersAccept.querySelectorAll('[button-refuse-friend]')
+    if(listBtnRefuseFriend.length > 0) {
+        listBtnRefuseFriend.forEach(button => {
+            button.addEventListener('click', () => {
+                const userBId = button.getAttribute('button-refuse-friend')
+                
+                // Emit Socket.io event only
+                socket.emit('CLIENT_REFUSE_FRIEND', { userBId: userBId })
+                
+                // Update UI immediately
+                button.closest('.col-6').remove()
+                
+                // Cập nhật badge số lượng lời mời
+                const badgeUsersAccept = document.querySelector('[badge-users-accept]')
+                if(badgeUsersAccept) {
+                    const currentCount = parseInt(badgeUsersAccept.innerText) || 0
+                    badgeUsersAccept.innerText = Math.max(0, currentCount - 1)
+                }
+            })
+        })
+    }
 }
 
-// chức năng từ chối yêu cầu kết bạn
-const listBtnRefuseFriend = document.querySelectorAll('[button-refuse-friend]')
-if (listBtnRefuseFriend.length > 0) {
-    listBtnRefuseFriend.forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('.box-user').classList.add('refuse')
-
-            const userId = btn.getAttribute('button-refuse-friend')
-
-            socket.emit('Client_Refuse_Friend', userId)
+// Xóa bạn bè
+const dataUsersFriends = document.querySelector('[data-users-friends]')
+if(dataUsersFriends) {
+    const userId = dataUsersFriends.getAttribute('data-users-friends')
+    
+    const listBtnDeleteFriend = dataUsersFriends.querySelectorAll('[button-delete-friend]')
+    if(listBtnDeleteFriend.length > 0) {
+        listBtnDeleteFriend.forEach(button => {
+            button.addEventListener('click', () => {
+                const userBId = button.getAttribute('button-delete-friend')
+                
+                if(confirm('Bạn có chắc chắn muốn xóa bạn bè này?')) {
+                    // Emit Socket.io event only
+                    socket.emit('CLIENT_DELETE_FRIEND', { userBId: userBId })
+                    
+                    // Update UI immediately
+                    button.closest('.col-6').remove()
+                }
+            })
         })
-    })
+    }
+}
+
+// ===== SOCKET.IO EVENT LISTENERS FOR REALTIME UPDATES =====
+
+// Listen for add friend responses
+socket.on('SERVER_ADD_FRIEND_SUCCESS', (data) => {
+    console.log(data.message)
+    // Additional UI updates can be added here
+})
+
+socket.on('SERVER_ADD_FRIEND_ERROR', (data) => {
+    console.error(data.message)
+    alert(data.message)
+})
+
+// Listen for accept friend responses  
+socket.on('SERVER_ACCEPT_FRIEND_SUCCESS', (data) => {
+    console.log(data.message)
+    // Redirect to chat with new friend
+    if(data.roomChatId) {
+        // Could redirect to chat room or show success message
+        console.log('New chat room created:', data.roomChatId)
+    }
+})
+
+socket.on('SERVER_ACCEPT_FRIEND_ERROR', (data) => {
+    console.error(data.message)
+    alert(data.message)
+})
+
+// Listen for refuse friend responses
+socket.on('SERVER_REFUSE_FRIEND_SUCCESS', (data) => {
+    console.log(data.message)
+})
+
+socket.on('SERVER_REFUSE_FRIEND_ERROR', (data) => {
+    console.error(data.message)
+    alert(data.message)
+})
+
+// Listen for cancel friend responses
+socket.on('SERVER_CANCEL_FRIEND_SUCCESS', (data) => {
+    console.log(data.message)
+})
+
+socket.on('SERVER_CANCEL_FRIEND_ERROR', (data) => {
+    console.error(data.message)
+    alert(data.message)
+})
+
+// Listen for delete friend responses
+socket.on('SERVER_DELETE_FRIEND_SUCCESS', (data) => {
+    console.log(data.message)
+})
+
+socket.on('SERVER_DELETE_FRIEND_ERROR', (data) => {
+    console.error(data.message)
+    alert(data.message)
+})
+
+// Listen for incoming friend requests (realtime)
+socket.on('SERVER_RECEIVE_FRIEND_REQUEST', (data) => {
+    console.log(`Bạn nhận được lời mời kết bạn từ ${data.userAName}`)
+    
+    // Update badge count for accept friends
+    const badgeUsersAccept = document.querySelector('[badge-users-accept]')
+    if(badgeUsersAccept) {
+        const currentCount = parseInt(badgeUsersAccept.innerText) || 0
+        badgeUsersAccept.innerText = currentCount + 1
+    }
+    
+    // Show notification
+    if(window.Notification && Notification.permission === 'granted') {
+        new Notification('Lời mời kết bạn mới', {
+            body: `${data.userAName} đã gửi lời mời kết bạn cho bạn`,
+            icon: '/images/avatar.jpg'
+        })
+    }
+})
+
+// Listen for friend request accepted (realtime)
+socket.on('SERVER_FRIEND_ACCEPTED', (data) => {
+    console.log(`${data.userAName} đã chấp nhận lời mời kết bạn của bạn`)
+    
+    // Show notification
+    if(window.Notification && Notification.permission === 'granted') {
+        new Notification('Kết bạn thành công', {
+            body: `${data.userAName} đã chấp nhận lời mời kết bạn của bạn`,
+            icon: '/images/avatar.jpg'
+        })
+    }
+})
+
+// Listen for friend request refused (realtime)
+socket.on('SERVER_FRIEND_REFUSED', (data) => {
+    console.log(`${data.userAName} đã từ chối lời mời kết bạn của bạn`)
+})
+
+// Listen for friend request cancelled (realtime)
+socket.on('SERVER_FRIEND_REQUEST_CANCELLED', (data) => {
+    console.log(`${data.userAName} đã hủy lời mời kết bạn`)
+    
+    // Update badge count
+    const badgeUsersAccept = document.querySelector('[badge-users-accept]')
+    if(badgeUsersAccept) {
+        const currentCount = parseInt(badgeUsersAccept.innerText) || 0
+        badgeUsersAccept.innerText = Math.max(0, currentCount - 1)
+    }
+})
+
+// Listen for friend deleted (realtime)
+socket.on('SERVER_FRIEND_DELETED', (data) => {
+    console.log(`${data.userAName} đã xóa bạn khỏi danh sách bạn bè`)
+    
+    // Show notification
+    if(window.Notification && Notification.permission === 'granted') {
+        new Notification('Bạn bè đã bị xóa', {
+            body: `${data.userAName} đã xóa bạn khỏi danh sách bạn bè`,
+            icon: '/images/avatar.jpg'
+        })
+    }
+})
+
+// Request notification permission on page load
+if(window.Notification && Notification.permission === 'default') {
+    Notification.requestPermission()
 }
 
 // chức năng cập nhật số lượng người dùng trong danh sách acceptFriend

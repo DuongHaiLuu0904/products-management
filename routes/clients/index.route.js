@@ -5,7 +5,6 @@ import cartRoute from './cart.route.js'
 import checkoutRoute from './checkout.route.js'
 import userRoute from './user.route.js'
 import chatRoute from './chat.route.js'
-import usersRoute from './users.route.js'
 import commentRoute from './comment.route.js'
 import tokenRoute from './token.route.js'
 
@@ -37,8 +36,6 @@ export default (app) => {
     app.use('/user', userRoute)
 
     app.use('/chat', requireAuth, chatRoute)
-
-    app.use('/users', requireAuth, usersRoute)
 
     app.use('/comments', commentRoute)
     

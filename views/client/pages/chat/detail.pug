@@ -1,0 +1,70 @@
+extends  ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main 
+    .container.my-3 
+        include ../../partials/list-button-user.pug
+
+        .row 
+            .col-12 
+                .d-flex.align-items-center.justify-content-between.mb-3
+                    +box-head(title)
+                    a.btn.btn-outline-secondary.chat-back-button(href="/chat")
+                        i.fa-solid.fa-arrow-left
+                        span Quay lại
+        
+        .row 
+            .col-12 
+                .chat.chat-container(my-id=user.id, room-chat-id=roomChatId)
+                    .inner-head
+                        .inner-info.d-flex.align-items-center
+                            if friend.avatar
+                                img.me-2.rounded-circle(src=friend.avatar, alt=friend.fullName, style="width:40px;height:40px;object-fit:cover;")
+                            else
+                                .me-2.rounded-circle.d-flex.align-items-center.justify-content-center(style="width:40px;height:40px;background-color:#6c757d;color:white;")
+                                    i.fa-solid.fa-user
+                            .inner-status Chat với #{friend.fullName}
+                        .inner-actions
+                            button.btn-settings
+                                i.fa-solid.fa-sliders
+                    .inner-body 
+                        each chat in chats
+                            div(class=(chat.user_id === user.id ? 'inner-outgoing' : 'inner-incoming'))
+                                if(chat.user_id != user.id)
+                                    .inner-name  #{chat.user.fullName}
+                                if(chat.content)
+                                    .inner-content 
+                                        | #{chat.content}
+                                if(chat.images && chat.images.length > 0)
+                                    .inner-images
+                                        each image in chat.images
+                                            img(src=image, alt="Chat image" onclick=`openImagePreview('${image}')`)
+
+                        div(class="inner-list-typing")
+                            
+                    .inner-preview-images
+                        .custom-file-container(data-upload-id="upload-image")
+                            
+                    .inner-foot
+                       
+                        form(
+                            class="inner-form"
+                            action=""
+                        ) 
+                            input(type="text", name="content", placeholder="Nhập tin nhắn ...." autocomplete="off")
+                            
+                            span(class="button-icon") 
+                                i.fa-regular.fa-face-smile
+                            
+                            span(class="button-add-images")
+                                i.fa-solid.fa-image
+                                input(type="file" id="upload-image__upload-image" accept="image/*" multiple)
+                            
+                            button(type="submit")
+                                i.fa-solid.fa-paper-plane
+    
+    div(class="tooltip" role="tooltip")
+        emoji-picker
+
+block script
+    script(type="module", src="/js/chat.js")
