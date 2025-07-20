@@ -1,5 +1,4 @@
 import validator from 'validator';
-import xss from 'xss';
 import { 
     sanitizeAndValidate, 
     checkDangerousPatterns, 
@@ -8,13 +7,13 @@ import {
     validateObjectId
 } from './common.validate.js';
 
-// Cấu hình XSS filter nghiêm ngặt cho cart
-const cartXssOptions = {
-    whiteList: {}, // Không cho phép bất kỳ HTML tag nào
-    stripIgnoreTag: true,
-    stripIgnoreTagBody: ['script', 'style', 'iframe', 'object', 'embed'],
-    allowCommentTag: false,
-    escapeHtml: true
+// Helper function để redirect an toàn
+const safeRedirectBack = (req, res, defaultPath = '/') => {
+    const referer = req.get('Referrer') || req.get('Referer');
+    if (referer && referer.includes(req.get('host'))) {
+        return res.redirect(referer);
+    }
+    return res.redirect(defaultPath);
 };
 
 // Blacklist các productId đáng ngờ (có thể config từ database)
@@ -125,13 +124,7 @@ export const validateProductId = (productId) => {
         return { isValid: false, error: 'ID sản phẩm không hợp lệ!' };
     }
 
-    // Sanitize để tránh XSS
-    const sanitized = xss(productId, cartXssOptions);
-    if (sanitized !== productId) {
-        return { isValid: false, error: 'ID sản phẩm chứa ký tự không hợp lệ!' };
-    }
-
-    // Kiểm tra các pattern nguy hiểm
+    // Kiểm tra các pattern nguy hiểm (không cần XSS filter cho ObjectId)
     if (checkDangerousPatterns(productId)) {
         return { isValid: false, error: 'ID sản phẩm chứa nội dung nguy hiểm!' };
     }
@@ -162,23 +155,19 @@ export const validateQuantity = (quantity, options = {}) => {
     // Kiểm tra type và convert an toàn
     let numQuantity;
     if (typeof quantity === 'string') {
-        // Sanitize string trước khi parse
-        const sanitized = xss(quantity.trim(), cartXssOptions);
-        if (sanitized !== quantity.trim()) {
-            return { isValid: false, error: 'Số lượng chứa ký tự không hợp lệ!' };
-        }
-
+        const trimmed = quantity.trim();
+        
         // Kiểm tra pattern nguy hiểm
-        if (checkDangerousPatterns(sanitized)) {
+        if (checkDangerousPatterns(trimmed)) {
             return { isValid: false, error: 'Số lượng chứa nội dung nguy hiểm!' };
         }
 
         // Kiểm tra format số
-        if (!/^[0-9]+$/.test(sanitized)) {
+        if (!/^[0-9]+$/.test(trimmed)) {
             return { isValid: false, error: 'Số lượng phải là số nguyên dương!' };
         }
 
-        numQuantity = parseInt(sanitized, 10);
+        numQuantity = parseInt(trimmed, 10);
     } else if (typeof quantity === 'number') {
         numQuantity = quantity;
     } else {
@@ -420,7 +409,7 @@ export const validateCartAdd = async (req, res, next) => {
             });
             
             req.flash('error', 'Yêu cầu không hợp lệ!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Validate user auth
@@ -446,7 +435,7 @@ export const validateCartAdd = async (req, res, next) => {
             });
             
             req.flash('error', productIdValidation.error);
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Validate request body
@@ -465,7 +454,7 @@ export const validateCartAdd = async (req, res, next) => {
             });
             
             req.flash('error', bodyValidation.errors[0]);
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Additional security: Kiểm tra quantity không quá lớn
@@ -476,7 +465,7 @@ export const validateCartAdd = async (req, res, next) => {
                 productId: productIdValidation.value
             });
             req.flash('error', 'Số lượng quá lớn!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Gắn dữ liệu đã validate vào request
@@ -489,7 +478,7 @@ export const validateCartAdd = async (req, res, next) => {
         console.error('[CART SECURITY] Cart add validation error:', error);
         logSuspiciousActivity(req, 'VALIDATION_ERROR', { error: error.message });
         req.flash('error', 'Lỗi hệ thống!');
-        return res.redirect('back');
+        return safeRedirectBack(req, res);
     }
 };
 
@@ -508,7 +497,7 @@ export const validateCartDelete = async (req, res, next) => {
                 errors: requestValidation.errors
             });
             req.flash('error', 'Yêu cầu không hợp lệ!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Validate user auth
@@ -527,7 +516,7 @@ export const validateCartDelete = async (req, res, next) => {
                 error: productIdValidation.error
             });
             req.flash('error', productIdValidation.error);
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Gắn dữ liệu đã validate vào request
@@ -538,7 +527,7 @@ export const validateCartDelete = async (req, res, next) => {
     } catch (error) {
         console.error('[CART SECURITY] Cart delete validation error:', error);
         req.flash('error', 'Lỗi hệ thống!');
-        return res.redirect('back');
+        return safeRedirectBack(req, res);
     }
 };
 
@@ -558,7 +547,7 @@ export const validateCartUpdate = async (req, res, next) => {
                 errors: requestValidation.errors
             });
             req.flash('error', 'Yêu cầu không hợp lệ!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Validate user auth
@@ -577,7 +566,7 @@ export const validateCartUpdate = async (req, res, next) => {
                 error: productIdValidation.error
             });
             req.flash('error', productIdValidation.error);
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Validate quantity từ params
@@ -589,7 +578,7 @@ export const validateCartUpdate = async (req, res, next) => {
                 error: quantityValidation.error
             });
             req.flash('error', quantityValidation.error);
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Gắn dữ liệu đã validate vào request
@@ -601,7 +590,7 @@ export const validateCartUpdate = async (req, res, next) => {
     } catch (error) {
         console.error('[CART SECURITY] Cart update validation error:', error);
         req.flash('error', 'Lỗi hệ thống!');
-        return res.redirect('back');
+        return safeRedirectBack(req, res);
     }
 };
 

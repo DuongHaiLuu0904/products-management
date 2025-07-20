@@ -4,6 +4,15 @@ import Product from '../../models/product.model.js'
 import * as productHelper from '../../helpers/product.js'
 import { validateCartIntegrity } from '../../validates/client/cart.validate.js'
 
+// Helper function để redirect an toàn
+const safeRedirectBack = (req, res, defaultPath = '/cart') => {
+    const referer = req.get('Referrer') || req.get('Referer');
+    if (referer && referer.includes(req.get('host'))) {
+        return res.redirect(referer);
+    }
+    return res.redirect(defaultPath);
+};
+
 // [GET] /cart
 export const index = async (req, res) => {
     try {
@@ -70,18 +79,18 @@ export const addPost = async (req, res) => {
         const product = await Product.findById(productId);
         if (!product) {
             req.flash('error', 'Sản phẩm không tồn tại!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         if (product.status !== 'active') {
             req.flash('error', 'Sản phẩm không khả dụng!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Kiểm tra stock nếu có field này
         if (product.stock !== undefined && product.stock < quantity) {
             req.flash('error', 'Số lượng sản phẩm trong kho không đủ!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         let cart = await Cart.findOne({ 
@@ -100,7 +109,7 @@ export const addPost = async (req, res) => {
             const integrityCheck = validateCartIntegrity(cart);
             if (!integrityCheck.isValid) {
                 req.flash('error', 'Dữ liệu giỏ hàng không hợp lệ!');
-                return res.redirect('back');
+                return safeRedirectBack(req, res);
             }
         }
 
@@ -112,13 +121,13 @@ export const addPost = async (req, res) => {
             // Kiểm tra tổng số lượng không vượt quá giới hạn
             if (newQuantity > 100) {
                 req.flash('error', 'Tổng số lượng sản phẩm không được vượt quá 100!');
-                return res.redirect('back');
+                return safeRedirectBack(req, res);
             }
 
             // Kiểm tra stock cho tổng số lượng mới
             if (product.stock !== undefined && product.stock < newQuantity) {
                 req.flash('error', 'Số lượng sản phẩm trong kho không đủ!');
-                return res.redirect('back');
+                return safeRedirectBack(req, res);
             }
 
             existingProduct.quantity = newQuantity;
@@ -133,10 +142,10 @@ export const addPost = async (req, res) => {
 
         await cart.save();
 
-        res.redirect('back');
+        safeRedirectBack(req, res);
     } catch (error) {
         req.flash('error', 'Lỗi khi thêm sản phẩm vào giỏ hàng!');
-        return res.redirect('back');
+        return safeRedirectBack(req, res);
     }
 }
 
@@ -151,21 +160,21 @@ export const deleteProduct = async (req, res) => {
         const cart = await Cart.findOne({ user_id: userId });
         if (!cart) {
             req.flash('error', 'Giỏ hàng không tồn tại!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Validate cart integrity
         const integrityCheck = validateCartIntegrity(cart);
         if (!integrityCheck.isValid) {
             req.flash('error', 'Dữ liệu giỏ hàng không hợp lệ!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Kiểm tra sản phẩm có trong cart không
         const productExists = cart.products.some(product => product.product_id.toString() === productId);
         if (!productExists) {
             req.flash('error', 'Sản phẩm không có trong giỏ hàng!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         await Cart.updateOne(
@@ -174,10 +183,10 @@ export const deleteProduct = async (req, res) => {
         );
 
         req.flash('success', 'Xóa sản phẩm khỏi giỏ hàng thành công!');
-        res.redirect('back');
+        safeRedirectBack(req, res);
     } catch (error) {
         req.flash('error', 'Lỗi khi xóa sản phẩm khỏi giỏ hàng!');
-        return res.redirect('back');
+        return safeRedirectBack(req, res);
     }
 }
 
@@ -193,39 +202,39 @@ export const update = async (req, res) => {
         const cart = await Cart.findOne({ user_id: userId });
         if (!cart) {
             req.flash('error', 'Giỏ hàng không tồn tại!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Validate cart integrity
         const integrityCheck = validateCartIntegrity(cart);
         if (!integrityCheck.isValid) {
             req.flash('error', 'Dữ liệu giỏ hàng không hợp lệ!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Tìm sản phẩm trong cart
         const product = cart.products.find(p => p.product_id.toString() === productId);
         if (!product) {
             req.flash('error', 'Sản phẩm không có trong giỏ hàng!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Kiểm tra product có tồn tại trong database không
         const productInfo = await Product.findById(productId);
         if (!productInfo) {
             req.flash('error', 'Sản phẩm không tồn tại!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         if (productInfo.status !== 'active') {
             req.flash('error', 'Sản phẩm không khả dụng!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Kiểm tra stock nếu có
         if (productInfo.stock !== undefined && productInfo.stock < quantity) {
             req.flash('error', 'Số lượng sản phẩm trong kho không đủ!');
-            return res.redirect('back');
+            return safeRedirectBack(req, res);
         }
 
         // Cập nhật quantity
@@ -233,9 +242,9 @@ export const update = async (req, res) => {
         await cart.save();
 
         req.flash('success', 'Cập nhật số lượng sản phẩm thành công!');
-        res.redirect('back');
+        safeRedirectBack(req, res);
     } catch (error) {
         req.flash('error', 'Lỗi khi cập nhật số lượng sản phẩm!');
-        return res.redirect('back');
+        return safeRedirectBack(req, res);
     }
 }

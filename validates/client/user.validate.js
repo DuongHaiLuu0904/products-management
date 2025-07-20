@@ -15,8 +15,7 @@ const xssOptions = {
     whiteList: {}, // Không cho phép HTML tags
     stripIgnoreTag: true,
     stripIgnoreTagBody: ['script', 'style', 'iframe', 'object', 'embed'],
-    allowCommentTag: false,
-    escapeHtml: true
+    allowCommentTag: false
 };
 
 // Danh sách các field được phép cho từng endpoint

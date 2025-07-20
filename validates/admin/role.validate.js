@@ -59,7 +59,6 @@ const roleXssOptions = {
     stripIgnoreTag: true,
     stripIgnoreTagBody: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
     allowCommentTag: false,
-    escapeHtml: true,
     css: false // Không cho phép CSS
 };
 

@@ -7,8 +7,7 @@ const xssOptions = {
     whiteList: {}, // Không cho phép bất kỳ HTML tag nào
     stripIgnoreTag: true,
     stripIgnoreTagBody: ['script', 'style', 'iframe', 'object', 'embed'],
-    allowCommentTag: false,
-    escapeHtml: true
+    allowCommentTag: false
 };
 
 /**
@@ -337,9 +336,10 @@ export const validateOrderId = (orderId) => {
 /**
  * Validate toàn bộ request checkout
  * @param {object} req - Express request object
+ * @param {object} res - Express response object
  * @returns {object} {isValid: boolean, sanitizedData: object, errors: array}
  */
-export const validateCheckoutRequest = (req) => {
+export const validateCheckoutRequest = (req, res) => {
     const errors = [];
     const sanitizedData = {};
 
@@ -401,7 +401,7 @@ export const validateCheckoutRequest = (req) => {
 export const checkoutValidationMiddleware = (req, res, next) => {
     try {
         // Validate request cơ bản
-        const requestValidation = validateCheckoutRequest(req);
+        const requestValidation = validateCheckoutRequest(req, res);
         if (!requestValidation.isValid) {
             req.flash('error', requestValidation.errors.join(' '));
             return res.redirect('/checkout');

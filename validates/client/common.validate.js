@@ -6,8 +6,7 @@ const xssOptions = {
     whiteList: {}, // Không cho phép bất kỳ HTML tag nào
     stripIgnoreTag: true,
     stripIgnoreTagBody: ['script', 'style', 'iframe', 'object', 'embed'],
-    allowCommentTag: false,
-    escapeHtml: true
+    allowCommentTag: false
 };
 
 // Danh sách các pattern nguy hiểm cần kiểm tra cho client
