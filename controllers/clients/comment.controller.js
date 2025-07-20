@@ -1,5 +1,6 @@
 import Comment from '../../models/comment.model.js';
 import Product from '../../models/product.model.js';
+import CacheInvalidation from '../../helpers/cacheInvalidation.js';
 
 // [POST] /comments/create
 export async function createPost(req, res) {
@@ -49,6 +50,9 @@ export async function createPost(req, res) {
         });
 
         await comment.save();
+
+        // Invalidate cache liên quan đến comments và ratings
+        await CacheInvalidation.invalidateCommentCaches(product_id);
 
         req.flash('success', 'Bình luận của bạn đã được gửi thành công!');
         res.redirect('back');
@@ -108,6 +112,9 @@ export async function editPatch(req, res) {
             }
         );
 
+        // Invalidate cache liên quan đến comments và ratings
+        await CacheInvalidation.invalidateCommentCaches(comment.product_id);
+
         req.flash('success', 'Cập nhật bình luận thành công!');
         res.redirect('back');
     } catch (error) {
@@ -161,6 +168,9 @@ export async function deleteItem(req, res) {
                 }
             }
         );
+
+        // Invalidate cache liên quan đến comments và ratings
+        await CacheInvalidation.invalidateCommentCaches(comment.product_id);
 
         req.flash('success', 'Xóa bình luận thành công!');
         res.redirect('back');

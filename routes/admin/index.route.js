@@ -14,6 +14,7 @@ import settingRoute from './setting.route.js'
 import userRoute from './user.route.js'
 import commentRoute from './comment.route.js'
 import tokenRoute from './token.route.js'
+import cacheRoute from './cache.route.js'
 
 import { login } from '../../controllers/admin/auth.controller.js'
 
@@ -22,7 +23,6 @@ export default (app) => {
 
     app.get(PATH_ADMIN + '/', login)
 
-    // Apply auto refresh middleware to all admin routes
     app.use(PATH_ADMIN, autoRefreshToken)
 
     app.use(PATH_ADMIN + '/dashboard', reuireAuth, dashboardRoute)
@@ -46,4 +46,6 @@ export default (app) => {
     app.use(PATH_ADMIN + '/comments', reuireAuth, commentRoute)
     
     app.use(PATH_ADMIN + '/token', tokenRoute)
+    
+    app.use(PATH_ADMIN + '/cache', reuireAuth, cacheRoute)
 }

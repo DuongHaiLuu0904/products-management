@@ -18,10 +18,10 @@ export async function mongooseConnect() {
             // Connection management
             connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
         });
-        console.log('Connected to database');
+        console.log('Connected to MongoDB successfully');
         return true;
     } catch (error) {
-        console.log('Error connecting to database');
+        console.log('Error connecting to MongoDB successfully');
         console.log(error);
         return false;
     }

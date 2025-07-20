@@ -18,12 +18,16 @@ config()
 
 await import('./config/passport.js');
 import { cleanupExpiredTokens } from './helpers/tokenCleanup.js'
+import cacheCleanup from './helpers/cacheCleanup.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 import { mongooseConnect } from './config/database.js'
 await mongooseConnect();
+
+import { connectRedis } from './config/redis.js'
+await connectRedis();
 
 const { prefixAdmin } = await import('./config/system.js');
 
@@ -45,9 +49,7 @@ app.set('view engine', 'pug')
 const server = createServer(app);
 const io = new Server(server);
 global._io = io;
-
-// Increase max listeners to prevent warning
-io.setMaxListeners(0); // 0 means unlimited
+io.setMaxListeners(0); 
 
 // Initialize socket handlers once
 const chatSocket = await import('./socket/client/chat.socket.js');
@@ -76,12 +78,11 @@ app.use('/tinymce', express.static(join(__dirname, 'node_modules', 'tinymce')));
 
 app.use(express.static(`${__dirname}/public`))
 
+import formatCurrency from './helpers/formatCurrency.js'
 // app local variables
 app.locals.prefixAdmin = prefixAdmin
 app.locals.moment = moment
-app.locals.formatCurrency = function (num) {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' đ';
-};
+app.locals.formatCurrency = formatCurrency
 
 // router
 routerAdmin(app)
@@ -116,12 +117,28 @@ server.listen(port, () => {
         }
     }, 24 * 60 * 60 * 1000); // 24 hours
     
-    // Cleanup ban đầu sau 10 giây để đảm bảo database đã kết nối
+    // Cache cleanup mỗi 6 giờ (silent mode)
+    setInterval(async () => {
+        try {
+            const result = await cacheCleanup.comprehensiveCleanup({
+                maxAgeHours: 12, // Xóa cache cũ hơn 12 giờ
+                cleanOrphaned: true,
+                cleanExpired: true
+            });
+        } catch (error) {
+            // Silent cleanup - no logs
+        }
+    }, 6 * 60 * 60 * 1000); // 6 hours
+    
+    // Cleanup ban đầu sau 10 giây (silent mode)
     setTimeout(async () => {
         try {
             await cleanupExpiredTokens();
+            
+            // Initial cache cleanup (silent)
+            const cacheResult = await cacheCleanup.cleanupExpiredCache();
         } catch (error) {
-            console.error('Initial token cleanup failed:', error.message);
+            // Silent cleanup - no logs
         }
     }, 10000); 
 })

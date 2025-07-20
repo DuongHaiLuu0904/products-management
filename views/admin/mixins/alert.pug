@@ -15,3 +15,7 @@ mixin alert-error(time)
                 show-alert 
                 data-time=time
             ) #{messages.error} <span close-alert>&times</span>
+
+mixin alert-flash(time)
+    +alert-success(time)
+    +alert-error(time)

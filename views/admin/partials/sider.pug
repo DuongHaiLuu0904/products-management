@@ -57,3 +57,9 @@
                         i.fas.fa-cog
                         span Cài đặt chung
 
+            if(role.permissions.includes('setting'))
+                li 
+                    a(href=`${prefixAdmin}/cache`)
+                        i.fas.fa-memory
+                        span Quản lý Cache
+
